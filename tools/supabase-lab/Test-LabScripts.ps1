@@ -70,7 +70,7 @@ try {
     }
     if (-not $rejected) { throw 'Remote Docker endpoint accepted.' }
     $count++
-    $sample = Join-Path $fixture 'structure.sql.pending' 
+    $sample = Join-Path $fixture 'structure.sql.pending'
     '-- inert synthetic fixture; never executed' | Set-Content -LiteralPath $sample
     Assert-ReviewedFile $fixture 'structure.sql.pending' (Get-FileHash -LiteralPath $sample).Hash
     $count++
