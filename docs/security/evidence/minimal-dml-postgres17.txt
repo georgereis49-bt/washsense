@@ -1,0 +1,12 @@
+PASS: pending DML proposal is ACL-idempotent against real snapshot; no broadening
+PASS: extra permissive read policy blocks grant preparation without ACL drift
+PASS: missing reads restored with only evidenced column SELECT, not table SELECT or unused financial fields
+PASS: actual PostgreSQL RLS SELECT with synthetic claims hides foreign organizations/subscriptions/payments
+PASS: financial INSERT/UPDATE/DELETE and anonymous SELECT denied
+PASS: DML proposal composes with all three unchanged security proposals
+PASS: owner BYPASSRLS multiunit links/transfers allowed within organization; cross-organization changes denied
+PASS: no operational DML grant introduced to bypass permissions or organization guards
+PASS: conditional energy grants fail closed without reviewed baseline
+PASS: isolated versioned energy contract grants exactly service SELECT/INSERT/UPDATE
+BLOCKED: remote energy table/schema and Asaas/IoT backend contracts not supplied; no production approval
+PostgreSQL: 17.11 (Debian 17.11-1.pgdg13+2)

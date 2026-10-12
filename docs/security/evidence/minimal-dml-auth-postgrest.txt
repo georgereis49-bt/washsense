@@ -1,0 +1,13 @@
+PASS: reconstructed metadata; local superuser bootstrap (not production executor); actual GoTrue/PostgREST ready on inspected internal Docker IPs; no published ports
+PASS: real Auth signup/password login/JWT; incorrect password rejected
+PASS: real JWT/organization SELECT RLS; foreign rows hidden; dual membership sees exactly two orgs
+PASS: actual financial queries/embedded organization join, four roles and dual membership; foreign rows hidden
+PASS: SQL column-only grants support proven reads; financial writes/self-elevation/anonymous access denied
+PASS: unused financial column remains inaccessible when restoring only evidenced SELECT columns
+PASS: SELECT needed for real ON CONFLICT UPSERT even with return=minimal; absence yields 403/42501
+PASS: real service-role PostgREST energy UPSERT insert/update; DELETE and browser writes denied (versioned local schema only)
+BLOCKED: remote energy/Asaas/IoT functionality remains unverified; no calls to providers
+PASS: actual HTTP 403/42501 for operational SELECT/INSERT/UPDATE with preserved real grants
+BLOCKED: business writes/role DML matrix/service trigger via HTTP lack real DML grants; no grants fabricated
+PASS: real Auth logout revokes refresh session; access JWT expiry is a separate behavior
+PostgreSQL: 17.11 (Debian 17.11-1.pgdg13+2)
