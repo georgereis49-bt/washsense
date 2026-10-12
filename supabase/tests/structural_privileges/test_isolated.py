@@ -18,6 +18,7 @@ IMAGE = "postgres:17@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c2
 MIGRATION = (SECURITY / "20261012_harden_structural_privileges.sql.pending").read_text()
 PREFLIGHT = (SECURITY / "20261012_structural_privileges_preflight.sql").read_text()
 VERIFY = (SECURITY / "20261012_structural_privileges_verify.sql").read_text()
+DEFAULTS = (SECURITY / "20261012_harden_default_privileges.sql.pending").read_text()
 
 
 def docker(*args, **kwargs):
@@ -117,8 +118,11 @@ try:
     else:
         raise RuntimeError("Isolated PostgreSQL did not become ready")
     sql("CREATE ROLE anon; CREATE ROLE authenticated; "
-        "CREATE ROLE service_role BYPASSRLS; CREATE ROLE inherited_reader;")
+        "CREATE ROLE service_role BYPASSRLS; CREATE ROLE inherited_reader; "
+        "CREATE ROLE supabase_admin;")
     fixture("positive")
+    # Current MAINTAIN is not yet approved for removal; prove it is preserved.
+    sql("GRANT MAINTAIN ON machines TO anon, authenticated;", "positive")
     before_rows = rows("positive")
     before_metadata = invariant_metadata("positive")
     before_counts = readable_counts("positive")
@@ -175,6 +179,66 @@ try:
         # Membership is cluster-wide; isolate subsequent cases too.
         sql("REVOKE inherited_reader FROM authenticated; "
             "REVOKE authenticated FROM inherited_reader;")
+
+    def default_fixture(database):
+        fixture(database)
+        sql("CREATE SCHEMA outside_scope; "
+            "GRANT CREATE ON SCHEMA public, outside_scope TO supabase_admin;", database)
+        for creator in ["postgres", "supabase_admin"]:
+            sql(f"ALTER DEFAULT PRIVILEGES FOR ROLE {creator} IN SCHEMA public "
+                "GRANT ALL ON TABLES TO anon, authenticated, service_role; "
+                f"ALTER DEFAULT PRIVILEGES FOR ROLE {creator} "
+                "GRANT SELECT ON TABLES TO authenticated; "
+                f"ALTER DEFAULT PRIVILEGES FOR ROLE {creator} IN SCHEMA public "
+                "GRANT USAGE ON SEQUENCES TO authenticated; "
+                f"ALTER DEFAULT PRIVILEGES FOR ROLE {creator} IN SCHEMA public "
+                "GRANT EXECUTE ON FUNCTIONS TO service_role; "
+                f"ALTER DEFAULT PRIVILEGES FOR ROLE {creator} IN SCHEMA outside_scope "
+                "GRANT ALL ON TABLES TO anon, authenticated;", database)
+
+    default_fixture("future_defaults")
+    before_data = rows("future_defaults")
+    before_meta = invariant_metadata("future_defaults")
+    sql(DEFAULTS, "future_defaults")
+    assert rows("future_defaults") == before_data
+    assert invariant_metadata("future_defaults") == before_meta
+    for creator in ["postgres", "supabase_admin"]:
+        sql(f"SET ROLE {creator}; CREATE TABLE public.future_{creator} (id int); "
+            f"CREATE TABLE outside_scope.future_{creator} (id int); "
+            f"CREATE SEQUENCE public.future_seq_{creator}; "
+            f"CREATE FUNCTION public.future_fn_{creator}() RETURNS int "
+            "LANGUAGE sql AS 'SELECT 1';", "future_defaults")
+        for role in ["anon", "authenticated"]:
+            for priv in ["TRUNCATE", "TRIGGER", "REFERENCES", "MAINTAIN"]:
+                assert sql(f"SELECT has_table_privilege('{role}', 'public.future_{creator}', '{priv}');",
+                           "future_defaults").stdout.strip() == "f"
+                assert sql(f"SELECT has_table_privilege('{role}', 'outside_scope.future_{creator}', '{priv}');",
+                           "future_defaults").stdout.strip() == "t"
+            for priv in ["SELECT", "INSERT", "UPDATE", "DELETE"]:
+                assert sql(f"SELECT has_table_privilege('{role}', 'public.future_{creator}', '{priv}');",
+                           "future_defaults").stdout.strip() == "t"
+        assert sql(f"SELECT has_table_privilege('service_role', 'public.future_{creator}', 'MAINTAIN');",
+                   "future_defaults").stdout.strip() == "t"
+        assert sql(f"SELECT has_sequence_privilege('authenticated', 'public.future_seq_{creator}', 'USAGE'), "
+                   f"has_function_privilege('service_role', 'public.future_fn_{creator}()', 'EXECUTE');",
+                   "future_defaults").stdout.strip() == "t|t"
+    print("PASS: 16 future structural privileges absent; DML/service grants and outside schema preserved")
+    print("PASS: default draft preserves existing data, tables, RLS and ACLs")
+    for database, change, reason in [
+        ("global_defaults", "ALTER DEFAULT PRIVILEGES FOR ROLE postgres "
+         "GRANT TRUNCATE ON TABLES TO anon;", "Global structural defaults"),
+        ("missing_defaults", "ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public "
+         "REVOKE MAINTAIN ON TABLES FROM anon;", "Missing/drifted direct default"),
+        ("default_option", "ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public "
+         "GRANT TRIGGER ON TABLES TO authenticated WITH GRANT OPTION;", "Missing/drifted direct default"),
+    ]:
+        default_fixture(database)
+        sql(change, database)
+        before = sql(PREFLIGHT, database).stdout
+        failure = sql(DEFAULTS, database, succeeds=False)
+        assert reason in failure.stderr, failure.stderr
+        assert sql(PREFLIGHT, database).stdout == before
+        print("PASS: default draft refusal/rollback for", database)
     print("PostgreSQL:", sql("SHOW server_version;").stdout.strip())
 finally:
     # Remove only the uniquely named container created by this test.

@@ -80,7 +80,7 @@ BEGIN
       'allowed', has_table_privilege(r.oid, c.oid, p.name)) AS item
     FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     CROSS JOIN pg_roles r CROSS JOIN (VALUES ('SELECT'), ('INSERT'),
-      ('UPDATE'), ('DELETE'), ('TRUNCATE'), ('TRIGGER'), ('REFERENCES')) p(name)
+      ('UPDATE'), ('DELETE'), ('TRUNCATE'), ('TRIGGER'), ('REFERENCES'), ('MAINTAIN')) p(name)
     WHERE n.nspname = 'public' AND c.relname = ANY(targets)
       AND NOT (r.rolname IN ('anon', 'authenticated')
         AND p.name IN ('TRUNCATE', 'TRIGGER', 'REFERENCES'))
@@ -126,7 +126,7 @@ BEGIN
       'allowed', has_table_privilege(r.oid, c.oid, p.name)) AS item
     FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     CROSS JOIN pg_roles r CROSS JOIN (VALUES ('SELECT'), ('INSERT'),
-      ('UPDATE'), ('DELETE'), ('TRUNCATE'), ('TRIGGER'), ('REFERENCES')) p(name)
+      ('UPDATE'), ('DELETE'), ('TRUNCATE'), ('TRIGGER'), ('REFERENCES'), ('MAINTAIN')) p(name)
     WHERE n.nspname = 'public' AND c.relname = ANY(targets)
       AND NOT (r.rolname IN ('anon', 'authenticated')
         AND p.name IN ('TRUNCATE', 'TRIGGER', 'REFERENCES'))
