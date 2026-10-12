@@ -1,8 +1,9 @@
-# Etapa 3.9 — proposta de integridade multiunidade e autorização
+# Etapa 3.17 — auditoria consolidada e preparação Supabase local
 
 **Pendente de aprovação.** Nenhum SQL remoto, migration, deploy ou merge foi
 executado. Os rascunhos dos 152 privilégios permanecem intocados. Esta revisão
-altera apenas preparação SQL, preflight, testes sintéticos e este relatório.
+altera apenas documentação; SQL, preflight e testes anteriores não foram alterados.
+Base desta revisão: fb784c656f4fdc3f52d0ee04a801e72059f52497.
 
 ## Evidências e diferenças em relação à Etapa 3.6
 
@@ -25,6 +26,52 @@ A regra aprovada admite unidades diferentes na mesma organização. A proposta:
   outros triggers BEFORE, mesmo quando o campo protegido não consta do SET;
 - substitui a lacuna conhecida dos pais por uma proposta conservadora de
   imutabilidade da organização, ainda sujeita a aprovação operacional.
+
+## Evidências remotas consolidadas nesta etapa
+
+Fonte: resultados remotos informados pelo usuário em 12/10/2026. Não houve
+consulta remota nesta tarefa; os resultados não são medições executadas pelo agente.
+
+| Item | Confirmado | Interpretação e limite |
+|---|---|---|
+| Integridade | Zero registros inconsistentes em sensors e maintenance | Com ambas vazias, não valida integridade de futuras gravações nem concorrência |
+| Triggers | 66 triggers internos PostgreSQL, habilitados, nas seis tabelas; nenhum personalizado | São objetos internos, não os seis guards propostos; preservá-los. Não prova ausência de rotinas externas |
+| Índices | Relacionamentos principais indexados, exceto maintenance.device_id e maintenance.machine_id | Ausência pode afetar joins/CASCADE e locks em volume; medir antes de propor índices |
+| Volume | 1 unidade, 3 reservatórios; devices, machines, sensors e maintenance vazias | Não há cenário remoto multiunidade nem amostra representativa para desempenho |
+| Helpers | has_device_access, has_machine_access, has_reservoir_access e has_unit_access usam auth.uid() e organization_members; has_org_role verifica também papel | Membership não substitui autorização de ação; ACLs, ownership e corpos completos continuam importantes |
+| Configuração dos helpers | Todos SECURITY DEFINER, search_path=public | Configuração confirmada, exploração não comprovada |
+| Schema public | anon/authenticated/service_role têm USAGE, sem CREATE; postgres/supabase_admin têm USAGE e CREATE | Clientes não podem criar objetos em public diretamente. Verificar herança, outros schemas e RPCs privilegiadas |
+
+## Riscos remanescentes de funções privilegiadas
+
+SECURITY DEFINER executa com privilégios do proprietário: confirmar owner,
+BYPASSRLS/FORCE RLS, assinatura exata, SQL dinâmico e semântica do corpo completo.
+Não classificar o atributo isoladamente como vulnerabilidade explorável.
+
+search_path=public não é prova de injeção. A ausência de CREATE dos três papéis
+reduz o caminho de criação direta em public, mas não elimina criação indireta
+por RPC privilegiada, herança ou efeitos de nomes não qualificados. Revisar
+relações não qualificadas e pg_temp: o schema temporário pode preceder public
+na resolução de relações/tipos quando não explicitamente posicionado; isso
+exige capacidade de criar temporários e caminho de execução SQL, não se deve
+presumir acesso via PostgREST. pg_catalog é pesquisado implicitamente antes
+quando não explicitamente colocado. Revisar também overloads e funções chamadas.
+Uma mudança de search_path só poderá ser proposta após inspecionar o corpo e
+resolver nomes explicitamente; nada disso é alterado nesta etapa.
+
+EXECUTE pode vir de PUBLIC, grants diretos, memberships ou default privileges
+(um default não comprova ACL de função existente). Inspecionar proacl e
+has_function_privilege para assinaturas exatas, além de USAGE do schema e schemas
+expostos pelo PostgREST. EXECUTE permite invocação, mas a função ainda pode negar
+por auth.uid()/papel; helper booleano autorizado não equivale a escrita arbitrária.
+Prioridade alta se alguma RPC executável sem autorização tiver escrita privilegiada
+ou controlar memberships; sua existência não foi comprovada pelos dados fornecidos.
+
+Verificar chamadas anon, authenticated e service_role sem UID/com UID sintético.
+service_role com bypass não cria auth.uid() automaticamente: helpers podem retornar
+false sem usuário, enquanto guards identity-neutral devem continuar funcionando.
+As novas funções propostas permanecem com search_path=pg_catalog e nomes
+qualificados; revisar ACLs geradas por defaults no stack local antes de aprovação.
 
 ## Matriz de autorização
 
@@ -112,7 +159,8 @@ em tarefa própria. Este trabalho não o executa remotamente. Ele retorna:
 - signatures, SECURITY DEFINER, search_path/volatilidade/ACLs dos helpers;
 - atributos dos papéis e defaults de EXECUTE para funções.
 
-Ainda revisar corpos/semântica dos helpers por canal seguro, memberships e
+A configuração e a semântica geral dos helpers foram confirmadas; ainda revisar
+corpos completos/ACLs por canal seguro, memberships e
 permissões por coluna, FORCE RLS, FK ON UPDATE/deferrabilidade, funções/triggers
 privilegiados e alterações concorrentes por serviços. Os contratos de políticas
 TO authenticated/permissivas e ausência de outras políticas permissivas de
@@ -170,11 +218,15 @@ e conservar ACLs/FKs/objetos anteriores. Ensaiar essa reversão em clone;
 preferir correção progressiva quando reabriria vulnerabilidades. Esta etapa
 não fornece nem executa rollback de produção automaticamente.
 
-Resultado local: suíte aprovada em PostgreSQL 17.11, incluindo os casos de
+Resultado histórico da Etapa 3.9, não reexecutado na Etapa 3.17: suíte aprovada em PostgreSQL 17.11, incluindo os casos de
 concorrência e sete recusas/rollback de contrato, schema, baseline e dados.
 `git diff --check` aprovado; SHA-256 dos quatro arquivos anteriores de
 privilégios confirmado sem diferenças. Nenhum teste remoto foi realizado.
 
-Pendências para aprovação: metadados remotos atualizados, revisão dos helpers e
-triggers reais, autorização da restrição de transferência também para service_role,
+Procedimento e matriz do stack local: [Supabase isolado](supabase-local-validation.md).
+Na Etapa 3.17 foram executadas apenas verificações documentais, de diff e hashes;
+não foram iniciados serviços nem executados SQL/migrations/testes de aplicação.
+
+Pendências para aprovação: ACLs/corpos completos de helpers, baseline completa
+de schema/policies/grants, versões homologadas do stack local, autorização da restrição de transferência também para service_role,
 fluxos administrativos legítimos, desempenho e testes do stack Supabase isolado.
