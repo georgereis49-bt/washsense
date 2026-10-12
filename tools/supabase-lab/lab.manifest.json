@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "projectId": "washsense-security-lab-318",
+  "purpose": "synthetic-security-validation-only",
+  "productionProjectRefForbidden": "eydrrfuzfcxcqdivvued",
+  "versions": {
+    "powerShellMinimum": "7.4.6",
+    "supabaseCliExact": null,
+    "dockerServerExact": null,
+    "postgresMajor": 17,
+    "supabaseImages": [],
+    "historicalOnly": {
+      "dockerObserved": "28.4.0",
+      "remotePostgresReported": "17.6",
+      "syntheticPostgresTested": "17.11",
+      "syntheticPostgresImage": "postgres:17@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3"
+    }
+  },
+  "network": {
+    "apiUrl": "http://127.0.0.1:54321",
+    "ports": [
+      54321,
+      54322,
+      54323,
+      54324
+    ],
+    "bindAddresses": [
+      "127.0.0.1",
+      "::1"
+    ],
+    "dockerProjectLabel": "com.supabase.cli.project",
+    "egressPolicyApproved": false,
+    "egressEvidenceSha256": null
+  },
+  "auth": {
+    "siteUrl": "http://127.0.0.1:3000",
+    "redirectUrls": [
+      "http://127.0.0.1:3000/recovery"
+    ],
+    "emailConfirmation": true,
+    "externalProviders": false,
+    "externalHooks": false,
+    "localMailOnly": true
+  },
+  "structuralPackage": {
+    "file": "structure.sql.pending",
+    "sha256": null,
+    "metadataOnly": true,
+    "reviewApproved": false,
+    "reviewRecord": null
+  },
+  "configuration": {
+    "file": "config.toml",
+    "sha256": null,
+    "reviewApproved": false
+  },
+  "approvals": {
+    "startStack": false,
+    "runSyntheticTests": false,
+    "executeSecurityProposal": false
+  },
+  "isolation": {
+    "cleanOsProfileReviewed": false,
+    "credentialStoreReviewApproved": false
+  }
+}

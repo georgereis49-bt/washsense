@@ -1,0 +1,165 @@
+-- REVIEW DRAFT: intentionally outside migrations/ and not named *.sql.
+-- NOT approved for remote execution. Requires the preflight inventory and
+-- dependency review described in docs/security/structural-privileges.md.
+-- One-shot migration: repeat execution fails instead of masking drift.
+BEGIN;
+SET LOCAL lock_timeout = '5s';
+SET LOCAL statement_timeout = '30s';
+
+DO $migration$
+DECLARE
+  targets constant text[] := ARRAY[
+    'organizations', 'organization_members', 'units', 'machines',
+    'reservoirs', 'devices', 'sensors', 'machine_readings',
+    'reservoir_readings', 'payments', 'subscriptions', 'alerts', 'maintenance',
+    'audit_logs', 'consumption_records', 'machine_cycles', 'plans', 'profiles',
+    'reservoir_refills'
+  ];
+  table_name text;
+  role_name text;
+  privilege_name text;
+  rel oid;
+  actor oid;
+  before_state jsonb;
+  after_state jsonb;
+BEGIN
+  IF current_setting('server_version_num')::integer / 10000 <> 17
+    OR current_user <> 'postgres' THEN
+    RAISE EXCEPTION 'Expected PostgreSQL 17 and executor postgres';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN
+    RAISE EXCEPTION 'Missing service_role';
+  END IF;
+  FOREACH role_name IN ARRAY ARRAY['anon', 'authenticated'] LOOP
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = role_name
+      AND NOT rolsuper AND NOT rolbypassrls) THEN
+      RAISE EXCEPTION 'Missing or unexpectedly privileged role: %', role_name;
+    END IF;
+  END LOOP;
+
+  -- Check ALL targets before any revocation. No guessed fallback table names.
+  FOREACH table_name IN ARRAY targets LOOP
+    rel := to_regclass(format('public.%I', table_name));
+    IF rel IS NULL OR NOT EXISTS (
+      SELECT 1 FROM pg_class WHERE oid = rel AND relkind = 'r'
+        AND pg_get_userbyid(relowner) = 'postgres'
+        AND relrowsecurity AND NOT relforcerowsecurity
+    ) THEN
+      RAISE EXCEPTION 'Missing/drifted target (ordinary table, owner, RLS): %', table_name;
+    END IF;
+    IF EXISTS (SELECT 1 FROM pg_class c, LATERAL aclexplode(c.relacl) a
+      WHERE c.oid = rel AND a.grantee = 0
+        AND a.privilege_type IN ('TRUNCATE', 'TRIGGER', 'REFERENCES', 'MAINTAIN')) THEN
+      RAISE EXCEPTION 'PUBLIC structural grant requires separate review: %', table_name;
+    END IF;
+    FOREACH role_name IN ARRAY ARRAY['anon', 'authenticated'] LOOP
+      SELECT oid INTO actor FROM pg_roles WHERE rolname = role_name;
+      FOREACH privilege_name IN ARRAY ARRAY['TRUNCATE', 'TRIGGER', 'REFERENCES', 'MAINTAIN'] LOOP
+        IF NOT has_table_privilege(actor, rel, privilege_name) OR NOT EXISTS (
+          SELECT 1 FROM pg_class c, LATERAL aclexplode(c.relacl) a
+          WHERE c.oid = rel AND a.grantee = actor
+            AND a.privilege_type = privilege_name
+            AND a.grantor = (SELECT oid FROM pg_roles WHERE rolname = 'postgres')
+            AND NOT a.is_grantable
+        ) OR EXISTS (
+          SELECT 1 FROM pg_class c, LATERAL aclexplode(c.relacl) a
+          WHERE c.oid = rel AND a.grantee = actor
+            AND a.privilege_type = privilege_name
+            AND (a.grantor <> (SELECT oid FROM pg_roles WHERE rolname = 'postgres')
+              OR a.is_grantable)
+        ) THEN
+          RAISE EXCEPTION 'Expected direct postgres grant without grant option: %.% %',
+            table_name, role_name, privilege_name;
+        END IF;
+      END LOOP;
+      IF EXISTS (SELECT 1 FROM pg_attribute col, LATERAL aclexplode(col.attacl) a
+        WHERE col.attrelid = rel AND col.attnum > 0 AND NOT col.attisdropped
+          AND a.grantee IN (0, actor) AND a.privilege_type = 'REFERENCES') THEN
+        RAISE EXCEPTION 'Column REFERENCES requires separate review: %.%', table_name, role_name;
+      END IF;
+    END LOOP;
+  END LOOP;
+
+  -- Capture DML + column ACLs + other roles' structural privileges + RLS.
+  -- Repeat this catalog-only query after revocation; no application rows read.
+  SELECT jsonb_agg(s.item ORDER BY s.item::text) INTO before_state FROM (
+    SELECT jsonb_build_object('kind', 'effective', 'table', c.relname,
+      'role', r.rolname, 'privilege', p.name,
+      'allowed', has_table_privilege(r.oid, c.oid, p.name)) AS item
+    FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+    CROSS JOIN pg_roles r CROSS JOIN (VALUES ('SELECT'), ('INSERT'),
+      ('UPDATE'), ('DELETE'), ('TRUNCATE'), ('TRIGGER'), ('REFERENCES'), ('MAINTAIN')) p(name)
+    WHERE n.nspname = 'public' AND c.relname = ANY(targets)
+      AND NOT (r.rolname IN ('anon', 'authenticated')
+        AND p.name IN ('TRUNCATE', 'TRIGGER', 'REFERENCES', 'MAINTAIN'))
+    UNION ALL
+    SELECT jsonb_build_object('kind', 'table', 'oid', c.oid,
+      'owner', c.relowner, 'rls', c.relrowsecurity, 'force', c.relforcerowsecurity)
+    FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public' AND c.relname = ANY(targets)
+    UNION ALL
+    SELECT jsonb_build_object('kind', 'column', 'table', col.attrelid,
+      'column', col.attnum, 'acl', col.attacl::text)
+    FROM pg_attribute col JOIN pg_class c ON c.oid = col.attrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public' AND c.relname = ANY(targets)
+      AND col.attnum > 0 AND NOT col.attisdropped
+    UNION ALL
+    SELECT jsonb_build_object('kind', 'policy', 'definition', to_jsonb(pol))
+    FROM pg_policy pol JOIN pg_class c ON c.oid = pol.polrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public' AND c.relname = ANY(targets)
+  ) s;
+
+  FOREACH table_name IN ARRAY targets LOOP
+    EXECUTE format('REVOKE TRUNCATE, TRIGGER, REFERENCES, MAINTAIN ON TABLE public.%I FROM anon, authenticated RESTRICT', table_name);
+  END LOOP;
+
+  FOREACH table_name IN ARRAY targets LOOP
+    rel := to_regclass(format('public.%I', table_name));
+    FOREACH role_name IN ARRAY ARRAY['anon', 'authenticated'] LOOP
+      IF has_table_privilege(role_name, rel, 'TRUNCATE')
+        OR has_table_privilege(role_name, rel, 'TRIGGER')
+        OR has_table_privilege(role_name, rel, 'REFERENCES')
+        OR has_table_privilege(role_name, rel, 'MAINTAIN')
+        OR has_any_column_privilege(role_name, rel, 'REFERENCES') THEN
+        RAISE EXCEPTION 'Residual effective privilege; entire transaction aborted: %.%', table_name, role_name;
+      END IF;
+    END LOOP;
+  END LOOP;
+
+  -- Same preservation snapshot as above.
+  SELECT jsonb_agg(s.item ORDER BY s.item::text) INTO after_state FROM (
+    SELECT jsonb_build_object('kind', 'effective', 'table', c.relname,
+      'role', r.rolname, 'privilege', p.name,
+      'allowed', has_table_privilege(r.oid, c.oid, p.name)) AS item
+    FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+    CROSS JOIN pg_roles r CROSS JOIN (VALUES ('SELECT'), ('INSERT'),
+      ('UPDATE'), ('DELETE'), ('TRUNCATE'), ('TRIGGER'), ('REFERENCES'), ('MAINTAIN')) p(name)
+    WHERE n.nspname = 'public' AND c.relname = ANY(targets)
+      AND NOT (r.rolname IN ('anon', 'authenticated')
+        AND p.name IN ('TRUNCATE', 'TRIGGER', 'REFERENCES', 'MAINTAIN'))
+    UNION ALL
+    SELECT jsonb_build_object('kind', 'table', 'oid', c.oid,
+      'owner', c.relowner, 'rls', c.relrowsecurity, 'force', c.relforcerowsecurity)
+    FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public' AND c.relname = ANY(targets)
+    UNION ALL
+    SELECT jsonb_build_object('kind', 'column', 'table', col.attrelid,
+      'column', col.attnum, 'acl', col.attacl::text)
+    FROM pg_attribute col JOIN pg_class c ON c.oid = col.attrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public' AND c.relname = ANY(targets)
+      AND col.attnum > 0 AND NOT col.attisdropped
+    UNION ALL
+    SELECT jsonb_build_object('kind', 'policy', 'definition', to_jsonb(pol))
+    FROM pg_policy pol JOIN pg_class c ON c.oid = pol.polrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public' AND c.relname = ANY(targets)
+  ) s;
+  IF before_state IS DISTINCT FROM after_state THEN
+    RAISE EXCEPTION 'DML, column ACL, other role privilege or RLS drift; transaction aborted';
+  END IF;
+END;
+$migration$;
+COMMIT;

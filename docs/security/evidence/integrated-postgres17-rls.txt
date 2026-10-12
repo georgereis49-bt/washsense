@@ -1,0 +1,15 @@
+PASS: local Docker endpoint; network=none; no published ports; cached pinned image
+PASS: structural + defaults proposals applied before RLS in the same 19-table fixture
+PASS: both organizations × four roles; machines/maintenance/sensors authorization
+PASS: dual memberships, cross-tenant transfers, coherent multiple links, private resolver and service integrity
+PASS: destination role WITH CHECK and every populated link/unit checked independently
+PASS: RLS never supplies missing INSERT/UPDATE grants
+PASS: pg_stat_activity confirmed concurrent row-lock contention; foreign transfer refused after release
+PASS: maintenance multiunit INSERT/UPDATE, parent guards, concurrent moves, data preserved
+PASS: proposal refusal/rollback: extra
+PASS: proposal refusal/rollback: shape
+PASS: proposal refusal/rollback: nullable
+PASS: proposal refusal/rollback: badfk
+PASS: proposal refusal/rollback: dirty
+PASS: proposal refusal/rollback: drift
+PASS: unapproved contract refused; PostgreSQL 17.11 (Debian 17.11-1.pgdg13+2)

@@ -1,0 +1,116 @@
+-- REVIEW PROPOSAL ONLY, outside migrations. No authorization for production.
+-- Proven browser operations: finance.js SELECT, already granted in the snapshot.
+BEGIN;
+SET LOCAL lock_timeout='5s';
+SET LOCAL statement_timeout='30s';
+LOCK TABLE public.organization_members,public.organizations,public.payments,
+  public.plans,public.subscriptions IN SHARE ROW EXCLUSIVE MODE;
+DO $reads$
+DECLARE item record; col text; missing text[]; before_state jsonb; after_state jsonb;
+BEGIN
+  IF current_user <> 'postgres' OR current_setting('server_version_num')::int/10000 <> 17
+    OR NOT has_schema_privilege('authenticated','public','USAGE')
+    OR EXISTS (SELECT 1 FROM pg_roles WHERE rolname='authenticated' AND (rolsuper OR rolbypassrls)) THEN
+    RAISE EXCEPTION 'Unverified executor/version/schema/role contract';
+  END IF;
+  -- Fail closed on extra permissive read policies; role names are not evidence.
+  FOR item IN SELECT * FROM (VALUES
+    ('organization_members','organization_members_select','(user_id = auth.uid())'),
+    ('organizations','organizations_select_members','( SELECT has_org_access(organizations.id) AS has_org_access)'),
+    ('payments','payments_select_members','has_org_access(organization_id)'),
+    ('plans','plans_select_public','true'),
+    ('subscriptions','subscriptions_select_members','( SELECT has_org_access(subscriptions.organization_id) AS has_org_access)')
+  ) x(tbl,pol,expr) LOOP
+    IF NOT EXISTS (SELECT 1 FROM pg_class c JOIN pg_policy p ON p.polrelid=c.oid
+      WHERE c.relnamespace='public'::regnamespace AND c.relname=item.tbl AND c.relkind='r'
+        AND pg_get_userbyid(c.relowner)='postgres' AND c.relrowsecurity AND NOT c.relforcerowsecurity
+        AND p.polname=item.pol AND p.polcmd='r' AND p.polpermissive
+        AND pg_get_expr(p.polqual,p.polrelid)=item.expr AND p.polwithcheck IS NULL
+        AND (SELECT array_agg(r.rolname::text ORDER BY r.rolname) FROM pg_roles r WHERE r.oid=ANY(p.polroles))
+          = CASE WHEN item.tbl='plans' THEN ARRAY['anon','authenticated'] ELSE ARRAY['authenticated'] END)
+      OR EXISTS (SELECT 1 FROM pg_policy p WHERE p.polrelid=to_regclass('public.'||item.tbl)
+          AND p.polpermissive AND p.polcmd IN ('r','*') AND p.polname<>item.pol) THEN
+      RAISE EXCEPTION 'Unverified SELECT policy/tenant contract: %',item.tbl;
+    END IF;
+  END LOOP;
+  SELECT jsonb_agg(jsonb_build_array(c.oid,c.relrowsecurity,c.relforcerowsecurity,p.polname,
+    p.polcmd,p.polpermissive,p.polroles,pg_get_expr(p.polqual,p.polrelid),pg_get_expr(p.polwithcheck,p.polrelid))
+    ORDER BY c.oid,p.polname) INTO before_state FROM pg_class c LEFT JOIN pg_policy p ON p.polrelid=c.oid
+    WHERE c.relnamespace='public'::regnamespace;
+  -- Current snapshot already has table SELECT: do not create redundant column ACLs.
+  -- If missing later, restore only columns actually selected/filtered by finance.js.
+  FOR item IN SELECT * FROM (VALUES
+    ('organization_members',ARRAY['organization_id','role','user_id']),
+    ('organizations',ARRAY['id','name']),
+    ('payments',ARRAY['id','organization_id','subscription_id','provider','provider_payment_id',
+      'amount','net_amount','payment_method','status','due_date','paid_at','receipt_url',
+      'invoice_url','description','external_reference','created_at']),
+    ('plans',ARRAY['id','name','description','price_monthly','max_units','max_machines','max_devices']),
+    ('subscriptions',ARRAY['id','organization_id','plan_id','status','provider','provider_subscription_id',
+      'billing_cycle','amount','next_due_date','started_at','cancelled_at'])
+  ) x(tbl,cols) LOOP
+    missing:=ARRAY[]::text[];
+    FOREACH col IN ARRAY item.cols LOOP
+      IF NOT EXISTS (SELECT 1 FROM pg_attribute WHERE attrelid=to_regclass('public.'||item.tbl)
+        AND attname=col AND attnum>0 AND NOT attisdropped) THEN
+        RAISE EXCEPTION 'Unverified application column %.%',item.tbl,col;
+      END IF;
+      IF NOT has_column_privilege('authenticated','public.'||item.tbl,col,'SELECT') THEN
+        missing:=array_append(missing,quote_ident(col));
+      END IF;
+    END LOOP;
+    IF cardinality(missing)>0 THEN
+      EXECUTE format('GRANT SELECT (%s) ON public.%I TO authenticated',array_to_string(missing,','),item.tbl);
+    END IF;
+  END LOOP;
+  SELECT jsonb_agg(jsonb_build_array(c.oid,c.relrowsecurity,c.relforcerowsecurity,p.polname,
+    p.polcmd,p.polpermissive,p.polroles,pg_get_expr(p.polqual,p.polrelid),pg_get_expr(p.polwithcheck,p.polrelid))
+    ORDER BY c.oid,p.polname) INTO after_state FROM pg_class c LEFT JOIN pg_policy p ON p.polrelid=c.oid
+    WHERE c.relnamespace='public'::regnamespace;
+  IF before_state IS DISTINCT FROM after_state THEN RAISE EXCEPTION 'Policy/RLS drift'; END IF;
+END;
+$reads$;
+COMMIT;
+
+-- Independent conditional transaction. energy_tariffs is absent from the supplied
+-- remote inventory, NOT proven absent from the remote database. Keep disabled until
+-- its actual schema/ACL baseline is reviewed; do not substitute synthetic metadata.
+BEGIN;
+SET LOCAL lock_timeout='5s';
+SET LOCAL statement_timeout='30s';
+DO $energy$
+DECLARE actual jsonb; approved jsonb;
+BEGIN
+  IF current_setting('washsense.energy_dml_approved',true) IS DISTINCT FROM 'on' THEN
+    RAISE NOTICE 'BLOCKED/PENDING: energy_tariffs remote contract not approved; no energy grant applied';
+    RETURN;
+  END IF;
+  IF current_user <> 'postgres' OR current_setting('server_version_num')::int/10000 <> 17
+    OR NOT has_schema_privilege('service_role','public','USAGE')
+    OR NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='service_role' AND rolbypassrls AND NOT rolsuper)
+    OR NOT EXISTS (SELECT 1 FROM pg_class WHERE oid=to_regclass('public.energy_tariffs')
+       AND relkind='r' AND relrowsecurity AND NOT relforcerowsecurity
+       AND pg_get_userbyid(relowner)='postgres') THEN
+    RAISE EXCEPTION 'Unverified energy schema/executor contract';
+  END IF;
+  LOCK TABLE public.energy_tariffs IN SHARE ROW EXCLUSIVE MODE;
+  -- Exact locally reviewed baseline; see test helper for its generation.
+  SELECT jsonb_build_object(
+    'columns',(SELECT jsonb_agg(jsonb_build_array(a.attname,format_type(a.atttypid,a.atttypmod),a.attnotnull,
+      pg_get_expr(d.adbin,d.adrelid),a.attacl::text) ORDER BY a.attnum)
+      FROM pg_attribute a LEFT JOIN pg_attrdef d ON d.adrelid=a.attrelid AND d.adnum=a.attnum
+      WHERE a.attrelid='public.energy_tariffs'::regclass AND a.attnum>0 AND NOT a.attisdropped),
+    'constraints',(SELECT jsonb_agg(pg_get_constraintdef(oid) ORDER BY conname) FROM pg_constraint WHERE conrelid='public.energy_tariffs'::regclass),
+    'acl',(SELECT relacl::text FROM pg_class WHERE oid='public.energy_tariffs'::regclass),
+    'policies',(SELECT jsonb_agg(jsonb_build_array(polname,polcmd,polpermissive,polroles,pg_get_expr(polqual,polrelid),pg_get_expr(polwithcheck,polrelid)) ORDER BY polname) FROM pg_policy WHERE polrelid='public.energy_tariffs'::regclass),
+    'triggers',(SELECT jsonb_agg(jsonb_build_array(tgname,tgenabled,pg_get_triggerdef(oid)) ORDER BY tgname) FROM pg_trigger WHERE tgrelid='public.energy_tariffs'::regclass)
+  ) INTO actual;
+  approved:=nullif(current_setting('washsense.energy_dml_baseline',true),'')::jsonb;
+  IF approved IS NULL OR actual IS DISTINCT FROM approved THEN
+    RAISE EXCEPTION 'Missing/drifted reviewed energy baseline';
+  END IF;
+  -- Only sync-energy-tariffs/index.ts upsert, no DELETE, no browser access.
+  GRANT SELECT, INSERT, UPDATE ON public.energy_tariffs TO service_role;
+END;
+$energy$;
+COMMIT;
