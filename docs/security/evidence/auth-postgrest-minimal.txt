@@ -1,0 +1,6 @@
+PASS: actual GoTrue/PostgREST ready on inspected internal Docker IPs; no published ports
+PASS: real Auth signup/password login/JWT; incorrect password rejected
+PASS: PostgREST validates JWT; missing/invalid tokens and foreign organization access denied
+PASS: real API RLS roles, multiunit sensor INSERT, same-tenant transfer, dual/service cross-tenant rejection
+PASS: real Auth logout revokes refresh session; access JWT expiry is a separate behavior
+PostgreSQL: 17.11 (Debian 17.11-1.pgdg13+2)

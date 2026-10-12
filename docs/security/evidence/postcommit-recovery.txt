@@ -1,0 +1,6 @@
+PASS: single sanitized metadata SELECT validated locally; no remote execution
+PASS: three proposals committed after a pre-change synthetic checkpoint
+PASS: post-COMMIT recovery preserves policies, table ACLs, RLS, defaults, functions, constraints and every synthetic row
+PASS: recovery uses a separate database; hardened source stays unchanged
+PASS: original behavior/privileges restored exactly; old permissions must never be reopened automatically in production
+PostgreSQL: 17.11 (Debian 17.11-1.pgdg13+2)
