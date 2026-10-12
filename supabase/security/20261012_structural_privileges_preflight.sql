@@ -5,7 +5,8 @@ WITH RECURSIVE targets(name) AS (
   VALUES ('organizations'), ('organization_members'), ('units'), ('machines'),
     ('reservoirs'), ('devices'), ('sensors'), ('machine_readings'),
     ('reservoir_readings'), ('payments'), ('subscriptions'), ('alerts'),
-    ('maintenance')
+    ('maintenance'), ('audit_logs'), ('consumption_records'), ('machine_cycles'),
+    ('plans'), ('profiles'), ('reservoir_refills')
 ), relations AS (
   SELECT t.name, c.*
   FROM targets t
@@ -50,6 +51,26 @@ WITH RECURSIVE targets(name) AS (
   CROSS JOIN LATERAL aclexplode(COALESCE(c.relacl,
     acldefault('r', c.relowner))) a
   WHERE c.oid IS NOT NULL
+  UNION ALL
+  SELECT 'grant_provenance', jsonb_build_object('table', c.name,
+    'role', r.rolname, 'privilege', p.privilege,
+    'effective', has_table_privilege(r.oid, c.oid, p.privilege),
+    'expected_direct_grant', a.expected_direct,
+    'unexpected_direct_grant', a.unexpected_direct,
+    'direct_grants', a.direct_grants)
+  FROM relations c CROSS JOIN pg_roles r
+  CROSS JOIN (VALUES ('TRUNCATE'), ('TRIGGER'), ('REFERENCES'), ('MAINTAIN')) p(privilege)
+  CROSS JOIN LATERAL (
+    SELECT COALESCE(bool_or(pg_get_userbyid(x.grantor) = 'postgres'
+      AND NOT x.is_grantable), false) AS expected_direct,
+      COALESCE(bool_or(pg_get_userbyid(x.grantor) <> 'postgres'
+      OR x.is_grantable), false) AS unexpected_direct,
+      jsonb_agg(jsonb_build_object('grantor', pg_get_userbyid(x.grantor),
+        'grant_option', x.is_grantable) ORDER BY x.grantor) AS direct_grants
+    FROM aclexplode(c.relacl) x
+    WHERE x.grantee = r.oid AND x.privilege_type = p.privilege
+  ) a
+  WHERE c.oid IS NOT NULL AND r.rolname IN ('anon', 'authenticated')
   UNION ALL
   SELECT 'column_acl', jsonb_build_object('table', c.name,
     'column', col.attname, 'grantor', pg_get_userbyid(a.grantor),

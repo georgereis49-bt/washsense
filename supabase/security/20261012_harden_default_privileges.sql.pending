@@ -1,5 +1,7 @@
 -- REVIEW DRAFT ONLY. Separate from existing-table grants; outside migrations/.
 -- Two verified creators, public schema, table defaults only. No remote approval.
+-- Stage 2.7 review: all four privileges match the existing-table proposal.
+-- This does not revoke existing ACLs on the 19 tables or prove their grant origins.
 BEGIN;
 SET LOCAL lock_timeout = '5s';
 SET LOCAL statement_timeout = '30s';

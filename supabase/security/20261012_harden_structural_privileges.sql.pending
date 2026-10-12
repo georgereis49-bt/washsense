@@ -11,7 +11,9 @@ DECLARE
   targets constant text[] := ARRAY[
     'organizations', 'organization_members', 'units', 'machines',
     'reservoirs', 'devices', 'sensors', 'machine_readings',
-    'reservoir_readings', 'payments', 'subscriptions', 'alerts', 'maintenance'
+    'reservoir_readings', 'payments', 'subscriptions', 'alerts', 'maintenance',
+    'audit_logs', 'consumption_records', 'machine_cycles', 'plans', 'profiles',
+    'reservoir_refills'
   ];
   table_name text;
   role_name text;
@@ -47,18 +49,24 @@ BEGIN
     END IF;
     IF EXISTS (SELECT 1 FROM pg_class c, LATERAL aclexplode(c.relacl) a
       WHERE c.oid = rel AND a.grantee = 0
-        AND a.privilege_type IN ('TRUNCATE', 'TRIGGER', 'REFERENCES')) THEN
+        AND a.privilege_type IN ('TRUNCATE', 'TRIGGER', 'REFERENCES', 'MAINTAIN')) THEN
       RAISE EXCEPTION 'PUBLIC structural grant requires separate review: %', table_name;
     END IF;
     FOREACH role_name IN ARRAY ARRAY['anon', 'authenticated'] LOOP
       SELECT oid INTO actor FROM pg_roles WHERE rolname = role_name;
-      FOREACH privilege_name IN ARRAY ARRAY['TRUNCATE', 'TRIGGER', 'REFERENCES'] LOOP
+      FOREACH privilege_name IN ARRAY ARRAY['TRUNCATE', 'TRIGGER', 'REFERENCES', 'MAINTAIN'] LOOP
         IF NOT has_table_privilege(actor, rel, privilege_name) OR NOT EXISTS (
           SELECT 1 FROM pg_class c, LATERAL aclexplode(c.relacl) a
           WHERE c.oid = rel AND a.grantee = actor
             AND a.privilege_type = privilege_name
             AND a.grantor = (SELECT oid FROM pg_roles WHERE rolname = 'postgres')
             AND NOT a.is_grantable
+        ) OR EXISTS (
+          SELECT 1 FROM pg_class c, LATERAL aclexplode(c.relacl) a
+          WHERE c.oid = rel AND a.grantee = actor
+            AND a.privilege_type = privilege_name
+            AND (a.grantor <> (SELECT oid FROM pg_roles WHERE rolname = 'postgres')
+              OR a.is_grantable)
         ) THEN
           RAISE EXCEPTION 'Expected direct postgres grant without grant option: %.% %',
             table_name, role_name, privilege_name;
@@ -83,7 +91,7 @@ BEGIN
       ('UPDATE'), ('DELETE'), ('TRUNCATE'), ('TRIGGER'), ('REFERENCES'), ('MAINTAIN')) p(name)
     WHERE n.nspname = 'public' AND c.relname = ANY(targets)
       AND NOT (r.rolname IN ('anon', 'authenticated')
-        AND p.name IN ('TRUNCATE', 'TRIGGER', 'REFERENCES'))
+        AND p.name IN ('TRUNCATE', 'TRIGGER', 'REFERENCES', 'MAINTAIN'))
     UNION ALL
     SELECT jsonb_build_object('kind', 'table', 'oid', c.oid,
       'owner', c.relowner, 'rls', c.relrowsecurity, 'force', c.relforcerowsecurity)
@@ -104,7 +112,7 @@ BEGIN
   ) s;
 
   FOREACH table_name IN ARRAY targets LOOP
-    EXECUTE format('REVOKE TRUNCATE, TRIGGER, REFERENCES ON TABLE public.%I FROM anon, authenticated RESTRICT', table_name);
+    EXECUTE format('REVOKE TRUNCATE, TRIGGER, REFERENCES, MAINTAIN ON TABLE public.%I FROM anon, authenticated RESTRICT', table_name);
   END LOOP;
 
   FOREACH table_name IN ARRAY targets LOOP
@@ -113,6 +121,7 @@ BEGIN
       IF has_table_privilege(role_name, rel, 'TRUNCATE')
         OR has_table_privilege(role_name, rel, 'TRIGGER')
         OR has_table_privilege(role_name, rel, 'REFERENCES')
+        OR has_table_privilege(role_name, rel, 'MAINTAIN')
         OR has_any_column_privilege(role_name, rel, 'REFERENCES') THEN
         RAISE EXCEPTION 'Residual effective privilege; entire transaction aborted: %.%', table_name, role_name;
       END IF;
@@ -129,7 +138,7 @@ BEGIN
       ('UPDATE'), ('DELETE'), ('TRUNCATE'), ('TRIGGER'), ('REFERENCES'), ('MAINTAIN')) p(name)
     WHERE n.nspname = 'public' AND c.relname = ANY(targets)
       AND NOT (r.rolname IN ('anon', 'authenticated')
-        AND p.name IN ('TRUNCATE', 'TRIGGER', 'REFERENCES'))
+        AND p.name IN ('TRUNCATE', 'TRIGGER', 'REFERENCES', 'MAINTAIN'))
     UNION ALL
     SELECT jsonb_build_object('kind', 'table', 'oid', c.oid,
       'owner', c.relowner, 'rls', c.relrowsecurity, 'force', c.relforcerowsecurity)

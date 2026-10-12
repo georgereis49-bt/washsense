@@ -1,245 +1,202 @@
-# WashSense: primeira restrição de privilégios estruturais
+# WashSense — Etapa 2.7: privilégios estruturais atuais e futuros
 
-Projeto de referência: `eydrrfuzfcxcqdivvued`. Nenhum comando desta preparação
-foi executado no Supabase remoto. A Etapa 1 e o código da aplicação permanecem
-preservados.
+Projeto: `eydrrfuzfcxcqdivvued`. Branch: `security/stage-2-3-structural-privileges`.
+Esta preparação não executa SQL remoto, migration, deploy ou merge. Os arquivos
+`.sql.pending` permanecem fora de `supabase/migrations` e NÃO estão aprovados
+para produção. A Etapa 1 e o código da aplicação permanecem preservados.
 
-## Situação: rascunho pendente de inventário remoto e aprovação
+## Evidências e limites
 
-O usuário confirmou PostgreSQL 17, proprietário `postgres`, RLS habilitada,
-FORCE RLS desabilitado e privilégios efetivos TRUNCATE, TRIGGER e REFERENCES
-para `anon` e `authenticated`. Na Etapa 2.5, informou preflight remoto bem-sucedido
-em PostgreSQL 17.6, com 78 grants diretos, nenhuma concessão por coluna no
-relatório e nenhuma membership que faça esses dois papéis herdarem diretamente
-outros papéis. A ausência de PUBLIC examinada foi confirmada na etapa anterior.
-O resultado bruto, grant options e dependências dos serviços ainda precisam
-ser revisados. Privilégio efetivo não comprova exploração pela API.
+Segundo o inventário remoto informado pelo usuário, há 19 tabelas públicas,
+todas do tipo `r`, de `postgres`, com RLS habilitada. Nas 19 tabelas, `anon` e
+`authenticated` têm efetivamente TRUNCATE, TRIGGER, REFERENCES e MAINTAIN:
+152 combinações positivas. Isso NÃO prova 152 grants diretos.
 
-Por isso, **não há migração executável em `supabase/migrations/`**. O arquivo
-`supabase/security/20261012_harden_structural_privileges.sql.pending` é um
-rascunho para revisão, não uma migração aprovada para o ambiente remoto.
-O sufixo e a localização evitam sua inclusão automática em `supabase db push`.
-Não o renomeie/mova nem execute em produção antes da revisão.
+Nas etapas anteriores, foram informados 78 grants diretos dos três primeiros
+privilégios nas 13 tabelas originais, FORCE RLS desabilitado nesse escopo,
+ausência de ACLs por coluna no relatório e ausência de PUBLIC examinada.
+Esses resultados não devem ser extrapolados para as seis tabelas adicionais.
+A origem de MAINTAIN nas 19 tabelas também precisa de confirmação detalhada.
 
-## Problema e escopo
+Não há conexão remota utilizada nesta etapa. Os resultados abaixo relativos
+à execução são exclusivamente de PostgreSQL isolado com fixtures sintéticas.
 
-RLS não filtra TRUNCATE. TRIGGER e REFERENCES são privilégios estruturais
-sem necessidade identificada nos fluxos do navegador. Esta proposta revoga
-somente esses três privilégios de tabela de `anon` e `authenticated`.
+## Lista explícita das 19 tabelas
 
-Lista explícita baseada nos nomes informados nas etapas anteriores:
+| Grupo | Tabelas |
+| --- | --- |
+| Organização | organizations, organization_members, units |
+| Recursos | machines, reservoirs, devices, sensors |
+| Leituras | machine_readings, reservoir_readings |
+| Financeiro | payments, subscriptions |
+| Operação | alerts, maintenance |
+| Acrescentadas na Etapa 2.7 | audit_logs, consumption_records, machine_cycles, plans, profiles, reservoir_refills |
 
-- organizations, organization_members, units;
-- machines, reservoirs, devices, sensors;
-- machine_readings, reservoir_readings;
-- payments, subscriptions, alerts, maintenance.
+Não usar `ALL TABLES IN SCHEMA` nem acrescentar objetos automaticamente. Uma
+vigésima tabela não pertence à lista sem inventário e aprovação próprios.
 
-Cada nome precisa ser reconfirmado pelo preflight. Não são incluídas outras
-tabelas por padrão, inclusive tarifas de energia. O rascunho das tabelas não
-amplia SELECT/INSERT/UPDATE/DELETE, não corrige RLS e não altera default privileges.
-Um segundo rascunho separado trata os defaults, conforme a Etapa 2.5 abaixo.
+## Arquivos e pré-validação
 
-## Pré-validação somente leitura
+- `supabase/security/20261012_structural_privileges_preflight.sql`: somente
+  leitura, com BEGIN READ ONLY/ROLLBACK; consulta apenas catálogos.
+- `supabase/security/20261012_harden_structural_privileges.sql.pending`:
+  revogação condicional dos quatro privilégios nas 19 tabelas.
+- `supabase/security/20261012_structural_privileges_verify.sql`: asserções
+  somente leitura pós-migração para as 152 combinações e REFERENCES por coluna.
+- `supabase/security/20261012_harden_default_privileges.sql.pending`: proposta
+  separada de defaults futuros dos criadores postgres e supabase_admin.
+- `supabase/tests/structural_privileges/test_isolated.py`: runner Docker isolado.
 
-No SQL Editor autorizado, execute exclusivamente o conteúdo de
-`supabase/security/20261012_structural_privileges_preflight.sql`. Ele usa
-BEGIN READ ONLY/ROLLBACK e retorna somente metadados: servidor, existência,
-tipo/proprietário/RLS das tabelas, privilégios efetivos, ACLs de tabela e coluna,
-papéis, herança e default ACLs. Não consulta linhas da aplicação, senhas,
-tokens, corpos de funções ou configurações secretas.
+O preflight lista existência, tipo, proprietário, RLS/FORCE RLS, ACLs de tabela
+ e coluna, privilégios efetivos, roles/memberships, caminhos transitivos e
+ default ACLs globais/public. Também mostra metadados de funções, EXECUTE,
+ dependências catalogadas e vínculos de triggers, sem corpos de funções,
+ senhas, tokens ou registros da aplicação.
 
-Além do relatório, inspecione por metadados os callers RPC/DDL e dependências
-de grants. Não invoque funções que possam produzir efeitos. Confirme que
-nenhum serviço legítimo usa os papéis humanos para operações estruturais.
-Não envie credenciais privadas no chat.
+A seção `grant_provenance` retorna 152 registros quando o escopo existe:
 
-## Pré-condições e recusa segura
+- `effective`: resultado de has_table_privilege;
+- `expected_direct_grant`: existe grant direto por postgres, sem grant option;
+- `unexpected_direct_grant`: existe grant direto de outro grantor ou com grant option;
+- `direct_grants`: grantor e grant option das concessões diretas relevantes.
 
-O rascunho exige:
+Antes de aprovação, todas as combinações precisam estar efetivas, com origem
+ direta esperada e sem origem direta divergente. Isso não substitui a inspeção
+ de PUBLIC/herança/callers. Ausência em pg_depend NÃO prova ausência de
+ dependências: SQL textual/dinâmico, PL/pgSQL e serviços externos exigem análise.
 
-1. PostgreSQL 17 e executor `postgres`.
-2. Existência de `anon`, `authenticated` e `service_role`; os dois primeiros
-   não podem ser superusuários nem ter BYPASSRLS.
-3. As 13 relações devem ser tabelas comuns, de `postgres`, com RLS habilitada
-   e FORCE RLS desabilitado, conforme a evidência fornecida. Partições ou
-   relações diferentes precisam de revisão separada.
-4. Os três grants devem ser diretos, concedidos por `postgres`, sem grant
-   option. Grants diretos foram informados; grantor e grant options precisam
-   ser conferidos no resultado detalhado antes da execução.
-5. Não pode existir grant estrutural de tabela a PUBLIC, nem REFERENCES por
-   coluna a PUBLIC/anon/authenticated. Esses casos precisam de escopo próprio.
-6. Ao final, todos os privilégios estruturais efetivos desses dois papéis,
-   inclusive REFERENCES por coluna, devem ser falsos. Herança ou grants
-   adicionais que mantenham acesso causam erro e rollback integral.
-7. DML efetivo de todos os papéis, ACLs de coluna, privilégios estruturais de
-   outros papéis, propriedade, estado de RLS e políticas devem permanecer iguais.
+## Rascunho das tabelas atuais
 
-Todas as pré-condições de tabelas são verificadas antes dos REVOKEs.
-RESTRICT evita revogações em cascata. O bloco é transacional, com timeouts de
-lock (5 segundos) e comando (30 segundos). Não é idempotente: repetir uma
-execução concluída gera recusa em vez de ocultar divergências.
+Propõe REVOKE TRUNCATE, TRIGGER, REFERENCES, MAINTAIN somente de anon e
+ authenticated, nas 19 tabelas enumeradas, usando RESTRICT.
 
-Não altera service_role/postgres, EXECUTE, funções, triggers, constraints,
-índices, estrutura, autenticação, Asaas, ANEEL ou código IoT. Não contém
-TRUNCATE de dados. O rascunho lê apenas catálogos; a preservação de dados é
-testada exclusivamente em fixtures sintéticas.
+Pré-condições, verificadas em todo o escopo antes de qualquer revogação:
 
-## Testes em ambiente isolado
+1. PostgreSQL 17; executor postgres; existência de service_role.
+2. anon/authenticated existentes, sem superuser ou BYPASSRLS.
+3. Tabelas comuns, proprietário postgres, RLS habilitada e FORCE RLS desabilitado.
+   FORCE RLS das seis adicionais precisa ser confirmado; uma divergência aborta.
+4. Cada um dos quatro direitos deve ser direto, concedido por postgres,
+   sem grant option nem concessão direta adicional divergente.
+5. Ausência de concessões estruturais a PUBLIC e de REFERENCES por coluna
+   a PUBLIC/anon/authenticated. Esses casos requerem proposta específica.
 
-Requisitos: Docker acessível, Python 3 e acesso à imagem oficial PostgreSQL 17.
-Na raiz do repositório:
+Pós-condições: os 152 privilégios efetivos devem ser falsos, assim como
+ REFERENCES por coluna para os dois papéis. Herança residual causa rollback.
+ DML efetivo de todos os papéis, ACLs de coluna, direitos estruturais dos demais
+ papéis, owner, RLS/FORCE RLS e políticas devem permanecer iguais.
+
+Não altera SELECT/INSERT/UPDATE/DELETE, EXECUTE, funções, triggers, constraints,
+ índices, service_role ou concessões administrativas legítimas. Não executa
+ TRUNCATE de dados. Snapshot e verificações usam somente metadados; a
+ preservação de registros é testada somente em fixtures sintéticas.
+
+## Rascunho de default privileges — revisão mantida
+
+Já contempla os mesmos quatro privilégios. Permanece separado, limitado a
+ defaults de TABELAS em public criadas efetivamente por postgres/supabase_admin.
+ Exige os 16 grants diretos esperados (2 criadores × 2 grantees × 4 direitos),
+ sem grant option. Preserva DML, outros grantees, sequências e funções.
+ Não altera ACLs de tabelas existentes.
+
+Defaults por schema somam-se aos globais. O rascunho recusa grants estruturais
+ globais relevantes a PUBLIC/anon/authenticated: um REVOKE em public não os
+ neutralizaria. Defaults globais, outros criadores e schemas ficam pendentes
+ de inventário e aprovação própria. Defaults não são herdados automaticamente
+ de outro criador e não dependem apenas do proprietário final do objeto.
+
+Não adiciona memberships, não assume acesso gerenciado a supabase_admin e não
+ executa SET ROLE para obter privilégios. O executor deve ter autorização real
+ para alterar esses defaults; erros nativos abortam a transação.
+
+## Compatibilidade investigada e pendências
+
+| Componente | Privilégios preservados | Verificação pendente no Supabase isolado |
+| --- | --- | --- |
+| PostgREST | DML e EXECUTE; impersonação e RLS inalteradas | Leituras e RPCs reais, incluindo profiles/plans e logs |
+| Auth | Schemas auth, EXECUTE/USAGE e supabase_auth_admin inalterados | Hooks personalizados, criação de perfil e auditoria |
+| Realtime | SELECT/RLS, schema realtime e publicação inalterados | Postgres Changes, Broadcast/Presence e papéis dos serviços |
+| Edge Functions/Asaas | service_role, EXECUTE e código inalterados | Callers financeiros, cron e manutenção sem cobrança |
+| Energia/IoT | DML, sequências e identidades de serviço inalterados | Ingestão, consumo, ciclos, reposições e jobs de manutenção |
+| Administração | Ownership e direitos de outros papéis preservados | Jobs que porventura executem manutenção como anon/authenticated |
+
+MAINTAIN permite VACUUM, ANALYZE, CLUSTER, REFRESH MATERIALIZED VIEW, REINDEX e
+ LOCK TABLE. A revogação pode bloquear jobs legítimos que usem indevidamente
+ papéis humanos para essas operações. Não há evidência de tal dependência no
+ frontend; isso não certifica os serviços remotos. A necessidade deve ser
+ avaliada por caller, sem reabrir os grants gerais automaticamente.
+
+Fontes oficiais consultadas na revisão anterior:
+
+- [Privilégios PostgreSQL 17](https://www.postgresql.org/docs/17/ddl-priv.html).
+- [ALTER DEFAULT PRIVILEGES](https://www.postgresql.org/docs/17/sql-alterdefaultprivileges.html).
+- [Bootstrap Supabase](https://github.com/supabase/postgres/blob/develop/migrations/db/init-scripts/00000000000000-initial-schema.sql).
+- [PostgREST](https://docs.postgrest.org/en/stable/references/auth.html).
+- [Auth Hooks](https://supabase.com/docs/guides/auth/auth-hooks).
+- [Realtime](https://supabase.com/docs/guides/realtime/authorization).
+
+O bootstrap ALL e um GRANT ALL posterior podem reintroduzir os direitos.
+ Revalidar defaults/ACLs após upgrades e novas migrações. Defaults DML
+ preservados não garantem RLS para tabelas futuras: habilitar/configurar RLS
+ antes da exposição de novos dados privados.
+
+## Testes isolados e execução segura
+
+Requisitos: Docker e Python 3. Na raiz do repositório:
 
 ```bash
 python3 supabase/tests/structural_privileges/test_isolated.py
 ```
 
-O runner cria um container com nome único, sem portas publicadas, sem conexão
-remota e sem credenciais reais. Autenticação trust é usada somente dentro
-desse container descartável. Ele remove apenas seu próprio container e volume.
-
-As fixtures são mínimas, com 13 tabelas e organizações A/B sintéticas. Não
-representam o schema completo do Supabase e não simulam as RPCs financeiras,
-os helpers reais ou ingestão IoT. Elas permitem verificar:
-
-- ausência dos 78 privilégios efetivos de tabela (13 × 2 × 3);
-- ausência de REFERENCES por coluna;
-- RLS, políticas, grants DML/coluna e grants de outros papéis preservados;
-- função e EXECUTE, constraints e triggers preservados;
-- registros sintéticos intactos e leitura autorizada de organizations,
-  subscriptions e payments preservada para A;
-- tabela fora da lista intacta;
-- recusa por tabela ausente, RLS divergente, proprietário divergente,
-  PUBLIC, REFERENCES de coluna, grant option e grant direto ausente;
-- rollback se herança mantiver acesso ou a revogação afetar outro papel;
-- recusa de repetição e preflight somente leitura.
-
-O runner fixa a imagem oficial pelo digest
+O runner fixa a imagem PostgreSQL 17 pelo digest
 `sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3`.
-Os testes foram executados localmente em PostgreSQL 17.11: cenário positivo,
-recusa de repetição e nove cenários de divergência/rollback passaram. Nenhum
-teste foi executado no Supabase remoto. Testes com o schema real, API, Asaas e
-ingestão continuam pendentes.
+ Cria container único sem portas publicadas, com trust apenas internamente,
+ sem conexão remota ou credenciais reais. Remove somente seu container/volume.
 
-`supabase/security/20261012_structural_privileges_verify.sql` contém asserções
-somente leitura pós-migração. Elas não substituem a comparação com o baseline
-de grants e não testam leitura de dados reais. Antes de aprovar produção,
-repita os testes em Supabase isolado com o schema real e dados sintéticos,
-incluindo as leituras via API com identidades sintéticas e os serviços.
+As fixtures representam 19 tabelas mínimas, duas organizações sintéticas e
+ uma tabela fora do escopo. Não reproduzem o schema, hooks ou serviços reais.
+ Cobrem 152 direitos atuais, origem direta, REFERENCES por coluna, preservação
+ de dados/grants/DML/RLS/funções/triggers/constraints e leituras autorizadas de
+ organizações, assinaturas e pagamentos. Incluem recusa de repetição e testes
+ de PUBLIC, origem diferente, grant option, herança, tabela ausente e FORCE RLS
+ divergente, inclusive nas seis tabelas adicionadas.
 
-## Recuperação e compatibilidade
+O rascunho dos defaults é testado com tabelas futuras criadas por ambos os
+ criadores: 16 direitos ausentes, DML/EXECUTE/sequências/service_role preservados,
+ outro schema intacto e rollback para grants globais, grant option ou defaults
+ faltantes. Nenhum teste representa autorização para produção.
 
-Falhas anteriores ao COMMIT devem resultar em rollback integral. Execute com
-um runner que interrompa no primeiro erro; a configuração psql equivalente é
-`-X -v ON_ERROR_STOP=1`. Não execute trechos isolados ou ignore erros.
+Nesta revisão, os testes foram executados em PostgreSQL 17.11: 152 direitos
+atuais e 16 futuros verificados, 16 cenários de recusa/rollback da proposta
+atual e três dos defaults aprovados, além de recusa de repetição. FK/trigger
+existentes continuaram funcionando para service_role. O build MPA produziu
+as mesmas oito páginas e os mesmos 25 arquivos públicos. Não foram executados
+testes remotos; o PostgreSQL 17.6 informado e a stack Supabase exigem validação própria.
 
-Após COMMIT, não existe restauração automática dos grants inseguros. Em caso
-de incompatibilidade, identifique o caller e prepare uma correção específica
-aprovada, preferindo um papel de serviço limitado. Restaurar grants exige
-decisão explícita, baseline revisado e nova análise de risco.
+## Rollback e aprovação
 
-A revogação pode invalidar operações estruturais legítimas não inventariadas;
-SQL concorrente pode causar timeout. Grants herdados podem causar recusa. Novas
-tabelas ainda podem receber grants amplos via default ACLs se o segundo rascunho
-não for aprovado e validado. Riscos nas políticas e helpers continuam pendentes.
+Ambos os rascunhos são transacionais, usam RESTRICT, lock_timeout=5s e
+ statement_timeout=30s. Usar runner que pare no primeiro erro, como psql
+ `-X -v ON_ERROR_STOP=1`. Não executar partes soltas. Repetição é recusada.
 
-## Checklist antes de produção
+Antes de COMMIT, falhas causam rollback integral. Depois de COMMIT, não há
+ restauração automática dos privilégios inseguros. Identificar o caller e
+ preparar correção específica aprovada, preferindo identidade de serviço
+ limitada. Uma exceção/restauração exige baseline e aprovação explícita.
 
-- [ ] Preflight remoto revisado e lista das 13 tabelas reconfirmada.
-- [ ] Origem dos grants, PUBLIC, herança e grants de coluna documentados.
-- [ ] Dependências/callers de operações estruturais e grant options revisados.
-- [ ] Baseline de DML, EXECUTE e permissões administrativas registrado.
-- [ ] Testes com schema Supabase real e dados sintéticos aprovados.
-- [ ] Compatibilidade das leituras financeiras e ingestão verificada sem cobranças.
-- [ ] Janela, timeouts, monitoramento e procedimento de falha aprovados.
-- [ ] Migração revisada e autorizada explicitamente antes de movê-la para migrations.
-- [ ] Verificação pós-migração e comparação de baseline planejadas.
+As duas propostas são independentes: aplicar defaults não revoga grants
+ existentes; falhar na segunda não reverte a primeira já concluída. Ordem
+ proposta: inventário completo → testes Supabase isolados → defaults futuros
+ → tabelas atuais → comparação de ACLs e regressão dos serviços.
 
-Salvar estes arquivos não autoriza execução remota ou deploy.
+Checklist obrigatório:
 
-## Etapa 2.5: diferenças e compatibilidade
-
-### Escopo atual versus futuro
-
-- O rascunho das 13 tabelas continua removendo somente os três privilégios
-  confirmados. Agora inclui MAINTAIN no snapshot de preservação: esse privilégio
-  atual NÃO é removido silenciosamente.
-- O inventário ampliado inclui todas as tabelas comuns/particionadas em public,
-  seus privilégios estruturais efetivos incluindo MAINTAIN, caminhos transitivos
-  de membership, metadados/EXECUTE de funções públicas, dependências catalogadas
-  e vínculos de triggers. Ausência em pg_depend não prova ausência de callers:
-  SQL textual/dinâmico, corpos PL/pgSQL e serviços externos exigem inspeção própria.
-- Os nomes/ACLs/ownership das seis tabelas restantes do inventário de 19 não
-  foram fornecidos. Elas NÃO foram acrescentadas à lista de revogação. É preciso
-  aprovar uma lista explícita após identificar tabelas de aplicação, extensões
-  e objetos gerenciados. Definições locais não provam nomes remotos.
-- `20261012_harden_default_privileges.sql.pending` é um segundo rascunho,
-  limitado a defaults de TABELAS em public dos criadores postgres/supabase_admin.
-  Propõe remover TRUNCATE, TRIGGER, REFERENCES e MAINTAIN de anon/authenticated
-  para objetos futuros, preservando DML, outros grantees, sequências e funções.
-  Não altera ACLs das tabelas existentes, nem papéis administrativos.
-
-### Investigação antes da alteração dos rascunhos
-
-As fontes oficiais abaixo foram consultadas. São evidências sobre os mecanismos,
-não certificação do deploy específico da WashSense.
-
-| Componente | Evidência e preservação | Pendente no projeto |
-| --- | --- | --- |
-| PostgreSQL 17 | Defaults por schema somam-se aos globais; não atingem tabelas existentes. MAINTAIN permite VACUUM, ANALYZE, CLUSTER, REFRESH MATERIALIZED VIEW, REINDEX e LOCK TABLE. | Inventariar MAINTAIN atual e defaults globais. |
-| Supabase | Bootstrap oficial concede ALL em defaults de tabelas, funções e sequências. A proposta remove apenas quatro direitos de tabelas para dois grantees. | Confirmar permissão do executor gerenciado para defaults de supabase_admin e possíveis recriações pela plataforma. |
-| PostgREST | Alterna para o papel da requisição; DML e EXECUTE continuam sujeitos aos grants/RLS existentes. | RPCs e serviços que executem comandos estruturais por papéis humanos. |
-| Auth | Hooks PostgreSQL usam supabase_auth_admin e EXECUTE/USAGE próprios. Nenhum desses grants ou objetos auth é alterado. | Hooks personalizados e seus acessos reais a public. |
-| Realtime | Postgres Changes usa visibilidade de leitura/RLS; Broadcast/Presence usam realtime.messages. Não alterar SELECT/RLS, publicação ou schema realtime. | Papéis, configuração da publicação e testes reais de subscriptions/canais. |
-| Edge Functions/Asaas/IoT | A proposta não altera service_role, EXECUTE, schemas privados, funções ou código. O financeiro local lê dados e chama funções; a sincronização de energia usa upsert. | Código financeiro remoto, jobs, DDL e identidade efetiva dos serviços não estão integralmente disponíveis. |
-
-Fontes consultadas:
-
-- [Privilégios PostgreSQL 17](https://www.postgresql.org/docs/17/ddl-priv.html).
-- [ALTER DEFAULT PRIVILEGES](https://www.postgresql.org/docs/17/sql-alterdefaultprivileges.html).
-- [Bootstrap oficial Supabase](https://github.com/supabase/postgres/blob/develop/migrations/db/init-scripts/00000000000000-initial-schema.sql).
-- [Autenticação PostgREST](https://docs.postgrest.org/en/stable/references/auth.html).
-- [Auth Hooks](https://supabase.com/docs/guides/auth/auth-hooks).
-- [Realtime Authorization](https://supabase.com/docs/guides/realtime/authorization).
-
-### Guardas do segundo rascunho
-
-Exige os dois criadores e os 16 grants de defaults esperados (2 criadores ×
-2 grantees × 4 direitos), diretos, sem grant option. Usa RESTRICT e transação.
-Uma concessão estrutural global a PUBLIC/anon/authenticated provoca recusa:
-revogar em public não neutralizaria essa concessão. Alterar defaults globais
-exige revisão própria devido ao impacto em outros schemas.
-
-Compara todos os demais defaults e as ACLs existentes antes/depois. Não executa
-SET ROLE supabase_admin nem adiciona memberships para obter autorização. O
-executor deve ter a autorização real necessária; falha nativa aborta a transação.
-
-MAINTAIN atual, cobertura das outras seis tabelas, grants globais, outros
-criadores e dependências desconhecidas permanecem propostas pendentes.
-Defaults não são herdados automaticamente de outros criadores: o papel efetivo
-que cria o objeto determina os defaults aplicáveis.
-
-### Validação e implantação propostas
-
-O runner continua em PostgreSQL isolado, com ambos os criadores sintéticos.
-Acrescenta testes para tabelas futuras criadas efetivamente por cada criador,
-ausência dos 16 direitos, DML preservado, sequências/EXECUTE preservados,
-service_role preservado e schema fora de public intacto. Inclui recusas por
-defaults globais, defaults faltantes e grant options, com rollback. Também
-verifica preservação de MAINTAIN atual na primeira proposta.
-
-Os testes ampliados foram executados em PostgreSQL 17.11, com sucesso nos
-cenários positivos, nove recusas do primeiro rascunho, três recusas do segundo,
-preservação operacional e recusa de repetição. O remoto informado é 17.6;
-o teste não certifica diferenças de extensões, configurações ou serviços Supabase.
-
-A ordem recomendada, somente após aprovação, é: inventário completo → testes
-em Supabase isolado com schema real → defaults futuros → privilégios atuais →
-verificação de ACLs e regressão de serviços. Os dois rascunhos são separados;
-uma falha na segunda execução não desfaz automaticamente a primeira.
-
-Defaults DML preservados NÃO garantem RLS em tabelas futuras: novas tabelas
-privadas devem ser criadas/configuradas com RLS antes de exposição à API.
-Após upgrades e bootstrap, repetir a inspeção de default ACLs; um GRANT ALL
-posterior pode reintroduzir direitos. Não restaurar grants amplos automaticamente.
-
-Não houve SQL remoto, migration, merge, deploy ou alteração da aplicação nesta etapa.
+- [ ] Resultado detalhado das 152 origens diretas revisado; grant options ausentes.
+- [ ] FORCE RLS das seis adicionais, PUBLIC e grants de coluna confirmados.
+- [ ] Herança transitiva, papéis alcançáveis e impacto sobre outros papéis revisados.
+- [ ] Defaults globais, criadores e autorização gerenciada confirmados.
+- [ ] Baseline DML/EXECUTE/service_role e permissões administrativas registrado.
+- [ ] Callers de MAINTAIN/TRUNCATE/TRIGGER/REFERENCES inventariados.
+- [ ] Testes com schema real, Auth/Realtime/API/financeiro/IoT em ambiente isolado aprovados.
+- [ ] Janela, timeouts, monitoramento e recuperação aprovados.
+- [ ] Autorização explícita antes de mover qualquer rascunho para migrations.

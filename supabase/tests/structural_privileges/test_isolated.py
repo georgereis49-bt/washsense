@@ -12,6 +12,8 @@ TARGETS = [
     "organizations", "organization_members", "units", "machines",
     "reservoirs", "devices", "sensors", "machine_readings",
     "reservoir_readings", "payments", "subscriptions", "alerts", "maintenance",
+    "audit_logs", "consumption_records", "machine_cycles", "plans", "profiles",
+    "reservoir_refills",
 ]
 NAME = "washsense-security-test-" + uuid.uuid4().hex[:12]
 IMAGE = "postgres:17@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3"
@@ -56,10 +58,17 @@ def fixture(database):
             f"CREATE POLICY fixture_read ON public.{table} FOR SELECT "
             "TO authenticated USING "
             "(organization_id = current_setting('fixture.organization', true));",
-            f"GRANT TRUNCATE, TRIGGER, REFERENCES ON public.{table} TO anon, authenticated;",
+            f"GRANT TRUNCATE, TRIGGER, REFERENCES, MAINTAIN ON public.{table} TO anon, authenticated;",
             f"GRANT ALL ON public.{table} TO service_role;",
         ]
     commands += [
+        "ALTER TABLE organizations ADD CONSTRAINT fixture_org_unique UNIQUE (organization_id);",
+        "ALTER TABLE profiles ADD CONSTRAINT fixture_profile_org_fk "
+        "FOREIGN KEY (organization_id) REFERENCES organizations (organization_id);",
+        "CREATE FUNCTION public.fixture_trigger() RETURNS trigger LANGUAGE plpgsql "
+        "AS $$ BEGIN RETURN NEW; END $$;",
+        "CREATE TRIGGER fixture_profile_trigger BEFORE INSERT ON profiles "
+        "FOR EACH ROW EXECUTE FUNCTION public.fixture_trigger();",
         "GRANT SELECT ON organizations, subscriptions, payments TO authenticated;",
         "GRANT INSERT, UPDATE, DELETE ON alerts TO authenticated;",
         "GRANT UPDATE (payload) ON machines TO authenticated;",
@@ -92,7 +101,7 @@ def invariant_metadata(database):
           LATERAL aclexplode(c.relacl) a WHERE c.relnamespace='public'::regnamespace
           AND NOT (c.relname <> 'unlisted_table'
             AND a.grantee IN ('anon'::regrole, 'authenticated'::regrole)
-            AND a.privilege_type IN ('TRUNCATE','TRIGGER','REFERENCES'))) x)
+            AND a.privilege_type IN ('TRUNCATE','TRIGGER','REFERENCES','MAINTAIN'))) x)
     );
     """
     return json.loads(sql(statement, database).stdout)
@@ -121,13 +130,16 @@ try:
         "CREATE ROLE service_role BYPASSRLS; CREATE ROLE inherited_reader; "
         "CREATE ROLE supabase_admin;")
     fixture("positive")
-    # Current MAINTAIN is not yet approved for removal; prove it is preserved.
-    sql("GRANT MAINTAIN ON machines TO anon, authenticated;", "positive")
     before_rows = rows("positive")
     before_metadata = invariant_metadata("positive")
     before_counts = readable_counts("positive")
     assert before_counts == ["1", "1", "1"], before_counts
-    sql(PREFLIGHT, "positive")
+    report = sql(PREFLIGHT, "positive").stdout
+    provenance = [json.loads(line.split("|", 1)[1]) for line in report.splitlines()
+                  if line.startswith("grant_provenance|")]
+    assert len(provenance) == 152
+    assert all(p["effective"] and p["expected_direct_grant"]
+               and not p["unexpected_direct_grant"] for p in provenance)
     assert rows("positive") == before_rows, "Preflight changed fixture rows"
     assert "Unexpected structural privilege" in sql(VERIFY, "positive", succeeds=False).stderr
     sql(MIGRATION, "positive")
@@ -135,14 +147,18 @@ try:
     assert rows("positive") == before_rows, "Fixture rows changed"
     assert invariant_metadata("positive") == before_metadata, "Preserved metadata changed"
     assert readable_counts("positive") == before_counts, "Authorized reads changed"
+    sql("BEGIN; SET ROLE service_role; INSERT INTO profiles "
+        "VALUES (3, 'synthetic-A', 'temporary-trigger-test'); ROLLBACK;", "positive")
+    assert rows("positive") == before_rows, "Rolled-back trigger test changed data"
     assert sql("SELECT has_table_privilege('authenticated','machines','UPDATE'), "
                "has_column_privilege('authenticated','machines','payload','UPDATE');",
                "positive").stdout.strip() == "f|t"
     assert "Expected direct postgres grant" in sql(MIGRATION, "positive", succeeds=False).stderr
     sql(VERIFY, "positive")
-    print("PASS: 78 structural table checks + column REFERENCES assertions")
+    print("PASS: 152 structural table checks + column REFERENCES assertions")
     print("PASS: RLS, policies, DML/column grants, other ACLs, functions, constraints, triggers unchanged")
     print("PASS: synthetic rows and authorized organization/subscription/payment reads unchanged")
+    print("PASS: existing trigger and FK continue functioning for service_role")
     print("PASS: read-only preflight; repeat draft refused; unlisted table unchanged")
 
     cases = {
@@ -156,6 +172,19 @@ try:
         "inherited": "GRANT inherited_reader TO authenticated; "
                      "GRANT TRUNCATE ON machines TO inherited_reader;",
         "other_role": "GRANT authenticated TO inherited_reader;",
+        "new_table_option": "GRANT MAINTAIN ON audit_logs TO anon WITH GRANT OPTION;",
+        "new_table_inherited": "REVOKE MAINTAIN ON profiles FROM authenticated; "
+                               "GRANT inherited_reader TO authenticated; "
+                               "GRANT MAINTAIN ON profiles TO inherited_reader;",
+        "new_table_public": "GRANT MAINTAIN ON reservoir_refills TO PUBLIC;",
+        "new_table_force": "ALTER TABLE plans FORCE ROW LEVEL SECURITY;",
+        "new_table_missing": "DROP TABLE consumption_records;",
+        "maintain_inherited": "GRANT inherited_reader TO authenticated; "
+                              "GRANT MAINTAIN ON machine_cycles TO inherited_reader;",
+        "new_table_grantor": "REVOKE MAINTAIN ON profiles FROM anon; "
+                             "GRANT USAGE ON SCHEMA public TO inherited_reader; "
+                             "GRANT MAINTAIN ON profiles TO inherited_reader WITH GRANT OPTION; "
+                             "SET ROLE inherited_reader; GRANT MAINTAIN ON profiles TO anon; RESET ROLE;",
     }
     reasons = {
         "missing": "Missing/drifted target",
@@ -167,11 +196,24 @@ try:
         "missing_direct": "Expected direct postgres grant",
         "inherited": "Residual effective privilege",
         "other_role": "other role privilege or RLS drift",
+        "new_table_option": "Expected direct postgres grant",
+        "new_table_inherited": "Expected direct postgres grant",
+        "new_table_public": "PUBLIC structural grant",
+        "new_table_force": "Missing/drifted target",
+        "new_table_missing": "Missing/drifted target",
+        "maintain_inherited": "Residual effective privilege",
+        "new_table_grantor": "Expected direct postgres grant",
     }
     for database, change in cases.items():
         fixture(database)
         sql(change, database)
         before = sql(PREFLIGHT, database).stdout
+        if database == "new_table_inherited":
+            entries = [json.loads(line.split("|", 1)[1]) for line in before.splitlines()
+                       if line.startswith("grant_provenance|")]
+            match = next(p for p in entries if p["table"] == "profiles"
+                         and p["role"] == "authenticated" and p["privilege"] == "MAINTAIN")
+            assert match["effective"] and not match["expected_direct_grant"]
         failure = sql(MIGRATION, database, succeeds=False)
         assert reasons[database] in failure.stderr, failure.stderr
         assert sql(PREFLIGHT, database).stdout == before, database + " did not roll back"
