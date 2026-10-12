@@ -26,6 +26,8 @@ jobs:
         run: npm ci
       - name: Build all Vite pages
         run: npm run build
+      - name: Run frontend contract tests
+        run: node --test tests/frontend-contract.test.mjs
       - name: Verify HTML build outputs
         shell: bash
         run: |
