@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WashSense — Detalhes</title>
+<link rel="icon" href="assets/washsense-logo.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="dashboard.css" />
+<link rel="stylesheet" href="details.css" />
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><img src="assets/washsense-logo-white.svg" alt="WashSense" /></div>
+    <div class="workspace"><span>UNIDADE</span><button class="unit-select">Lavanderia Central <b>⌄</b></button></div>
+    <nav class="nav">
+      <a href="dashboard.html"><span class="nav-icon">⌂</span>Visão geral</a>
+      <a data-view="reservatorios" href="details.html?view=reservatorios"><span class="nav-icon">▣</span>Reservatórios</a>
+      <a data-view="maquinas" href="details.html?view=maquinas"><span class="nav-icon">◉</span>Máquinas</a>
+      <a data-view="consumo" href="details.html?view=consumo"><span class="nav-icon">▥</span>Consumo</a>
+      <a data-view="alertas" href="details.html?view=alertas"><span class="nav-icon">!</span>Alertas <em>2</em></a>
+      <a data-view="relatorios" href="details.html?view=relatorios"><span class="nav-icon">▤</span>Relatórios</a>
+      <a href="dashboard.html#config"><span class="nav-icon">⚙</span>Configurações</a>
+    </nav>
+    <div class="sidebar-bottom"><div class="status-pill"><span></span> Sistema operacional</div><div class="profile-mini"><div class="avatar">GR</div><div><strong>George Reis</strong><small>Administrador</small></div><button>⋮</button></div></div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <div class="breadcrumbs"><a href="dashboard.html">WashSense</a><b>/</b><span id="breadcrumbParent">Detalhes</span><b>/</b><strong id="breadcrumbCurrent">Carregando</strong></div>
+      <div class="top-actions"><button class="icon-btn" id="backBtn" title="Voltar">←</button><button class="icon-btn" id="refreshBtn" title="Atualizar">↻</button><div class="top-user"><div class="avatar">GR</div><span>George</span><b>⌄</b></div></div>
+    </header>
+
+    <div class="content details-content">
+      <section class="detail-head">
+        <div><button class="back-link" id="backLink">← Voltar para visão geral</button><div class="eyebrow" id="eyebrow">ANÁLISE OPERACIONAL</div><h1 id="pageTitle">Detalhes</h1><p id="pageSubtitle">Dados para acompanhar o desempenho e decidir os próximos passos.</p></div>
+        <div class="detail-controls"><span>Período</span><button id="periodBtn">Últimos 7 dias <b>⌄</b></button></div>
+      </section>
+      <div id="detailRoot"></div>
+      <footer class="dash-footer">WashSense <span>•</span> Sua lavanderia, sob controle. <span>Dados de demonstração — conexão real será ativada com o Supabase.</span></footer>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+<script src="interactive.js"></script>
+<script src="details.js"></script>
+</body>
+</html>

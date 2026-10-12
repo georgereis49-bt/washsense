@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>WashSense — Financeiro</title>
+
+  <link rel="icon" href="assets/washsense-logo.svg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="finance.css">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+
+  <aside class="sidebar" id="sidebar">
+
+    <div class="brand">
+      <img
+        src="assets/washsense-logo-white.svg"
+        alt="WashSense"
+      >
+    </div>
+
+    <div class="workspace">
+      <span>UNIDADE</span>
+
+      <button class="unit-select">
+        Lavanderia Central
+        <b>⌄</b>
+      </button>
+    </div>
+
+    <nav class="nav">
+
+      <a href="dashboard.html">
+        <span class="nav-icon">⌂</span>
+        Visão geral
+      </a>
+
+      <a href="details.html?view=reservatorios">
+        <span class="nav-icon">▣</span>
+        Reservatórios
+      </a>
+
+      <a href="details.html?view=maquinas">
+        <span class="nav-icon">◉</span>
+        Máquinas
+      </a>
+
+      <a href="details.html?view=consumo">
+        <span class="nav-icon">▥</span>
+        Consumo
+      </a>
+
+      <a class="active" href="finance.html">
+        <span class="nav-icon">R$</span>
+        Financeiro
+      </a>
+
+      <a href="details.html?view=alertas">
+        <span class="nav-icon">!</span>
+        Alertas
+        <em>2</em>
+      </a>
+
+      <a href="details.html?view=relatorios">
+        <span class="nav-icon">▤</span>
+        Relatórios
+      </a>
+
+      <a href="settings.html">
+        <span class="nav-icon">⚙</span>
+        Configurações
+      </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+
+      <div class="status-pill">
+        <span></span>
+        Sistema operacional
+      </div>
+
+      <div class="profile-mini">
+
+        <div class="avatar">
+          GR
+        </div>
+
+        <div>
+          <strong>George Reis</strong>
+          <small>Administrador</small>
+        </div>
+
+        <button>⋮</button>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =====================================================
+       MAIN
+  ====================================================== -->
+
+  <main class="main">
+
+    <!-- TOPBAR -->
+
+    <header class="topbar">
+
+      <button
+        class="menu-btn"
+        id="menuBtn"
+      >
+        ☰
+      </button>
+
+      <div class="breadcrumbs">
+
+        <span>WashSense</span>
+
+        <b>/</b>
+
+        <strong>Financeiro</strong>
+
+      </div>
+
+      <div class="top-actions">
+
+        <div class="top-user">
+
+          <div class="avatar">
+            GR
+          </div>
+
+          <span>George</span>
+
+          <b>⌄</b>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         CONTENT
+    ====================================================== -->
+
+    <div class="content finance-content">
+
+
+      <!-- ===================================================
+           CABEÇALHO
+      ==================================================== -->
+
+      <section class="finance-head">
+
+        <div>
+
+          <div class="eyebrow">
+            ASSINATURA WASHsense
+          </div>
+
+          <h1>
+            Financeiro
+          </h1>
+
+          <p>
+            Gerencie seu plano, cobranças e histórico
+            de pagamentos da plataforma WashSense.
+          </p>
+
+        </div>
+
+        <span
+          class="subscription-status"
+          data-finance-status
+        >
+          <i></i>
+          Carregando...
+        </span>
+
+      </section>
+
+
+      <!-- ===================================================
+           PLANO + PRÓXIMA COBRANÇA
+      ==================================================== -->
+
+      <section class="billing-grid">
+
+
+        <!-- PLANO ATUAL -->
+
+        <div class="plan-card">
+
+          <div class="card-kicker">
+            PLANO ATUAL
+          </div>
+
+          <div class="plan-title">
+
+            <div>
+
+              <h2 data-finance-plan>
+                Carregando...
+              </h2>
+
+              <p>
+                Plano da sua assinatura WashSense.
+              </p>
+
+            </div>
+
+            <span class="plan-badge">
+              ATIVO
+            </span>
+
+          </div>
+
+
+          <div class="price">
+
+            <strong data-finance-price>
+              R$ 0,00
+            </strong>
+
+            <span>
+              /mês
+            </span>
+
+          </div>
+
+
+          <div class="plan-meta">
+
+            <div>
+
+              <span>
+                Próxima cobrança
+              </span>
+
+              <strong data-finance-due>
+                —
+              </strong>
+
+            </div>
+
+
+            <div>
+
+              <span>
+                Forma de pagamento
+              </span>
+
+              <strong id="currentMethod">
+                —
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <div class="plan-actions">
+
+            <button
+              class="primary-btn"
+              id="changePlan"
+            >
+              Alterar plano
+            </button>
+
+            <button
+              class="secondary-btn"
+              id="changeMethod"
+            >
+              Alterar pagamento
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <!-- PRÓXIMA COBRANÇA -->
+
+        <div class="charge-card">
+
+          <div class="card-kicker">
+            PRÓXIMA COBRANÇA
+          </div>
+
+          <div class="charge-date">
+
+            <span data-finance-due-day>
+              —
+            </span>
+
+            <small data-finance-due-month>
+              —
+            </small>
+
+          </div>
+
+          <strong data-finance-price>
+            R$ 0,00
+          </strong>
+
+          <p>
+            Próxima cobrança da assinatura WashSense.
+          </p>
+
+          <button
+            class="secondary-btn full"
+            id="payNow"
+          >
+            Pagar agora
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===================================================
+           PLANOS
+      ==================================================== -->
+
+      <section
+        class="plans-section"
+        id="plansSection"
+      >
+
+        <div class="section-heading">
+
+          <div>
+
+            <span class="section-kicker">
+              PLANOS
+            </span>
+
+            <h2>
+              Escolha o plano ideal para sua operação
+            </h2>
+
+            <p>
+              Você pode alterar o plano a qualquer momento.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="plans-grid">
+
+
+          <!-- ESSENCIAL -->
+
+          <article class="mini-plan">
+
+            <div>
+
+              <span class="plan-code">
+                ESSENCIAL
+              </span>
+
+              <h3>
+                R$ 99
+                <small>/mês</small>
+              </h3>
+
+              <p>
+                Até 5 máquinas e 5 dispositivos.
+              </p>
+
+            </div>
+
+            <button
+              class="secondary-btn"
+              data-plan="Essencial"
+            >
+              Selecionar
+            </button>
+
+          </article>
+
+
+          <!-- PROFISSIONAL -->
+
+          <article class="mini-plan featured">
+
+            <div>
+
+              <span class="plan-code">
+                PROFISSIONAL
+              </span>
+
+              <h3>
+                R$ 149
+                <small>/mês</small>
+              </h3>
+
+              <p>
+                Até 20 máquinas e 20 dispositivos.
+              </p>
+
+            </div>
+
+            <span class="current-label">
+              PLANO ATUAL
+            </span>
+
+          </article>
+
+
+          <!-- ENTERPRISE -->
+
+          <article class="mini-plan">
+
+            <div>
+
+              <span class="plan-code">
+                ENTERPRISE
+              </span>
+
+              <h3>
+                R$ 249
+                <small>/mês</small>
+              </h3>
+
+              <p>
+                Até 100 máquinas e 100 dispositivos.
+              </p>
+
+            </div>
+
+            <button
+              class="secondary-btn"
+              data-plan="Enterprise"
+            >
+              Selecionar
+            </button>
+
+          </article>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===================================================
+           HISTÓRICO
+      ==================================================== -->
+
+      <section class="history-section">
+
+        <div class="section-heading row">
+
+          <div>
+
+            <span class="section-kicker">
+              COBRANÇAS
+            </span>
+
+            <h2>
+              Histórico de pagamentos
+            </h2>
+
+            <p>
+              Consulte suas cobranças e documentos.
+            </p>
+
+          </div>
+
+
+          <select id="historyFilter">
+
+            <option value="all">
+              Todos os pagamentos
+            </option>
+
+            <option value="paid">
+              Pagos
+            </option>
+
+            <option value="pending">
+              Pendentes
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="table-card">
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th>
+                  Data
+                </th>
+
+                <th>
+                  Descrição
+                </th>
+
+                <th>
+                  Valor
+                </th>
+
+                <th>
+                  Forma
+                </th>
+
+                <th>
+                  Status
+                </th>
+
+                <th>
+                  Documento
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody id="paymentRows">
+
+              <tr>
+
+                <td
+                  colspan="6"
+                  style="text-align:center;padding:24px;"
+                >
+                  Carregando pagamentos...
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===================================================
+           PAGAMENTOS
+      ==================================================== -->
+
+      <section class="payment-info">
+
+        <div>
+
+          <span class="section-kicker">
+            PAGAMENTOS
+          </span>
+
+          <h2>
+            Pagamento seguro
+          </h2>
+
+          <p>
+            As cobranças são processadas pelo Asaas.
+            O WashSense registra automaticamente o status
+            e o histórico dos pagamentos.
+          </p>
+
+        </div>
+
+
+        <div class="payment-options">
+
+          <div>
+
+            <b>
+              PIX
+            </b>
+
+            <span>
+              QR Code e copia e cola
+            </span>
+
+          </div>
+
+
+          <div>
+
+            <b>
+              Boleto
+            </b>
+
+            <span>
+              PDF e código de barras
+            </span>
+
+          </div>
+
+
+          <div>
+
+            <b>
+              Cartão
+            </b>
+
+            <span>
+              Conforme configuração da assinatura
+            </span>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ===================================================
+           AVISO
+      ==================================================== -->
+
+      <div
+        class="notice"
+        id="financeNotice"
+      >
+
+        <b>
+          Dados sincronizados
+        </b>
+
+        <span>
+          As informações desta tela são carregadas
+          diretamente da assinatura e dos pagamentos
+          registrados no Supabase.
+        </span>
+
+      </div>
+
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<!-- =======================================================
+     MODAL
+======================================================= -->
+
+<div
+  class="modal"
+  id="billingModal"
+  aria-hidden="true"
+>
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <div>
+
+        <span class="section-kicker">
+          FINANCEIRO
+        </span>
+
+        <h3 id="modalTitle">
+          Alterar plano
+        </h3>
+
+      </div>
+
+      <button id="closeModal">
+        ×
+      </button>
+
+    </div>
+
+
+    <div id="modalBody"></div>
+
+
+    <div class="modal-actions">
+
+      <button
+        class="secondary-btn"
+        id="cancelModal"
+      >
+        Cancelar
+      </button>
+
+      <button
+        class="primary-btn"
+        id="confirmModal"
+      >
+        Continuar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =======================================================
+     SCRIPTS
+======================================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="supabase-config.js"></script>
+
+<script src="finance.js"></script>
+
+</body>
+</html>

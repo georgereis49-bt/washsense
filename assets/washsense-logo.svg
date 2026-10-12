@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 230">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22D3EE"/><stop offset=".55" stop-color="#0EA5E9"/><stop offset="1" stop-color="#1769D5"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(18 20)">
+    <path d="M78 8 C78 8 34 62 34 99 a44 44 0 0 0 88 0 C122 62 78 8 78 8Z" fill="none" stroke="url(#g)" stroke-width="14"/>
+    <path d="M139 47 Q173 75 139 111 M158 30 Q207 77 158 128 M178 17 Q241 77 178 143" fill="none" stroke="url(#g)" stroke-width="11" stroke-linecap="round"/>
+  </g>
+  <text x="235" y="142" font-family="Montserrat,Arial,sans-serif" font-size="100" font-weight="800" letter-spacing="-5" fill="#0B2D5B">Wash</text>
+  <text x="500" y="142" font-family="Montserrat,Arial,sans-serif" font-size="100" font-weight="800" letter-spacing="-5" fill="url(#g)">Sense</text>
+  <text x="812" y="61" font-family="Arial,sans-serif" font-size="20" fill="#0B2D5B">®</text>
+</svg>

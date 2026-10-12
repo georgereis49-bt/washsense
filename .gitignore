@@ -1,0 +1,32 @@
+﻿# Dependências
+node_modules/
+
+# Variáveis de ambiente
+.env
+.env.*
+!.env.example
+
+# Credenciais e chaves privadas
+*.pem
+*.key
+*service-account*.json
+*credentials*.json
+
+# Supabase local
+supabase/.temp/
+supabase/.branches/
+
+# Compilação
+dist/
+build/
+coverage/
+
+# Arquivos temporários
+*.log
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+
+/WashSense-site-v4.6

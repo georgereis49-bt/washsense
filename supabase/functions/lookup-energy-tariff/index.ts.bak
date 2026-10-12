@@ -1,0 +1,35 @@
+const ANEEL_API = 'https://dadosabertos.aneel.gov.br/api/3/action/datastore_search_sql';
+const ANEEL_RESOURCE = 'fcf2906c-7c32-4b9b-a637-054e7a5234f4';
+const aliases: Record<string,string[]> = {'enel são paulo':['ENEL','ELETROPAULO'],'enel':['ENEL','ELETROPAULO'],'cpfl paulista':['CPFL PAULISTA'],'cpfl piratininga':['CPFL PIRATININGA'],'cemig':['CEMIG'],'neoenergia elektro':['ELEKTRO','NEOENERGIA ELEKTRO'],'neoenergia coelba':['COELBA','NEOENERGIA COELBA'],'equatorial':['EQUATORIAL'],'light':['LIGHT']};
+const norm=(v:string)=>v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();
+const esc=(v:string)=>v.replace(/'/g,"''");
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+
+const json = (body: Record<string, unknown>, status = 200) =>
+  Response.json(body, { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+
+Deno.serve(async(req)=>{
+  if(req.method==='OPTIONS') return new Response('ok', { status: 200, headers: corsHeaders });
+  if(req.method!=='POST') return json({error:'Use POST.'},405);
+  try{
+    const b=await req.json(); const distributor=String(b?.distributor||'').trim(); const group=String(b?.group||'B').toUpperCase();
+    if(!distributor) return json({error:'Distribuidora obrigatória.'},400);
+    if(!['A','B'].includes(group)) return json({error:'Grupo tarifário inválido.'},400);
+    const terms=aliases[norm(distributor)]||[distributor];
+    const agentWhere=terms.map(a=>`upper("SigAgente") LIKE upper('%${esc(a)}%')`).join(' OR ');
+    const groupWhere=group==='B'?`upper("DscSubGrupo") LIKE 'B%'`:`upper("DscSubGrupo") LIKE 'A%'`;
+    const sql=`SELECT "SigAgente","DatInicioVigencia","DatFimVigencia","DscSubGrupo","DscModalidadeTarifaria","DscClasse","NomPostoTarifario","DscUnidadeTerciaria","VlrTUSD","VlrTE" FROM "${ANEEL_RESOURCE}" WHERE (${agentWhere}) AND ${groupWhere} AND ("DatFimVigencia" IS NULL OR "DatFimVigencia" >= CURRENT_DATE) ORDER BY "DatInicioVigencia" DESC LIMIT 200`;
+    const r=await fetch(`${ANEEL_API}?sql=${encodeURIComponent(sql)}`,{headers:{accept:'application/json'}});
+    if(!r.ok) return json({error:`ANEEL indisponível (${r.status})`},502);
+    const p=await r.json(); const rows=p?.result?.records||[];
+    if(!p?.success||!rows.length) return json({error:'Tarifa não encontrada para os parâmetros informados.'},404);
+    const x=rows.find((r:any)=>group==='B'&&/B3/i.test(r.DscSubGrupo||'')&&/demais/i.test(r.DscClasse||''))||rows.find((r:any)=>group==='B'&&/B3/i.test(r.DscSubGrupo||''))||rows[0];
+    const divisor=/MWh/i.test(x.DscUnidadeTerciaria||'')?1000:1;
+    const te=Number(String(x.VlrTE??0).replace(',','.'))/divisor, tusd=Number(String(x.VlrTUSD??0).replace(',','.'))/divisor;
+    return json({source:'ANEEL',fetched_at:new Date().toISOString(),tariff:{distributor_name:x.SigAgente,group,subgroup:x.DscSubGrupo,mode:x.DscModalidadeTarifaria,class:x.DscClasse,time_post:x.NomPostoTarifario,unit:x.DscUnidadeTerciaria,te,tusd,base:te+tusd,valid_from:x.DatInicioVigencia,valid_to:x.DatFimVigencia}});
+  }catch(e){return json({error:e instanceof Error?e.message:'Erro interno.'},500);}
+});
