@@ -21,7 +21,7 @@ test('all known browser scripts parse with Node', () => {
 test('all internal page navigation targets resolve to a published page', () => {
   for (const page of pages) {
     const html = readFileSync(page + '.html', 'utf8');
-    for (const match of html.matchAll(/\\bhref=[\"']([^\"']+\\.html)(?:[?#][^\"']*)?[\"']/g)) {
+    for (const match of html.matchAll(/\bhref=[\"']([^\"']+\.html)(?:[?#][^\"']*)?[\"']/g)) {
       assert.ok(existsSync(match[1]), page + ' links to missing ' + match[1]);
     }
   }
@@ -29,12 +29,12 @@ test('all internal page navigation targets resolve to a published page', () => {
 test('no service-role secret literal is committed in browser scripts', () => {
   for (const file of scripts) {
     const code = readFileSync(file, 'utf8');
-    assert.doesNotMatch(code, /(?:SUPABASE_SERVICE_ROLE_KEY|sb_secret_[a-zA-Z0-9_-]{10,})\\s*[:=]\\s*[\"']/);
+    assert.doesNotMatch(code, /(?:SUPABASE_SERVICE_ROLE_KEY|sb_secret_[a-zA-Z0-9_-]{10,})\s*[:=]\s*[\"']/);
   }
 });
 test('billing frontend calls server functions, not direct Asaas API with secret', () => {
   const code = readFileSync('finance.js', 'utf8');
-  assert.doesNotMatch(code, /api\\.asaas\\.com\\/v3/);
+  assert.doesNotMatch(code, /api\.asaas\.com\/v3/);
   for (const name of ['asaas-get-pix', 'asaas-get-boleto', 'asaas-pay-credit-card', 'asaas-set-recurring-card']) {
     assert.ok(code.includes(name), 'billing call not found: ' + name);
   }
