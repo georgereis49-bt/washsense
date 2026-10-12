@@ -1,0 +1,11 @@
+PASS: snapshot 19 target contracts; 152 direct postgres grants; no PUBLIC/column structural grants
+PASS: ten FK link contracts, CASCADE/NO ACTION and validation flags match supplied schema
+PASS: 126 triggers are internal/enabled; no custom trigger reported
+PASS: snapshot confirms no effective DML on machines/sensors/maintenance for the three API roles
+PASS: local projection matches all 154 column types/nullability and 393 direct table ACL entries
+PASS PARTIAL: structural proposal executes on real table/ACL projection; only the 152 entries change
+PASS PARTIAL: public default privilege proposal executes on recovered scoped grants
+BLOCKED: full/RLS reconstruction: policies/functions/defaults/constraints/indexes are fingerprints; role OID map/attributes and aliases unavailable
+BLOCKED: Auth/PostgREST integration against the real schema; no fabricated SQL bodies or new DML grants
+PostgreSQL: 17.11 (Debian 17.11-1.pgdg13+2)
+PASS: required UUID/nullability contracts and 16 public structural default combinations (separate inventory check, no SQL rerun)
