@@ -1,0 +1,49 @@
+name: WashSense frontend checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, fix/vite-mpa-entrypoints]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Build all Vite pages
+        run: npm run build
+      - name: Verify HTML build outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          for page in index login dashboard details finance settings report; do
+            test -s "dist/${page}.html" || { echo "::error::Missing dist/${page}.html"; exit 1; }
+            echo "OK dist/${page}.html"
+          done
+      - name: Check generated assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d dist
+          find dist -maxdepth 2 -type f | sort | head -60
+      - name: Upload build for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: washsense-frontend-dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
