@@ -2,7 +2,7 @@
 param([Parameter(Mandatory)][string] $LabRoot)
 . (Join-Path $PSScriptRoot 'Lab.Common.ps1')
 $m = Read-LabManifest (Join-Path $PSScriptRoot 'lab.manifest.json')
-$full = [IO.Path]::GetFullPath($LabRoot)
+$full = Get-NormalizedLocalPath $LabRoot
 Assert-LabDirectory $full
 if (Test-Path -LiteralPath $full) { throw 'Laboratory directory already exists.' }
 Assert-NoRemoteCredentials $full

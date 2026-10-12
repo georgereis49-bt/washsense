@@ -13,6 +13,7 @@ if ($StaticOnly) {
 if (-not $IsWindows -or $PSVersionTable.PSVersion -lt [version]$m.versions.powerShellMinimum) {
     throw 'Windows and PowerShell 7.4.6+ required (Windows PowerShell 5.1 unsupported).'
 }
+$LabRoot = Get-NormalizedLocalPath $LabRoot
 Assert-LabDirectory $LabRoot -MustExist
 Assert-NoRemoteCredentials $LabRoot
 if (-not $m.isolation.cleanOsProfileReviewed -or -not $m.isolation.credentialStoreReviewApproved) {

@@ -164,6 +164,13 @@ RPCs/batches/jobs ainda precisam de inventário. Propor proibição de reutiliza
 de IDs ou proteção histórica apenas se esse caminho e a regra de identidade
 lógica forem confirmados no schema. Nada disso autoriza transferências.
 
+## Revisão posterior de storage — Etapa 3.21
+
+A proposta de rejeitar TEMP/root UNC/mapeado foi implementada na revisão seguinte,
+com [79 checks e limites documentados](supabase-lab-storage-321.md). Os riscos
+abaixo são o diagnóstico histórico da Etapa 3.20, não indicação de que a validação
+continue apenas por prefixo. A homologação Windows real continua pendente.
+
 ## Revisão dos scripts e riscos residuais
 
 As correções da Etapa 3.19 seguem presentes: flags JSON booleanas, endpoint Docker

@@ -22,8 +22,96 @@ if ($m.approvals.startStack -or $m.approvals.runSyntheticTests -or
     $m.structuralPackage.reviewApproved) { throw 'Committed preparation must remain unapproved/unpinned.' }
 $count++
 $fixture = Join-Path ([IO.Path]::GetTempPath()) ('washsense-static-' + [guid]::NewGuid().ToString('N'))
+Assert-LabDirectory $fixture
 New-Item -ItemType Directory -Path $fixture | Out-Null
 try {
+    # Policies are pure metadata tests; no Windows drive/share is queried.
+    foreach ($case in @('fixed','network','unknown','removable','mapping','provider','unc')) {
+        $drive=[pscustomobject]@{Root='C:\'; DisplayRoot=$null; Provider='FileSystem'; DriveType='Fixed'}
+        switch ($case) {
+            'network' {$drive.DriveType='Network'}
+            'unknown' {$drive.DriveType='Unknown'}
+            'removable' {$drive.DriveType='Removable'}
+            'mapping' {$drive.DisplayRoot='\\example.invalid\share'}
+            'provider' {$drive.Provider='Registry'}
+            'unc' {$drive.Root='\\example.invalid\share\'}
+        }
+        $rejected=$false
+        try { Assert-WindowsStorageMetadata $drive } catch {
+            if ($_.Exception.Message -ne 'Windows fixed local storage could not be proven.') { throw }
+            $rejected=$true
+        }
+        if ($rejected -ne ($case -ne 'fixed')) { throw "Wrong Windows storage policy: $case" }
+        $count++
+    }
+    foreach ($type in @('tmpfs','ext4','nfs','nfs4','cifs','smb3','fuse.sshfs','9p','overlay','unknown')) {
+        $mounts=@('1 0 0:1 / / rw - ext4 /dev/local rw', "2 1 0:2 / /tmp rw - $type synthetic rw")
+        $rejected=$false
+        try { Assert-LinuxMountStorage '/tmp/lab' $mounts } catch {
+            if ($_.Exception.Message -ne 'Linux local storage could not be proven.') { throw }
+            $rejected=$true
+        }
+        if ($rejected -ne ($type -notin @('tmpfs','ext4'))) { throw "Wrong Linux storage policy: $type" }
+        $count++
+    }
+    foreach ($case in @('nested','ambiguous','missing','malformed')) {
+        $mounts=@('1 0 0:1 / / rw - ext4 /dev/local rw','2 1 0:2 / /tmp rw - tmpfs tmpfs rw')
+        switch ($case) {
+            'nested' {$mounts += '3 2 0:3 / /tmp/lab rw - cifs synthetic rw'}
+            'ambiguous' {$mounts += '3 1 0:3 / /tmp rw - nfs synthetic rw'}
+            'missing' {$mounts=@()}
+            'malformed' {$mounts=@('invalid')}
+        }
+        $rejected=$false
+        try { Assert-LinuxMountStorage '/tmp/lab/child' $mounts } catch {$rejected=$true}
+        if (-not $rejected) {throw "Unproven Linux storage accepted: $case"}
+        $count++
+    }
+    foreach ($path in @('\\example.invalid\temp\lab','//example.invalid/temp/lab',
+        '\\?\UNC\example.invalid\share','\\.\C:\temp','https://example.invalid/lab',
+        'C:relative','Registry::HKEY_LOCAL_MACHINE','relative-lab')) {
+        $rejected=$false
+        try {$null=Get-NormalizedLocalPath $path} catch {$rejected=$true}
+        if (-not $rejected) {throw 'Nonlocal/ambiguous raw path accepted.'}
+        $count++
+    }
+    $normalized=Get-NormalizedLocalPath (Join-Path $fixture 'nested/../safe')
+    if ($normalized -ne (Join-Path $fixture 'safe')) {throw 'Normalization mismatch.'}
+    Assert-LabDirectory $normalized
+    $count++
+    Assert-LabDirectory $fixture -MustExist
+    $count++
+    foreach ($outside in @([IO.Path]::GetTempPath(),
+        ([IO.Path]::GetTempPath().TrimEnd([IO.Path]::DirectorySeparatorChar)+'-outside/lab'),
+        (Join-Path $fixture '../../../outside-lab'))) {
+        $rejected=$false
+        try {Assert-LabDirectory $outside} catch {$rejected=$true}
+        if (-not $rejected) {throw 'Lab containment bypass.'}
+        $count++
+    }
+    foreach ($type in @('overlay','cifs')) {
+        $mounts=@("1 0 0:1 / / rw - $type synthetic rw")
+        $rejected=$false
+        try {Assert-LinuxMountStorage '/ancestor' $mounts -MetadataOnly} catch {$rejected=$true}
+        if ($rejected -ne ($type -eq 'cifs')) {throw 'Wrong metadata traversal policy.'}
+        $count++
+    }
+    $originalTemp=(Get-Item Function:Get-LabTemporaryPath).ScriptBlock
+    $originalProof=(Get-Item Function:Assert-ProvenLocalStorage).ScriptBlock
+    try {
+        Set-Item Function:Get-LabTemporaryPath {'\\example.invalid\temporary'}
+        Set-Item Function:Assert-ProvenLocalStorage {throw 'Unexpected storage probe before raw path rejection.'}
+        $rejected=$false
+        try {Assert-LabDirectory (Join-Path $fixture 'lab')} catch {
+            if ($_.Exception.Message -ne 'Absolute local filesystem path required.') {throw}
+            $rejected=$true
+        }
+        if (-not $rejected) {throw 'UNC temporary accepted.'}
+        $count++
+    } finally {
+        Set-Item Function:Get-LabTemporaryPath $originalTemp
+        Set-Item Function:Assert-ProvenLocalStorage $originalProof
+    }
     foreach ($case in @('remote','userinfo','redirect','binding','identity','proposal','path','digest',
         'stringflag','nullflag','emptybinding','emptyredirect','minimum','purpose','file','porttype','apipath')) {
         $copy = Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json

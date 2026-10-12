@@ -2,6 +2,7 @@
 [CmdletBinding()]
 param([Parameter(Mandatory)][string] $LabRoot)
 . (Join-Path $PSScriptRoot 'Lab.Common.ps1')
+$LabRoot = Get-NormalizedLocalPath $LabRoot
 Assert-LabDirectory $LabRoot -MustExist
 $m = Read-LabManifest (Join-Path $LabRoot 'lab.manifest.json')
 Assert-NoRemoteCredentials $LabRoot

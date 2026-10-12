@@ -5,6 +5,15 @@ security/stage-2-3-structural-privileges. Preparação apenas: stack não inicia
 nenhum SQL remoto/local, migration ou .sql.pending executado; aplicação intocada.
 A PR deve continuar em rascunho. Este material não autoriza testes ou produção.
 
+## Storage local reforçado — Etapa 3.21
+
+[Relatório de armazenamento e 79 checks](supabase-lab-storage-321.md).
+Temporário/destino precisam de comprovação local: Windows Fixed sem mapeamentos;
+Linux mountinfo com filesystem permitido. UNC, junctions/reparse points,
+redirecionamento e localização desconhecida bloqueiam o laboratório. Realizar
+as verificações Windows/ACLs listadas no relatório antes de afirmar prontidão.
+Scripts exigem paths absolutos; o manifesto e flags permanecem pendentes.
+
 ## Homologação documental — Etapa 3.20
 
 [Versões disponíveis, catálogo oficial e regra definitiva](supabase-lab-homologation-320.md).
