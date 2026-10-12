@@ -1,0 +1,9 @@
+Command: python3 supabase/tests/snapshot/test_real_api.py
+Exit status: 0
+PASS: reconstructed metadata; local superuser bootstrap (not production executor); actual GoTrue/PostgREST ready on inspected internal Docker IPs; no published ports
+PASS: real Auth signup/password login/JWT; incorrect password rejected
+PASS: real JWT/organization SELECT RLS; foreign rows hidden; dual membership sees exactly two orgs
+PASS: actual HTTP 403/42501 for operational SELECT/INSERT/UPDATE with preserved real grants
+BLOCKED: business writes/role DML matrix/service trigger via HTTP lack real DML grants; no grants fabricated
+PASS: real Auth logout revokes refresh session; access JWT expiry is a separate behavior
+PostgreSQL: 17.11 (Debian 17.11-1.pgdg13+2)

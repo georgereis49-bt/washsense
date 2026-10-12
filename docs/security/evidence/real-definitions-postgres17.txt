@@ -1,0 +1,19 @@
+PASS: reconstructed tables 19
+PASS: reconstructed policies 41
+PASS: reconstructed constraints 54
+PASS: reconstructed indexes 55
+PASS: all 393 direct table grants match snapshot exactly; no added DML
+PASS: all 41 policy expressions, six helper definitions and 72 public default grants match
+PASS: structural proposal COMMIT with real table grants and postgres NOSUPERUSER
+BLOCKED: default proposal with postgres NOSUPERUSER: ERROR:  permission denied to change default privileges
+CONTEXT:  SQL statement "ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public REVOKE TRUNCATE, TRIGGER, REFERENCES, MAINTAIN ON TABLES FROM anon, authenticated RESTRICT"
+PL/pgSQL function inline_code_block line 57 at EXECUTE
+PASS: default proposal commits as local supabase_admin; postgres rejection rolls back atomically
+PASS: future objects from both creators lose structural defaults while original DML defaults remain
+PASS: operational RLS proposal COMMIT against all real policies/constraints/helpers
+PASS: original DML absence preserved; role-based writes BLOCKED, not RLS exploits
+PASS: three API roles receive SQL permission denied on machine writes
+PASS: owner writes same-org multiunit allowed; cross-org parent transfers denied
+PASS: parent organizational identity and sensor/maintenance cross-org links guarded
+PASS: reused post-COMMIT recovery assertions preserve original metadata, policies, grants and fake data
+PostgreSQL: 17.11 (Debian 17.11-1.pgdg13+2)
