@@ -5,6 +5,13 @@ security/stage-2-3-structural-privileges. Preparação apenas: stack não inicia
 nenhum SQL remoto/local, migration ou .sql.pending executado; aplicação intocada.
 A PR deve continuar em rascunho. Este material não autoriza testes ou produção.
 
+## Revisão estática posterior — Etapa 3.19
+
+[Relatório de revisão e 42 checks aprovados](supabase-lab-review-319.md).
+Os resultados de 18 checks abaixo são históricos da Etapa 3.18. Os cinco scripts
+foram reforçados sem iniciar serviços ou executar SQL; validação Windows continua
+pendente e as aprovações do manifesto permanecem false.
+
 ## Arquivos e inventário de versões
 
 Manifesto: `tools/supabase-lab/lab.manifest.json`. Identidade própria

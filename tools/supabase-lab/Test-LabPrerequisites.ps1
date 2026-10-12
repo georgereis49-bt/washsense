@@ -13,7 +13,7 @@ if ($StaticOnly) {
 if (-not $IsWindows -or $PSVersionTable.PSVersion -lt [version]$m.versions.powerShellMinimum) {
     throw 'Windows and PowerShell 7.4.6+ required (Windows PowerShell 5.1 unsupported).'
 }
-if (-not $LabRoot -or -not (Test-Path -LiteralPath $LabRoot -PathType Container)) { throw 'Explicit laboratory root required.' }
+Assert-LabDirectory $LabRoot -MustExist
 Assert-NoRemoteCredentials $LabRoot
 if (-not $m.isolation.cleanOsProfileReviewed -or -not $m.isolation.credentialStoreReviewApproved) {
     throw 'Dedicated OS profile and credential-store review required.'
@@ -27,8 +27,8 @@ if ($LASTEXITCODE -ne 0 -or $version -ne $m.versions.supabaseCliExact) { throw '
 $docker = Get-LocalDockerServer
 if ($docker.ServerVersion -ne $m.versions.dockerServerExact) { throw 'Docker server version mismatch.' }
 foreach ($image in $m.versions.supabaseImages) {
-    if ($image -notmatch '@sha256:[a-f0-9]{64}$') { throw 'Image digest required.' }
-    & docker image inspect $image *> $null
+    if ($image -notmatch '^[a-z0-9][a-z0-9./:_-]*@sha256:[a-f0-9]{64}$') { throw 'Image digest required.' }
+    & docker --host $docker.Endpoint image inspect $image *> $null
     if ($LASTEXITCODE -ne 0) { throw 'Approved image not cached; offline readiness blocked.' }
 }
 if (-not (Get-Command Get-NetTCPConnection -ErrorAction SilentlyContinue)) { throw 'Windows networking cmdlets unavailable.' }
