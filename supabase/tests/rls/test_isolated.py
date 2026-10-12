@@ -35,14 +35,17 @@ def setup(db):
       CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS
       $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
       CREATE TABLE public.organization_members(user_id uuid, organization_id uuid, role text);
-      CREATE TABLE public.units(id uuid PRIMARY KEY, organization_id uuid NOT NULL);
-      CREATE TABLE public.unit_blocks(user_id uuid, unit_id uuid REFERENCES units(id));
-      CREATE TABLE public.machines(id uuid PRIMARY KEY, unit_id uuid REFERENCES units(id), label text);
-      CREATE TABLE public.maintenance(id uuid PRIMARY KEY, unit_id uuid REFERENCES units(id), label text);
-      CREATE TABLE public.devices(id uuid PRIMARY KEY, unit_id uuid REFERENCES units(id));
-      CREATE TABLE public.reservoirs(id uuid PRIMARY KEY, unit_id uuid REFERENCES units(id));
-      CREATE TABLE public.sensors(id uuid PRIMARY KEY, device_id uuid REFERENCES devices(id),
-        reservoir_id uuid REFERENCES reservoirs(id), machine_id uuid REFERENCES machines(id), label text);
+      CREATE TABLE public.organizations(id uuid PRIMARY KEY);
+      CREATE TABLE public.units(id uuid PRIMARY KEY, organization_id uuid NOT NULL REFERENCES organizations(id) ON DELETE CASCADE);
+      CREATE TABLE public.unit_blocks(user_id uuid, unit_id uuid NOT NULL REFERENCES units(id) ON DELETE CASCADE);
+      CREATE TABLE public.machines(id uuid PRIMARY KEY, unit_id uuid NOT NULL REFERENCES units(id) ON DELETE CASCADE, label text);
+
+      CREATE TABLE public.devices(id uuid PRIMARY KEY, unit_id uuid NOT NULL REFERENCES units(id) ON DELETE CASCADE);
+      CREATE TABLE public.reservoirs(id uuid PRIMARY KEY, unit_id uuid NOT NULL REFERENCES units(id) ON DELETE CASCADE);
+      CREATE TABLE public.sensors(id uuid PRIMARY KEY, device_id uuid NOT NULL REFERENCES devices(id) ON DELETE CASCADE,
+        reservoir_id uuid REFERENCES reservoirs(id) ON DELETE CASCADE, machine_id uuid REFERENCES machines(id) ON DELETE CASCADE, label text);
+      CREATE TABLE public.maintenance(id uuid PRIMARY KEY, unit_id uuid NOT NULL REFERENCES units(id) ON DELETE CASCADE,
+        device_id uuid REFERENCES devices(id) ON DELETE CASCADE, machine_id uuid REFERENCES machines(id) ON DELETE CASCADE,label text);
       CREATE FUNCTION public.has_org_role(org uuid, roles text[]) RETURNS boolean LANGUAGE sql
         STABLE SECURITY DEFINER SET search_path=pg_catalog AS $$ SELECT EXISTS
         (SELECT 1 FROM public.organization_members WHERE user_id=auth.uid()
@@ -83,12 +86,13 @@ def setup(db):
       GRANT SELECT,INSERT,UPDATE ON machines,maintenance,sensors TO authenticated;
       GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role;
     """,db)
-    for unit,org in [(11,1),(12,1),(21,2)]:
+    sql(f"INSERT INTO organizations VALUES ('{uid(1)}'),('{uid(2)}');",db)
+    for unit,org in [(11,1),(12,1),(21,2),(22,2)]:
         sql(f"INSERT INTO units VALUES ('{uid(unit)}','{uid(org)}');",db)
-    for table,entries in [('machines',[(101,11),(102,12),(121,21)]),
+    for table,entries in [('machines',[(101,11),(102,12),(121,21),(122,22)]),
                           ('maintenance',[(601,11),(621,21)]),
-                          ('devices',[(301,11),(302,12),(321,21)]),
-                          ('reservoirs',[(401,11),(402,12),(421,21)])]:
+                          ('devices',[(301,11),(302,12),(321,21),(322,22)]),
+                          ('reservoirs',[(401,11),(402,12),(421,21),(422,22)])]:
         for id,unit in entries:
             cols='id,unit_id'
             sql(f"INSERT INTO {table} ({cols}) VALUES ('{uid(id)}','{uid(unit)}');",db)
@@ -141,7 +145,14 @@ try:
     grants=sql("SELECT relname,relacl::text FROM pg_class WHERE relnamespace='public'::regnamespace ORDER BY relname;",'positive')
     attempt('positive',1003,update('machines',101),1)  # Reproduce operator weakness in synthetic model.
     attempt('positive',1002,insert_sensor(301,421),error=None)  # OR permits mixed organizations before proposal.
+    metadata_sql = "SELECT jsonb_agg(x ORDER BY x::text) FROM (" + " UNION ALL ".join([
+        "SELECT jsonb_build_object('constraint',oid,'definition',pg_get_constraintdef(oid)) x FROM pg_constraint WHERE connamespace='public'::regnamespace",
+        "SELECT jsonb_build_object('column',attrelid,'number',attnum,'acl',attacl) x FROM pg_attribute WHERE attrelid IN (SELECT oid FROM pg_class WHERE relnamespace='public'::regnamespace) AND attnum>0",
+        "SELECT jsonb_build_object('helper',oid,'definition',pg_get_functiondef(oid),'acl',proacl) x FROM pg_proc WHERE pronamespace='public'::regnamespace"
+    ]) + ") q;"
+    original_metadata=sql(metadata_sql,'positive')
     apply('positive',old)
+    assert sql(metadata_sql.replace("WHERE pronamespace='public'::regnamespace", "WHERE pronamespace='public'::regnamespace AND proname NOT LIKE 'washsense_rls_%'"),'positive')==original_metadata
     assert sql("SELECT relname,relacl::text FROM pg_class WHERE relnamespace='public'::regnamespace ORDER BY relname;",'positive')==grants
     new=baseline('positive')
     assert [p for p in old if p['name']=='fixture_read']==[p for p in new if p['name']=='fixture_read']
@@ -163,11 +174,14 @@ try:
     print('PASS: both organizations × four roles; machines/maintenance/sensors authorization')
     for statement in [update('machines',101,f"unit_id='{uid(21)}'"),
                       update('maintenance',601,f"unit_id='{uid(21)}'"),
-                      update('sensors',501,f"device_id='{uid(321)}',reservoir_id='{uid(421)}',machine_id='{uid(121)}'"),
-                      insert_sensor(301,421),insert_sensor(None)]:
+                      update('sensors',501,f"device_id='{uid(321)}',reservoir_id='{uid(421)}',machine_id='{uid(121)}'")]:
         attempt('positive',3333,statement,error='Invalid association or cross-organization transfer')
+    for statement in [insert_sensor(301,421),insert_sensor(None)]:
+        attempt('positive',3333,statement,error='row-level security')
     attempt('positive',3333,update('machines',101,f"unit_id='{uid(12)}'"),1)
     attempt('positive',1000,insert_sensor(301,402,102))
+    attempt('positive',2000,insert_sensor(321,422,122))
+    attempt('positive',3333,update('sensors',501,f"device_id='{uid(302)}',reservoir_id='{uid(402)}',machine_id='{uid(102)}'"),1)
     attempt('positive',1002,insert_sensor(301,402),error='row-level security')
     # Isolate WITH CHECK from the independent transfer trigger in this fixture only.
     sql('ALTER TABLE machines DISABLE TRIGGER washsense_rls_org_guard;','positive')
@@ -183,15 +197,50 @@ try:
     attempt('positive',1000,update('machines',101),error='permission denied')
     attempt('positive',1000,insert_sensor(301),error='permission denied')
     print('PASS: RLS never supplies missing INSERT/UPDATE grants')
-    # Deliberately document the remaining parent-move hole; not a passing isolation claim.
-    assert sql(f"BEGIN; UPDATE devices SET unit_id='{uid(21)}' WHERE id='{uid(301)}'; "
-        f"SELECT public.washsense_rls_sensor_org(device_id,reservoir_id,machine_id) IS NULL "
-        f"FROM sensors WHERE id='{uid(501)}'; ROLLBACK;",'positive')=='t'
+    for table,id,col,target in [('devices',301,'unit_id',21),('reservoirs',401,'unit_id',21),
+                                 ('units',11,'organization_id',2)]:
+        attempt('positive',0,update(table,id,f"{col}='{uid(target)}'"),role='service_role',
+                error='transfer')
+    for table,id in [('devices',301),('reservoirs',401)]:
+        attempt('positive',0,update(table,id,f"unit_id='{uid(12)}'"),role='service_role',expected=1)
+    for statement in ["INSERT INTO maintenance(id,unit_id,device_id,machine_id) VALUES "
+                      +f"('{uid(901)}','{uid(11)}','{uid(302)}','{uid(102)}');",
+                      update('maintenance',601,f"device_id='{uid(302)}',machine_id='{uid(102)}'")]:
+        attempt('positive',0,statement,role='service_role')
+    for column,value in [('device_id',321),('machine_id',121)]:
+        attempt('positive',0,update('maintenance',601,f"{column}='{uid(value)}'"),role='service_role',error='Invalid association')
+    attempt('positive',0,f"INSERT INTO maintenance(id,unit_id,device_id) VALUES ('{uid(901)}','{uid(11)}','{uid(321)}');",role='service_role',error='Invalid association')
+    attempt('positive',0,insert_sensor(99999),role='service_role',error='foreign key constraint')
+    attempt('positive',0,f"WITH d AS (INSERT INTO devices(id,unit_id) VALUES ('{uid(999)}','{uid(11)}') RETURNING id) INSERT INTO sensors(id,device_id) SELECT '{uid(998)}',id FROM d;",role='service_role')
+    # A BEFORE trigger may modify a protected field absent from the UPDATE target list.
+    sql(f"CREATE FUNCTION fixture_move() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN NEW.unit_id := '{uid(21)}'; RETURN NEW; END; $$;" +
+        'CREATE TRIGGER fixture_before BEFORE UPDATE ON devices FOR EACH ROW EXECUTE FUNCTION fixture_move();','positive')
+    attempt('positive',0,update('devices',301,'id=id'),role='service_role',error='transfer')
+    sql('DROP TRIGGER fixture_before ON devices; DROP FUNCTION fixture_move();','positive')
+    # Concurrent child creation while a parent is moving between units in its tenant.
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first=pool.submit(sql,f"BEGIN; UPDATE devices SET unit_id='{uid(12)}' WHERE id='{uid(301)}'; SELECT pg_sleep(1); ROLLBACK;",'positive')
+        time.sleep(0.2)
+        second=pool.submit(attempt,'positive',0,insert_sensor(301,402,102),None,None,'service_role')
+        first.result(); second.result()
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        first=pool.submit(attempt,'positive',0,update('devices',301,f"unit_id='{uid(21)}'"),None,'transfer','service_role')
+        second=pool.submit(attempt,'positive',0,insert_sensor(301,402,102),None,None,'service_role')
+        first.result();second.result()
+    for isolation in ['READ COMMITTED','REPEATABLE READ','SERIALIZABLE']:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            first=pool.submit(sql,f"BEGIN ISOLATION LEVEL {isolation}; UPDATE units SET organization_id='{uid(2)}' WHERE id='{uid(11)}'; ROLLBACK;",'positive','transfer')
+            second=pool.submit(sql,f"BEGIN ISOLATION LEVEL {isolation}; {insert_sensor(301,402,102)} ROLLBACK;",'positive')
+            first.result();second.result()
     assert sql(data_sql,'positive')==original_data
-    print('KNOWN GAP: parent moves can invalidate associations; requires schema-wide constraints/guards before approval')
+    print('PASS: maintenance multiunit INSERT/UPDATE, parent guards, concurrent moves, data preserved')
     for db,change,reason in [
         ('extra',"CREATE POLICY unexpected_write ON machines FOR UPDATE TO authenticated USING(true);",'Additional permissive'),
         ('shape','ALTER TABLE reservoirs RENAME COLUMN unit_id TO unverified_unit;','Unverified UUID/schema'),
+        ('nullable','ALTER TABLE sensors ALTER COLUMN device_id DROP NOT NULL;','Unverified nullability'),
+        ('badfk','ALTER TABLE devices DROP CONSTRAINT devices_unit_id_fkey;','Unverified nullability'),
+        ('dirty',f"UPDATE sensors SET reservoir_id='{uid(421)}' WHERE id='{uid(501)}';",'Existing incoherent'),
         ('drift','ALTER POLICY machines_update_managers ON machines USING(true);','Missing/drifted full policy baseline')]:
         setup(db); before=baseline(db); sql(change,db)
         if db=='extra': before=baseline(db)

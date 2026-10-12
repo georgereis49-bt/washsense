@@ -10,7 +10,7 @@ WHERE c.relnamespace='public'::regnamespace
   AND c.relname IN ('machines','maintenance','sensors');
 
 SELECT c.relname, a.attname, format_type(a.atttypid,a.atttypmod) AS type,
-  a.attnotnull, a.attacl, c.relrowsecurity, pg_get_userbyid(c.relowner) AS owner
+  a.attnotnull, a.attacl, c.relrowsecurity, c.relforcerowsecurity, pg_get_userbyid(c.relowner) AS owner
 FROM pg_class c JOIN pg_attribute a ON a.attrelid=c.oid
 WHERE c.relnamespace='public'::regnamespace
   AND c.relname IN ('units','machines','maintenance','sensors','devices','reservoirs')
@@ -34,4 +34,21 @@ SELECT p.oid::regprocedure AS signature, pg_get_userbyid(p.proowner) AS owner,
 FROM pg_proc p WHERE p.pronamespace='public'::regnamespace
   AND p.proname IN ('has_org_role','has_unit_access','has_device_access',
     'has_machine_access','has_reservoir_access');
+-- Existing triggers must be reviewed, including final NEW transformations and bypasses.
+SELECT c.relname,t.tgname,t.tgenabled,t.tgisinternal,pg_get_triggerdef(t.oid) AS definition
+FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid
+WHERE c.relnamespace='public'::regnamespace
+AND c.relname IN ('units','devices','machines','reservoirs','sensors','maintenance')
+ORDER BY c.relname,t.tgname;
+SELECT c.relname,i.indexrelid::regclass,pg_get_indexdef(i.indexrelid)
+FROM pg_index i JOIN pg_class c ON c.oid=i.indrelid
+WHERE c.relnamespace='public'::regnamespace
+AND c.relname IN ('units','devices','machines','reservoirs','sensors','maintenance');
+SELECT rolname,rolsuper,rolbypassrls,rolinherit FROM pg_roles
+WHERE rolname IN ('anon','authenticated','service_role','postgres');
+SELECT p.oid::regprocedure,p.proconfig,p.provolatile,p.prosecdef,p.proacl
+FROM pg_proc p WHERE p.pronamespace='public'::regnamespace
+AND (p.proname LIKE 'washsense_rls_%' OR p.proname LIKE 'has_%access' OR p.proname='has_org_role');
+SELECT defaclrole::regrole,defaclnamespace::regnamespace,defaclobjtype,defaclacl
+FROM pg_default_acl WHERE defaclobjtype='f';
 ROLLBACK;
