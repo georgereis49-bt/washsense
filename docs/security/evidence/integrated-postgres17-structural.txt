@@ -1,0 +1,29 @@
+PASS: local Docker endpoint; network=none; no published ports; cached pinned image
+PASS: actual TRUNCATE/TRIGGER/REFERENCES denied and ANALYZE skipped for anon/authenticated
+PASS: 152 structural table checks + column REFERENCES assertions
+PASS: RLS, policies, DML/column grants, other ACLs, functions, constraints, triggers unchanged
+PASS: synthetic rows and authorized organization/subscription/payment reads unchanged
+PASS: existing trigger and FK continue functioning for service_role
+PASS: read-only preflight; repeat draft refused; unlisted table unchanged
+PASS: refusal/rollback for missing
+PASS: refusal/rollback for rls
+PASS: refusal/rollback for owner
+PASS: refusal/rollback for public_grant
+PASS: refusal/rollback for column_reference
+PASS: refusal/rollback for grant_option
+PASS: refusal/rollback for missing_direct
+PASS: refusal/rollback for inherited
+PASS: refusal/rollback for other_role
+PASS: refusal/rollback for new_table_option
+PASS: refusal/rollback for new_table_inherited
+PASS: refusal/rollback for new_table_public
+PASS: refusal/rollback for new_table_force
+PASS: refusal/rollback for new_table_missing
+PASS: refusal/rollback for maintain_inherited
+PASS: refusal/rollback for new_table_grantor
+PASS: 16 future structural privileges absent; DML/service grants and outside schema preserved
+PASS: default draft preserves existing data, tables, RLS and ACLs
+PASS: default draft refusal/rollback for global_defaults
+PASS: default draft refusal/rollback for missing_defaults
+PASS: default draft refusal/rollback for default_option
+PostgreSQL: 17.11 (Debian 17.11-1.pgdg13+2)

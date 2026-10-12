@@ -10,14 +10,29 @@ ROOT = Path(__file__).resolve().parents[3]
 DRAFT = (ROOT / 'supabase/security/20261012_harden_operational_rls.sql.pending').read_text()
 PREFLIGHT = (ROOT / 'supabase/security/20261012_rls_preflight.sql').read_text()
 IMAGE = 'postgres:17@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3'
+SECURITY = ROOT / 'supabase/security'
+STRUCTURAL = (SECURITY / '20261012_harden_structural_privileges.sql.pending').read_text()
+DEFAULTS = (SECURITY / '20261012_harden_default_privileges.sql.pending').read_text()
+VERIFY = (SECURITY / '20261012_structural_privileges_verify.sql').read_text()
+TARGETS = ['organizations','organization_members','units','machines','reservoirs',
+           'devices','sensors','machine_readings','reservoir_readings','payments',
+           'subscriptions','alerts','maintenance','audit_logs','consumption_records',
+           'machine_cycles','plans','profiles','reservoir_refills']
 NAME = 'washsense-rls-test-' + uuid.uuid4().hex[:12]
 ACTORS = ['admin','manager','technician','operator']
 
 def uid(n):
     return str(uuid.UUID(int=n))
 
+# Refuse remote daemons before any daemon request. Context inspect is local metadata.
+_context = subprocess.run(['docker','context','inspect','--format','{{json .Endpoints.docker.Host}}'],
+                          capture_output=True,text=True,timeout=15)
+assert _context.returncode == 0, 'Docker context metadata unavailable'
+ENDPOINT = json.loads(_context.stdout)
+assert ENDPOINT == 'unix:///var/run/docker.sock', 'Only the local Linux Docker socket is allowed'
+
 def docker(*args, **kw):
-    return subprocess.run(['docker',*args],capture_output=True,text=True,timeout=120,**kw)
+    return subprocess.run(['docker','--host',ENDPOINT,*args],capture_output=True,text=True,timeout=120,**kw)
 
 def sql(body, db='postgres', error=None):
     r=docker('exec','-i',NAME,'psql','-X','-qAt','-v','ON_ERROR_STOP=1',
@@ -105,6 +120,17 @@ def setup(db):
                            (5555,1,'admin'),(5555,2,'operator')]:
         sql(f"INSERT INTO organization_members VALUES ('{uid(actor)}','{uid(org)}','{role}');",db)
     sql(f"INSERT INTO unit_blocks VALUES ('{uid(1002)}','{uid(12)}');",db)
+    commands=[]
+    existing={'organizations','organization_members','units','machines','maintenance','devices','reservoirs','sensors'}
+    for table in TARGETS:
+        if table not in existing:
+            commands.append(f'CREATE TABLE {table}(id uuid PRIMARY KEY);')
+        commands.append(f'ALTER TABLE {table} ENABLE ROW LEVEL SECURITY;')
+        commands.append(f'GRANT TRUNCATE,TRIGGER,REFERENCES,MAINTAIN ON {table} TO anon,authenticated;')
+    commands.append('GRANT USAGE,CREATE ON SCHEMA public TO supabase_admin;')
+    for creator in ['postgres','supabase_admin']:
+        commands.append(f'ALTER DEFAULT PRIVILEGES FOR ROLE {creator} IN SCHEMA public GRANT ALL ON TABLES TO anon,authenticated,service_role;')
+    sql('\n'.join(commands),db)
 
 def baseline(db):
     return json.loads(sql(PREFLIGHT,db).splitlines()[0])
@@ -128,20 +154,29 @@ def insert_sensor(dev,tank=None,machine=None):
     return 'INSERT INTO sensors(id,device_id,reservoir_id,machine_id) VALUES ('+','.join(values)+');'
 
 try:
-    result=docker('run','--rm','-d','--name',NAME,'--label','washsense.synthetic-rls-test=true',
+    result=docker('run','--pull=never','--network=none','--rm','-d','--name',NAME,'--label','washsense.synthetic-rls-test=true',
                   '-e','POSTGRES_HOST_AUTH_METHOD=trust',IMAGE)
     assert result.returncode==0,result.stderr
+    isolation=docker('inspect','--format','{{json .HostConfig.NetworkMode}}|{{json .HostConfig.PortBindings}}',NAME)
+    assert isolation.returncode == 0, 'Container isolation inspection failed'
+    network, bindings=isolation.stdout.strip().split('|',1)
+    assert json.loads(network) == 'none' and json.loads(bindings) in (None,{}), 'Unsafe container network/ports'
+    print('PASS: local Docker endpoint; network=none; no published ports; cached pinned image')
     for _ in range(60):
-        if docker('exec',NAME,'pg_isready','-U','postgres').returncode==0: break
+        if docker('exec',NAME,'pg_isready','-h','127.0.0.1','-U','postgres').returncode==0: break
         time.sleep(1)
     else: raise AssertionError('PostgreSQL not ready')
-    sql('CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role BYPASSRLS;')
+    sql('CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role BYPASSRLS; CREATE ROLE supabase_admin;')
     setup('positive')
     old=baseline('positive')
     data_sql="SELECT jsonb_agg(x ORDER BY x::text) FROM (" + " UNION ALL ".join(
         f"SELECT jsonb_build_object('table','{t}','row',to_jsonb(r)) AS x FROM {t} r"
         for t in ['machines','maintenance','sensors','devices','reservoirs','units']) + ") rows;"
     original_data=sql(data_sql,'positive')
+    sql(STRUCTURAL,'positive')
+    sql(VERIFY,'positive')
+    sql(DEFAULTS,'positive')
+    print('PASS: structural + defaults proposals applied before RLS in the same 19-table fixture')
     grants=sql("SELECT relname,relacl::text FROM pg_class WHERE relnamespace='public'::regnamespace ORDER BY relname;",'positive')
     attempt('positive',1003,update('machines',101),1)  # Reproduce operator weakness in synthetic model.
     attempt('positive',1002,insert_sensor(301,421),error=None)  # OR permits mixed organizations before proposal.
@@ -197,11 +232,12 @@ try:
     attempt('positive',1000,update('machines',101),error='permission denied')
     attempt('positive',1000,insert_sensor(301),error='permission denied')
     print('PASS: RLS never supplies missing INSERT/UPDATE grants')
-    for table,id,col,target in [('devices',301,'unit_id',21),('reservoirs',401,'unit_id',21),
+    for table,id,col,target in [('machines',101,'unit_id',21),('devices',301,'unit_id',21),('reservoirs',401,'unit_id',21),
+                                 ('maintenance',601,'unit_id',21),
                                  ('units',11,'organization_id',2)]:
         attempt('positive',0,update(table,id,f"{col}='{uid(target)}'"),role='service_role',
                 error='transfer')
-    for table,id in [('devices',301),('reservoirs',401)]:
+    for table,id in [('machines',101),('devices',301),('reservoirs',401),('maintenance',601)]:
         attempt('positive',0,update(table,id,f"unit_id='{uid(12)}'"),role='service_role',expected=1)
     for statement in ["INSERT INTO maintenance(id,unit_id,device_id,machine_id) VALUES "
                       +f"('{uid(901)}','{uid(11)}','{uid(302)}','{uid(102)}');",
@@ -217,6 +253,9 @@ try:
         'CREATE TRIGGER fixture_before BEFORE UPDATE ON devices FOR EACH ROW EXECUTE FUNCTION fixture_move();','positive')
     attempt('positive',0,update('devices',301,'id=id'),role='service_role',error='transfer')
     sql('DROP TRIGGER fixture_before ON devices; DROP FUNCTION fixture_move();','positive')
+    attempt('positive',0,update('sensors',501,f"device_id='{uid(321)}',reservoir_id='{uid(421)}',machine_id='{uid(121)}'"),role='service_role',error='transfer')
+    # Foreign-key cascades affect only the linked synthetic records; rollback restores them.
+    assert sql(f"BEGIN; DELETE FROM devices WHERE id='{uid(301)}'; SELECT count(*) FROM sensors WHERE id='{uid(501)}'; ROLLBACK;",'positive')=='0'
     # Concurrent child creation while a parent is moving between units in its tenant.
     from concurrent.futures import ThreadPoolExecutor
     with ThreadPoolExecutor(max_workers=2) as pool:
@@ -233,6 +272,21 @@ try:
             first=pool.submit(sql,f"BEGIN ISOLATION LEVEL {isolation}; UPDATE units SET organization_id='{uid(2)}' WHERE id='{uid(11)}'; ROLLBACK;",'positive','transfer')
             second=pool.submit(sql,f"BEGIN ISOLATION LEVEL {isolation}; {insert_sensor(301,402,102)} ROLLBACK;",'positive')
             first.result();second.result()
+    # Confirm actual row-lock contention, not just thread scheduling.
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        hold=pool.submit(sql,f"SET application_name='synthetic_hold'; BEGIN; UPDATE devices SET unit_id='{uid(12)}' WHERE id='{uid(301)}'; SELECT pg_sleep(5); ROLLBACK;",'positive')
+        deadline=time.monotonic()+4
+        while sql("SELECT count(*) FROM pg_stat_activity WHERE application_name='synthetic_hold' AND wait_event='PgSleep';",'positive')!='1':
+            assert time.monotonic()<deadline,'Holder did not reach barrier'
+            time.sleep(0.05)
+        wait=pool.submit(sql,f"SET application_name='synthetic_wait'; BEGIN; SET ROLE service_role; UPDATE devices SET unit_id='{uid(21)}' WHERE id='{uid(301)}'; ROLLBACK;",'positive','transfer')
+        deadline=time.monotonic()+4
+        while sql("SELECT count(*) FROM pg_stat_activity WHERE application_name='synthetic_wait' AND wait_event_type='Lock';",'positive')!='1':
+            assert time.monotonic()<deadline,'Actual lock contention not observed'
+            time.sleep(0.05)
+        hold.result();wait.result()
+    print('PASS: pg_stat_activity confirmed concurrent row-lock contention; foreign transfer refused after release')
+    sql(VERIFY,'positive')
     assert sql(data_sql,'positive')==original_data
     print('PASS: maintenance multiunit INSERT/UPDATE, parent guards, concurrent moves, data preserved')
     for db,change,reason in [

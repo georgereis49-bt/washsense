@@ -23,8 +23,15 @@ VERIFY = (SECURITY / "20261012_structural_privileges_verify.sql").read_text()
 DEFAULTS = (SECURITY / "20261012_harden_default_privileges.sql.pending").read_text()
 
 
+# Refuse remote daemons before any daemon request. Context inspect is local metadata.
+_context = subprocess.run(['docker','context','inspect','--format','{{json .Endpoints.docker.Host}}'],
+                          capture_output=True,text=True,timeout=15)
+assert _context.returncode == 0, 'Docker context metadata unavailable'
+ENDPOINT = json.loads(_context.stdout)
+assert ENDPOINT == 'unix:///var/run/docker.sock', 'Only the local Linux Docker socket is allowed'
+
 def docker(*args, **kwargs):
-    return subprocess.run(["docker", *args], capture_output=True, text=True,
+    return subprocess.run(["docker", "--host", ENDPOINT, *args], capture_output=True, text=True,
                           timeout=120, **kwargs)
 
 
@@ -115,13 +122,18 @@ def readable_counts(database):
 
 
 try:
-    result = docker("run", "--rm", "-d", "--name", NAME,
+    result = docker("run", "--pull=never", "--network=none", "--rm", "-d", "--name", NAME,
                     "--label", "washsense.synthetic-security-test=true",
                     "-e", "POSTGRES_HOST_AUTH_METHOD=trust", IMAGE)
     if result.returncode:
         raise RuntimeError(result.stderr)
+    isolation=docker('inspect','--format','{{json .HostConfig.NetworkMode}}|{{json .HostConfig.PortBindings}}',NAME)
+    assert isolation.returncode == 0, 'Container isolation inspection failed'
+    network, bindings=isolation.stdout.strip().split('|',1)
+    assert json.loads(network) == 'none' and json.loads(bindings) in (None,{}), 'Unsafe container network/ports'
+    print('PASS: local Docker endpoint; network=none; no published ports; cached pinned image')
     for attempt in range(60):
-        if docker("exec", NAME, "pg_isready", "-U", "postgres").returncode == 0:
+        if docker("exec", NAME, "pg_isready", "-h", "127.0.0.1", "-U", "postgres").returncode == 0:
             break
         time.sleep(1)
     else:
@@ -155,6 +167,21 @@ try:
                "positive").stdout.strip() == "f|t"
     assert "Expected direct postgres grant" in sql(MIGRATION, "positive", succeeds=False).stderr
     sql(VERIFY, "positive")
+    for role in ['anon','authenticated']:
+        sql(f'CREATE SCHEMA probe_{role} AUTHORIZATION {role};','positive')
+        for operation in [
+            'TRUNCATE public.machines;',
+            'CREATE TRIGGER probe_denied BEFORE UPDATE ON public.machines FOR EACH ROW EXECUTE FUNCTION public.fixture_trigger();',
+            f'CREATE TABLE probe_{role}.denied_fk(id integer REFERENCES public.machines(id));',
+        ]:
+            failure=sql(f'BEGIN; SET ROLE {role}; '+operation+' ROLLBACK;','positive',succeeds=False)
+            assert 'permission denied' in failure.stderr,failure.stderr
+        # PostgreSQL may skip maintenance with a warning rather than an error.
+        maintenance=sql(f'SET ROLE {role}; ANALYZE public.machines;','positive')
+        assert 'permission denied' in maintenance.stderr,maintenance.stderr
+    assert rows('positive') == before_rows
+    assert invariant_metadata('positive') == before_metadata
+    print('PASS: actual TRUNCATE/TRIGGER/REFERENCES denied and ANALYZE skipped for anon/authenticated')
     print("PASS: 152 structural table checks + column REFERENCES assertions")
     print("PASS: RLS, policies, DML/column grants, other ACLs, functions, constraints, triggers unchanged")
     print("PASS: synthetic rows and authorized organization/subscription/payment reads unchanged")
