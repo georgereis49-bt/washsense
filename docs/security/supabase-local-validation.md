@@ -1,9 +1,16 @@
-# Etapa 3.17 — procedimento de validação Supabase isolado
+# Etapas 3.17–3.18 — procedimento de validação Supabase isolado
 
 Preparação pendente de aprovação. Não executar os passos de instalação da proposta
 nesta tarefa. Nenhum projeto Supabase remoto deve ser vinculado. O roteiro não
 usa credenciais, usuários, dumps de dados, webhooks ou pagamentos de produção.
 Os testes PostgreSQL anteriores são complementares, não substituem este roteiro.
+
+## Preparação Windows/PowerShell — Etapa 3.18
+
+Usar [o roteiro Windows e seus gates](supabase-lab-windows.md) e os scripts em
+`tools/supabase-lab`. Manifesto independente com pins/aprovações pendentes;
+nenhum script inicia stack ou importa SQL. Os comandos Unix abaixo são referência
+histórica para etapa futura, não instrução para iniciar o ambiente na Etapa 3.18.
 
 ## Pré-condições e limites atuais
 
