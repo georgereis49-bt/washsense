@@ -1,9 +1,10 @@
-# Etapa 3.17 — auditoria consolidada e preparação Supabase local
+# Etapa 3.20 — auditoria consolidada e decisão de transferências
 
 **Pendente de aprovação.** Nenhum SQL remoto, migration, deploy ou merge foi
 executado. Os rascunhos dos 152 privilégios permanecem intocados. Esta revisão
 altera apenas documentação; SQL, preflight e testes anteriores não foram alterados.
-Base desta revisão: fb784c656f4fdc3f52d0ee04a801e72059f52497.
+Base da revisão 3.20: eb4f9317dd161d5a6846d867c8a06eacbf0ca316.
+A proposta SQL e o schema fornecido mantêm o histórico das etapas anteriores.
 
 ## Evidências e diferenças em relação à Etapa 3.6
 
@@ -25,9 +26,9 @@ A regra aprovada admite unidades diferentes na mesma organização. A proposta:
 - usa guards AFTER em todo UPDATE dos pais, que observam NEW final após
   outros triggers BEFORE, mesmo quando o campo protegido não consta do SET;
 - substitui a lacuna conhecida dos pais por uma proposta conservadora de
-  imutabilidade da organização, ainda sujeita a aprovação operacional.
+  imutabilidade da organização, regra de negócio definitivamente aprovada na Etapa 3.20.
 
-## Evidências remotas consolidadas nesta etapa
+## Evidências remotas fornecidas na Etapa 3.17
 
 Fonte: resultados remotos informados pelo usuário em 12/10/2026. Não houve
 consulta remota nesta tarefa; os resultados não são medições executadas pelo agente.
@@ -73,6 +74,20 @@ false sem usuário, enquanto guards identity-neutral devem continuar funcionando
 As novas funções propostas permanecem com search_path=pg_catalog e nomes
 qualificados; revisar ACLs geradas por defaults no stack local antes de aprovação.
 
+## Decisão definitiva — Etapa 3.20
+
+Máquinas, dispositivos e reservatórios podem mudar de unidade dentro da MESMA
+organização. Sensores e manutenções podem vincular unidades diferentes dessa
+organização. A identidade organizacional permanece imutável após criação.
+Transferências entre organizações são terminantemente proibidas, inclusive
+para admin, manager, technician, operator e service_role. Não há exceção
+administrativa nem fluxo de transferência cross-tenant a aprovar posteriormente.
+A decisão de negócio não aprova a execução da proposta ou flags do laboratório.
+
+Compatibilidade documental do SQL existente e limites: [homologação 3.20](supabase-lab-homologation-320.md).
+O SQL permanece intacto; sua mensagem de erro que menciona separate reviewed
+workflow é texto legado e não cria uma exceção no código.
+
 ## Matriz de autorização
 
 | Operação | admin | manager | technician | operator |
@@ -108,9 +123,9 @@ A proteção proposta **proíbe qualquer alteração de units.organization_id** 
 qualquer mudança de organization via devices/machines/reservoirs.unit_id,
 mesmo para recursos sem filhos e mesmo para service_role. Movimentos de unidade
 dentro do tenant permanecem permitidos. Também proíbe transferir sensores e
-manutenções completos para outra organização por UPDATE. Isso é deliberadamente
-mais restritivo que somente impedir filhos incoerentes e requer aprovação.
-Não representa afirmação de que transferências administrativas são ilegítimas.
+manutenções completos para outra organização por UPDATE. Esta restrição está
+aprovada como regra de negócio, inclusive sem filhos e para service_role.
+A implementação e validação operacional continuam pendentes de aprovação.
 
 Essa estratégia evita a corrida de um trigger que apenas consulta filhos:
 a identidade organizacional de cada pai existente permanece invariável.
@@ -130,10 +145,10 @@ exigir janela dedicada e medição em clone isolado. Não executar agora.
 
 Não são criadas colunas organization_id redundantes: FKs compostas exigiriam
 mudança mais ampla de schema. CHECK com subconsulta não resolve a integridade
-relacional. Uma futura transferência legítima precisa de fluxo transacional
-explícito, dependências completas, locks e aprovação separados. Não desabilitar
-guards/RLS como procedimento normal. service_role continua com BYPASSRLS e seus
-grants originais, mas passa a respeitar a nova regra de integridade.
+relacional. Movimentos legítimos dentro da organização devem conservar os grants e a
+autorização existente. Nenhum fluxo entre organizações será autorizado; não
+desabilitar guards/RLS para contornar essa regra. service_role continua com
+BYPASSRLS e seus grants originais, respeitando a integridade proposta.
 
 A garantia depende de triggers habilitados e de nenhuma rotina privilegiada
 contorná-los (session_replication_role, DDL, superuser). Inspecionar jobs,
@@ -200,7 +215,7 @@ Não concluir compatibilidade operacional só pelo PostgreSQL sintético.
 
 ## Implantação e recuperação pendentes
 
-1. Revisar preflight, restrições de transferência e dependências dos serviços.
+1. Revisar preflight e dependências dos serviços conforme a regra imutável aprovada.
 2. Restaurar apenas estrutura/metadados em Supabase isolado, criar fixtures
    sintéticas e capturar baseline completa de policies, grants, triggers e funções.
 3. Executar proposta e testes; ensaiar carga e recuperação; obter aprovação explícita.
@@ -228,5 +243,6 @@ Na Etapa 3.17 foram executadas apenas verificações documentais, de diff e hash
 não foram iniciados serviços nem executados SQL/migrations/testes de aplicação.
 
 Pendências para aprovação: ACLs/corpos completos de helpers, baseline completa
-de schema/policies/grants, versões homologadas do stack local, autorização da restrição de transferência também para service_role,
-fluxos administrativos legítimos, desempenho e testes do stack Supabase isolado.
+de schema/policies/grants, versões homologadas do stack local, compatibilidade dos movimentos dentro
+da organização, desempenho e testes do stack Supabase isolado. A regra de
+proibição entre organizações já está aprovada, inclusive para service_role.

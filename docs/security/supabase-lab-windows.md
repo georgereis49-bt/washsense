@@ -5,6 +5,13 @@ security/stage-2-3-structural-privileges. Preparação apenas: stack não inicia
 nenhum SQL remoto/local, migration ou .sql.pending executado; aplicação intocada.
 A PR deve continuar em rascunho. Este material não autoriza testes ou produção.
 
+## Homologação documental — Etapa 3.20
+
+[Versões disponíveis, catálogo oficial e regra definitiva](supabase-lab-homologation-320.md).
+Transferências entre organizações são proibidas inclusive para service_role;
+esta decisão não habilita flags nem aprova aplicação do SQL. Pins continuam
+pendentes até homologação operacional no Windows.
+
 ## Revisão estática posterior — Etapa 3.19
 
 [Relatório de revisão e 42 checks aprovados](supabase-lab-review-319.md).
