@@ -1,8 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Pagamento recebido — WashSense</title>
-<style>
-:root{--navy:#071525;--navy2:#0b1e33;--blue:#0877ff;--cyan:#19d8ff;--white:#fff;--muted:#9aacc0;--line:rgba(255,255,255,.10)}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at 50% 15%,rgba(8,119,255,.18),transparent 35%),linear-gradient(135deg,var(--navy),var(--navy2));color:var(--white)}.card{width:min(520px,100%);text-align:center;background:rgba(255,255,255,.055);border:1px solid var(--line);padding:52px 40px;box-shadow:0 24px 70px rgba(0,0,0,.35);backdrop-filter:blur(14px)}.brand{margin-bottom:34px;font-size:25px;font-weight:700;letter-spacing:-.6px}.sense{color:var(--cyan)}.check{width:76px;height:76px;margin:0 auto 28px;border:2px solid var(--cyan);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--cyan)}h1{margin:0 0 14px;font-size:31px;letter-spacing:-.8px}p{margin:0 auto;max-width:400px;color:var(--muted);line-height:1.65;font-size:16px}.status{margin:28px 0;padding:15px 18px;border:1px solid rgba(25,216,255,.25);background:rgba(25,216,255,.06);color:#d9f9ff;font-size:14px}.button{display:inline-block;margin-top:8px;padding:14px 25px;background:var(--blue);color:white;text-decoration:none;font-weight:700;border-radius:4px}.small{margin-top:25px;font-size:12px;color:#6f8298}
-</style></head><body><main class="card"><div class="brand">Wash<span class="sense">Sense</span></div><div class="check">✓</div><h1>Pagamento recebido!</h1><p>Recebemos o retorno do seu pagamento. Estamos confirmando a transação para ativar sua assinatura WashSense.</p><div class="status">Aguarde alguns instantes enquanto confirmamos seu pagamento.</div><a class="button" href="/">Voltar para o WashSense</a><div class="small">A confirmação definitiva do pagamento é feita pelo sistema de pagamentos.</div></main></body></html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Confirmação de pagamento — WashSense</title>
+    <link rel="icon" href="assets/washsense-logo.svg" />
+    <script type="module" src="/src/platform/public.ts"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        font-family: var(--ws-font);
+        background: var(--ws-bg);
+        color: var(--ws-ink);
+      }
+      .card {
+        width: min(520px, 100%);
+        text-align: center;
+        background: var(--ws-surface);
+        border: 1px solid var(--ws-line);
+        padding: 48px 32px;
+        border-radius: 24px;
+        box-shadow: var(--ws-shadow);
+      }
+      img {
+        width: 180px;
+        height: auto;
+        margin-bottom: 32px;
+      }
+      .check {
+        width: 64px;
+        height: 64px;
+        display: grid;
+        place-items: center;
+        margin: 0 auto 24px;
+        border: 1px solid var(--ws-line);
+        border-radius: 16px;
+        color: var(--ws-cyan);
+        font-size: 28px;
+      }
+      h1 {
+        font-size: 28px;
+        letter-spacing: -1px;
+        line-height: 1.25;
+        margin: 0 0 16px;
+      }
+      p {
+        color: var(--ws-muted);
+        font-size: 14px;
+        line-height: 1.7;
+      }
+      .status {
+        margin: 24px 0;
+        padding: 16px;
+        background: var(--ws-bg);
+        border-radius: 12px;
+        color: var(--ws-muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      .button {
+        display: block;
+        padding: 15px 20px;
+        border-radius: 12px;
+        background: var(--ws-navy);
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 13px;
+      }
+      .small {
+        margin-top: 24px;
+        font-size: 11px;
+        color: var(--ws-muted);
+        line-height: 1.6;
+      }
+      :focus-visible {
+        outline: 3px solid var(--ws-cyan);
+        outline-offset: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <img src="assets/washsense-logo.svg" alt="WashSense" />
+      <div class="check" aria-hidden="true">✓</div>
+      <h1>Confirmação do pagamento</h1>
+      <p>
+        Recebemos o retorno do seu pagamento. A confirmação da transação e a
+        ativação da assinatura são feitas pelo sistema de pagamentos.
+      </p>
+      <div class="status">
+        Consulte o financeiro para acompanhar o status atualizado da sua
+        assinatura.
+      </div>
+      <a class="button" href="app.html#/financeiro">Consultar assinatura</a>
+      <div class="small">
+        Esta página não substitui a confirmação definitiva do provedor de
+        pagamentos.
+      </div>
+    </main>
+  </body>
+</html>

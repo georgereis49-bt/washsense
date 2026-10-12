@@ -1,3 +1,4 @@
+export default function mount(document, location, window) {
 const $e = s => document.querySelector(s);
 const distributorInput = $e('#energyDistributor');
 const groupInput = $e('#energyGroup');
@@ -145,3 +146,5 @@ distributorInput?.addEventListener('keydown',e=>{if(e.key==='Enter')queryTariff(
 groupInput?.addEventListener('change',()=>{if(distributorInput?.value.trim())queryTariff();});
 
 loadSavedEnergy();
+
+}

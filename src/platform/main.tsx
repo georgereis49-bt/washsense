@@ -1,0 +1,15 @@
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import "./modules/dashboard.css";
+import "./modules/details.css";
+import "./modules/finance.css";
+import "./modules/settings.css";
+import "./modules/report.css";
+import "./modules/energy.css";
+import "@fontsource/inter/latin-400.css";
+import "@fontsource/inter/latin-500.css";
+import "@fontsource/inter/latin-600.css";
+import "@fontsource/inter/latin-700.css";
+import "./design/tokens.css";
+import "./design/platform.css";
+ReactDOM.createRoot(document.getElementById("root")!).render(<App />);

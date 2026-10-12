@@ -1,3 +1,5 @@
+// Existing operational controller, now scoped to its SPA module.
+export default function mount(document, location, window) {
 const $ = (s) => document.querySelector(s);
 const toast = $('#toast');
 let toastTimer;
@@ -10,7 +12,7 @@ const sidebar = $('#sidebar');
 $('#menuBtn')?.addEventListener('click',()=>sidebar.classList.toggle('open'));
 $('#backBtn')?.addEventListener('click',()=>history.length>1?history.back():location.href='dashboard.html');
 $('#backLink')?.addEventListener('click',()=>location.href='dashboard.html');
-$('#refreshBtn')?.addEventListener('click',e=>{e.currentTarget.style.transform='rotate(360deg)';setTimeout(()=>e.currentTarget.style.transform='',350);showToast('Dados atualizados — última leitura agora');});
+$('#refreshBtn')?.addEventListener('click',e=>{e.currentTarget.style.transform='rotate(360deg)';setTimeout(()=>e.currentTarget.style.transform='',350);showToast('Visualização demonstrativa atualizada');});
 $('#periodBtn')?.addEventListener('click',e=>{const opts=['Hoje','Últimos 7 dias','Últimos 30 dias','Últimos 90 dias'];const label=e.currentTarget.childNodes[0];const current=label.textContent.trim();const next=opts[(opts.indexOf(current)+1)%opts.length];label.textContent=next+' ';showToast('Período alterado para '+next);});
 
 document.querySelectorAll('.nav a[data-view]').forEach(a=>{if(a.dataset.view===view)a.classList.add('active');});
@@ -76,7 +78,7 @@ function renderMaquinas(){
   const m=machines[id]||machines.M01;
   $('#breadcrumbParent').textContent='Máquinas';$('#breadcrumbCurrent').textContent=m.name;$('#eyebrow').textContent='MONITORAMENTO DA MÁQUINA';$('#pageTitle').textContent=m.name;$('#pageSubtitle').textContent='Desempenho elétrico, ciclos, disponibilidade e manutenção.';
   $('#detailRoot').innerHTML=machineSelector()+decision(m.decision,m.tone==='danger'?'Abrir manutenção':'Ver histórico de ciclos')+
-  `<section class="detail-panel wide"><div class="machine-hero"><div class="machine-hero-image"><img src="${m.type==='Secadora'?'https://for-sale.used-secondhand.co.uk/media/used/secondhand/images/96132/2x-electrolux-professional-30kg-electric-tumble-dryer-tyne-and-wear/1200/electrolux-td6-30-electric-dryer-for-sale-921.jpeg':'https://condolav.com.br/wp-content/uploads/2024/02/3-4.webp'}" alt="${m.type} industrial padrão"></div><div><h2>${m.name}</h2><p>${m.type} · Programa atual: ${m.program}</p><div class="progress-large"><i style="width:${m.progress}%"></i></div><div class="machine-cycle-head"><span>${m.state}</span><b>${m.progress?m.progress+'%':'Sem ciclo ativo'}</b></div></div><span class="machine-state">● ${m.state}</span></div></section>`+
+  `<section class="detail-panel wide"><div class="machine-hero"><div class="machine-hero-image"><svg viewBox="0 0 72 80" role="img" aria-label="Equipamento industrial"><rect x="10" y="5" width="52" height="70" rx="8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="36" cy="44" r="18" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18 18h21m8 0h6M22 65h28" stroke="currentColor" stroke-width="2"/></svg></div><div><h2>${m.name}</h2><p>${m.type} · Programa atual: ${m.program}</p><div class="progress-large"><i style="width:${m.progress}%"></i></div><div class="machine-cycle-head"><span>${m.state}</span><b>${m.progress?m.progress+'%':'Sem ciclo ativo'}</b></div></div><span class="machine-state">● ${m.state}</span></div></section>`+
   kpis([{label:'Potência atual',value:m.power,note:'leitura em tempo real'},{label:'Corrente',value:m.current,note:'fase monitorada'},{label:'Energia hoje',value:m.energy,note:'acumulado do dia'},{label:'Disponibilidade',value:m.availability,note:m.tone==='danger'?'abaixo da meta':'dentro da meta',good:m.tone!=='danger'}])+`<div class="detail-grid">`+
   panel('Reservatórios desta máquina','Cada máquina possui seus próprios reservatórios de produto. Selecione um item para analisar nível, consumo e autonomia.',reservoirCardsForMachine(id),true)+
   panel('Consumo de energia','Últimos 7 dias',`${barChart([58,62,55,70,64,68,72],'',['Seg','Ter','Qua','Qui','Sex','Sáb','Hoje'])}${labels(['Seg','Ter','Qua','Qui','Sex','Sáb','Hoje'])}<div class="chart-legend"><span class="legend-item"><i class="legend-dot"></i>kWh por dia</span></div>`)+
@@ -132,3 +134,5 @@ document.querySelector('#reservoirSelect')?.addEventListener('change',e=>{locati
 document.querySelectorAll('[data-reservoir]').forEach(card=>card.addEventListener('click',()=>{location.href='details.html?view=reservatorios&id='+card.dataset.reservoir+'&machine='+id;}));
 
 document.addEventListener('click',e=>{const action=e.target.closest('[data-action]');if(!action)return; const label=action.dataset.action; if(label==='Gerar relatório'){location.href='report.html?type=gerencial';return;} if(label==='Consumo'){location.href='report.html?type=consumo';return;} if(label==='Energia'){location.href='report.html?type=energia';return;} if(label==='Estoque'){location.href='report.html?type=estoque';return;} if(label==='Manutenção'){location.href='report.html?type=manutencao';return;} showToast(label+' selecionado — módulo demonstrativo.');});
+
+}

@@ -1,0 +1,449 @@
+<div class="app-shell">
+  <main class="main">
+    <div hidden>
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <div class="breadcrumbs">
+        <span>WashSense</span><b>/</b><strong>Configurações</strong>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="saveTop">✓</button>
+        <div class="top-user">
+          <div class="avatar">GR</div>
+          <span>George</span><b>⌄</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="content settings-content">
+      <section class="settings-head">
+        <div>
+          <div class="eyebrow">CONFIGURAÇÃO DA UNIDADE</div>
+          <h1>Configurações</h1>
+          <p>
+            Defina a estrutura da lavanderia, os produtos utilizados e os
+            parâmetros de monitoramento.
+          </p>
+        </div>
+        <div class="save-state" id="saveState">Alterações não salvas</div>
+      </section>
+
+      <section class="settings-layout">
+        <div class="settings-nav" aria-label="Seções de configuração">
+          <button class="settings-tab active" data-tab="estrutura">
+            <b>01</b
+            ><span
+              ><strong>Estrutura</strong
+              ><small>Máquinas e secadoras</small></span
+            >
+          </button>
+          <button class="settings-tab" data-tab="produtos">
+            <b>02</b
+            ><span
+              ><strong>Produtos</strong
+              ><small>Marcas, custo e estoque</small></span
+            >
+          </button>
+          <button class="settings-tab" data-tab="parametros">
+            <b>03</b
+            ><span
+              ><strong>Monitoramento</strong
+              ><small>Níveis e alertas</small></span
+            >
+          </button>
+          <button class="settings-tab" data-tab="energia">
+            <b>04</b
+            ><span
+              ><strong>Energia</strong
+              ><small>Tarifa e custo automático</small></span
+            >
+          </button>
+        </div>
+
+        <div class="settings-main">
+          <section class="settings-section active" id="tab-estrutura">
+            <div class="section-heading">
+              <div>
+                <span class="section-kicker">ESTRUTURA OPERACIONAL</span>
+                <h2>Equipamentos da unidade</h2>
+                <p>Informe quantos equipamentos fazem parte da operação.</p>
+              </div>
+            </div>
+            <div class="form-grid two">
+              <label class="field"
+                ><span>Quantidade de lavadoras</span
+                ><input id="washers" type="number" min="0" value="8" /><small
+                  >Máquinas destinadas à lavagem.</small
+                ></label
+              >
+              <label class="field"
+                ><span>Quantidade de secadoras</span
+                ><input id="dryers" type="number" min="0" value="2" /><small
+                  >Equipamentos destinados à secagem.</small
+                ></label
+              >
+            </div>
+            <div class="summary-strip">
+              <div>
+                <strong id="totalEquip">10</strong
+                ><span>equipamentos cadastrados</span>
+              </div>
+              <div><strong>08</strong><span>conectados agora</span></div>
+              <div><strong>02</strong><span>em atenção</span></div>
+            </div>
+          </section>
+
+          <section class="settings-section" id="tab-produtos">
+            <div class="section-heading">
+              <div>
+                <span class="section-kicker">CATÁLOGO DE PRODUTOS</span>
+                <h2>Produtos químicos</h2>
+                <p>
+                  Cadastre marca, custo e nível mínimo de cada produto
+                  monitorado.
+                </p>
+              </div>
+              <button class="primary-btn" id="addProduct">
+                + Adicionar produto
+              </button>
+            </div>
+            <div class="table-wrap">
+              <table class="product-table">
+                <thead>
+                  <tr>
+                    <th>Produto</th>
+                    <th>Marca</th>
+                    <th>Custo / L</th>
+                    <th>Nível mínimo</th>
+                    <th>Capacidade</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="productsBody"></tbody>
+              </table>
+            </div>
+            <div class="product-note">
+              <span>i</span>
+              <p>
+                O custo por litro será usado para estimar o valor consumido, o
+                custo por ciclo e o impacto financeiro dos alertas.
+              </p>
+            </div>
+            <div class="assignment-block">
+              <div class="section-heading compact">
+                <div>
+                  <span class="section-kicker">VÍNCULO OPERACIONAL</span>
+                  <h2>Produtos por máquina</h2>
+                  <p>
+                    Defina quais produtos estão instalados em cada equipamento.
+                  </p>
+                </div>
+              </div>
+              <div class="assignment-grid" id="assignmentGrid"></div>
+            </div>
+          </section>
+
+          <section class="settings-section" id="tab-parametros">
+            <div class="section-heading">
+              <div>
+                <span class="section-kicker">REGRAS DE MONITORAMENTO</span>
+                <h2>Níveis e alertas</h2>
+                <p>Defina quando o WashSense deve sinalizar reposição.</p>
+              </div>
+            </div>
+            <div class="parameter-list">
+              <div class="parameter">
+                <div>
+                  <strong>Alerta de nível mínimo</strong>
+                  <p>
+                    Gera atenção quando o reservatório atingir este percentual.
+                  </p>
+                </div>
+                <div class="input-suffix">
+                  <input
+                    id="globalMin"
+                    type="number"
+                    min="1"
+                    max="99"
+                    value="30"
+                  /><span>%</span>
+                </div>
+              </div>
+              <div class="parameter">
+                <div>
+                  <strong>Alerta crítico</strong>
+                  <p>
+                    Gera alerta crítico quando o nível estiver abaixo deste
+                    percentual.
+                  </p>
+                </div>
+                <div class="input-suffix">
+                  <input
+                    id="globalCritical"
+                    type="number"
+                    min="1"
+                    max="98"
+                    value="15"
+                  /><span>%</span>
+                </div>
+              </div>
+              <div class="parameter">
+                <div>
+                  <strong>Antecedência de compra</strong>
+                  <p>
+                    Considera a previsão de consumo para recomendar reposição.
+                  </p>
+                </div>
+                <div class="input-suffix">
+                  <input
+                    id="purchaseDays"
+                    type="number"
+                    min="0"
+                    max="90"
+                    value="7"
+                  /><span>dias</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="settings-section" id="tab-energia">
+            <div class="section-heading">
+              <div>
+                <span class="section-kicker">CUSTO DE ENERGIA</span>
+                <h2>Composição automática da conta</h2>
+                <p>
+                  O WashSense consulta a tarifa vigente da ANEEL e a bandeira do
+                  mês. O WashSense considera São Paulo (Enel SP) e aplica
+                  automaticamente o ICMS de 18%. PIS/PASEP e COFINS têm
+                  alíquotas nominais conhecidas, mas suas alíquotas efetivas
+                  variam mensalmente e, por isso, não entram no cálculo
+                  estimado. A CIP/COSIP também não entra no cálculo.
+                </p>
+              </div>
+              <button class="secondary-btn" id="refreshTariff">
+                ↻ Atualizar cálculo
+              </button>
+            </div>
+
+            <div class="form-grid two">
+              <label class="field"
+                ><span>Localidade</span
+                ><input value="São Paulo — SP" disabled /><small
+                  >Configuração fixa nesta versão do WashSense.</small
+                ></label
+              >
+              <label class="field"
+                ><span>Distribuidora</span
+                ><input value="Enel SP" disabled /><small
+                  >Distribuidora fixa nesta versão do WashSense.</small
+                ></label
+              >
+              <label class="field"
+                ><span>Grupo tarifário</span
+                ><input value="B3 — Demais classes" disabled /><small
+                  >Perfil comercial adotado para a lavanderia.</small
+                ></label
+              >
+            </div>
+
+            <div class="tariff-status" id="tariffStatus">
+              <span class="status-dot-ui"></span>
+              <div>
+                <strong>Aguardando configuração</strong>
+                <p>Informe os parâmetros e clique em “Atualizar cálculo”.</p>
+              </div>
+            </div>
+
+            <div class="tariff-result" id="tariffResult" hidden>
+              <div class="tariff-result-head">
+                <div>
+                  <span class="section-kicker">TARIFA ENCONTRADA</span>
+                  <h3 id="tariffTitle">—</h3>
+                </div>
+                <span class="source-badge">Fonte: ANEEL</span>
+              </div>
+              <div class="tariff-grid">
+                <div>
+                  <span>TE</span><strong id="tariffTE">—</strong
+                  ><small>R$/kWh</small>
+                </div>
+                <div>
+                  <span>TUSD</span><strong id="tariffTUSD">—</strong
+                  ><small>R$/kWh</small>
+                </div>
+                <div>
+                  <span>TE + TUSD</span><strong id="tariffBase">—</strong
+                  ><small>R$/kWh</small>
+                </div>
+                <div>
+                  <span>Vigência</span><strong id="tariffValidity">—</strong
+                  ><small id="tariffMode">—</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="energy-cost-panel">
+              <div class="energy-cost-head">
+                <div>
+                  <span class="section-kicker">COMPONENTES DO CUSTO</span>
+                  <h3>O que entra na estimativa</h3>
+                </div>
+                <span class="source-badge">São Paulo · Enel SP</span>
+              </div>
+              <div class="energy-component-list">
+                <div class="energy-component">
+                  <div>
+                    <strong>TE + TUSD</strong
+                    ><small>Tarifa homologada pela ANEEL</small>
+                  </div>
+                  <strong id="costTariff">—</strong>
+                </div>
+                <div class="energy-component">
+                  <div>
+                    <strong>Bandeira tarifária</strong
+                    ><small id="flagSource">Consulta mensal ANEEL</small>
+                  </div>
+                  <strong id="costFlag">—</strong>
+                </div>
+                <div class="energy-component">
+                  <div>
+                    <strong>ICMS</strong
+                    ><small
+                      >São Paulo · Demais classes · alíquota fixa adotada:
+                      18%</small
+                    >
+                  </div>
+                  <strong>18%</strong>
+                </div>
+                <div class="energy-component">
+                  <div>
+                    <strong>PIS/PASEP</strong
+                    ><small
+                      >Alíquota nominal: 1,65% · efetiva varia
+                      mensalmente</small
+                    >
+                  </div>
+                  <strong>Não incluído</strong>
+                </div>
+                <div class="energy-component">
+                  <div>
+                    <strong>COFINS</strong
+                    ><small
+                      >Alíquota nominal: 7,60% · efetiva varia
+                      mensalmente</small
+                    >
+                  </div>
+                  <strong>Não incluído</strong>
+                </div>
+                <div class="energy-component">
+                  <div>
+                    <strong>CIP/COSIP</strong
+                    ><small
+                      >Contribuição municipal · não incluída nesta
+                      estimativa</small
+                    >
+                  </div>
+                  <strong>Não incluída</strong>
+                </div>
+              </div>
+              <div class="energy-tax-note">
+                <strong>Observação sobre a estimativa</strong>
+                <p>
+                  O cálculo usa ICMS de 18% para São Paulo (Demais classes).
+                  PIS/PASEP e COFINS possuem alíquotas nominais de 1,65% e
+                  7,60%, porém a alíquota efetiva da conta varia mensalmente
+                  conforme a apuração da distribuidora; por isso, esses tributos
+                  não entram nesta estimativa. A CIP/COSIP também não é
+                  incluída.
+                </p>
+              </div>
+            </div>
+
+            <div class="energy-total-card">
+              <div>
+                <span class="section-kicker">CUSTO ESTIMADO</span>
+                <h3 id="energyCostTitle">—</h3>
+                <p id="energyCostDescription">
+                  Estimativa baseada em TE + TUSD + bandeira e ICMS de 18%.
+                  PIS/PASEP, COFINS e CIP/COSIP não estão incluídos.
+                </p>
+              </div>
+              <div class="energy-total-grid">
+                <div>
+                  <span>Consumo</span><strong id="demoKwh">1.248 kWh</strong>
+                </div>
+                <div>
+                  <span>Tarifa + bandeira</span
+                  ><strong id="demoTariffCost">—</strong>
+                </div>
+                <div>
+                  <span>Custo final estimado</span
+                  ><strong id="demoCost">—</strong>
+                </div>
+                <div>
+                  <span>Custo efetivo / kWh</span
+                  ><strong id="demoUnitCost">—</strong>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="settings-actions">
+            <button class="secondary-btn" id="cancelBtn">
+              Descartar alterações</button
+            ><button class="primary-btn" id="saveBtn">Aplicar rascunho</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+<div class="modal" id="productModal" aria-hidden="true">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <span class="section-kicker">NOVO CADASTRO</span>
+        <h3>Adicionar produto</h3>
+      </div>
+      <button id="closeModal">×</button>
+    </div>
+    <div class="form-grid two">
+      <label class="field"
+        ><span>Produto</span
+        ><input id="newName" placeholder="Ex.: Detergente" /></label
+      ><label class="field"
+        ><span>Marca</span
+        ><input id="newBrand" placeholder="Ex.: Diversey" /></label
+      ><label class="field"
+        ><span>Custo / litro</span
+        ><input
+          id="newCost"
+          type="number"
+          step="0.01"
+          min="0"
+          placeholder="0,00" /></label
+      ><label class="field"
+        ><span>Nível mínimo</span>
+        <div class="input-suffix">
+          <input id="newMin" type="number" min="1" max="99" value="30" /><span
+            >%</span
+          >
+        </div></label
+      ><label class="field"
+        ><span>Capacidade do reservatório</span>
+        <div class="input-suffix">
+          <input id="newCapacity" type="number" min="1" value="20" /><span
+            >L</span
+          >
+        </div></label
+      >
+    </div>
+    <div class="modal-actions">
+      <button class="secondary-btn" id="cancelModal">Cancelar</button
+      ><button class="primary-btn" id="confirmProduct">
+        Adicionar produto
+      </button>
+    </div>
+  </div>
+</div>

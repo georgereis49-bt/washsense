@@ -1,0 +1,45 @@
+/* Atlântico Preciso: values preserved from styles.css and official SVG. */
+:root {
+  --ws-navy: #0b2d5b;
+  --ws-navy-deep: #061b35;
+  --ws-cyan: #0ea5e9;
+  --ws-aqua: #22d3ee;
+  --ws-bg: #f5f9fc;
+  --ws-surface: #fff;
+  --ws-ink: #092344;
+  --ws-muted: #53667d;
+  --ws-line: #dfe8f0;
+  --ws-success: #16844f;
+  --ws-warning: #9a4a08;
+  --ws-danger: #b42318;
+  --ws-radius: 16px;
+  --ws-radius-sm: 10px;
+  --ws-shadow: 0 4px 24px rgba(11, 45, 91, 0.045);
+  --ws-link: var(--ws-navy);
+  --ws-duration: 180ms;
+  --ws-font: Inter, "Segoe UI", Arial, sans-serif;
+  --ws-space: 8px;
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --ws-link: var(--ws-aqua);
+  --ws-bg: #061b35;
+  --ws-surface: #0b2344;
+  --ws-ink: #eef5fc;
+  --ws-muted: #b4c9dd;
+  --ws-line: #28435e;
+  --ws-success: #69dca4;
+  --ws-warning: #ffd29a;
+  --ws-danger: #ffb4ab;
+  --ws-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  color-scheme: dark;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

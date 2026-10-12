@@ -1,0 +1,541 @@
+<div class="app-shell">
+  <main class="main">
+    <div hidden>
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <div class="breadcrumbs">
+        <span>WashSense</span><b>/</b><strong>Visão geral</strong>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" title="Atualizar" id="refreshBtn">↻</button>
+        <button class="icon-btn notification" title="Notificações" id="bellBtn">
+          ♧<i></i>
+        </button>
+        <div class="top-user">
+          <div class="avatar">GR</div>
+          <span>George</span><b>⌄</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+      <section class="welcome-row">
+        <div>
+          <div class="eyebrow">CENTRO DE CONTROLE · DEMONSTRAÇÃO</div>
+          <h1>Visão geral da operação</h1>
+          <p>Acompanhe a operação da sua lavanderia em um só lugar.</p>
+        </div>
+        <div class="date-control">
+          <span>Período</span><button id="periodBtn">Hoje <b>⌄</b></button>
+        </div>
+      </section>
+
+      <section class="kpis">
+        <article class="kpi clickable" data-detail="maquinas">
+          <div class="kpi-head">
+            <span>Máquinas online</span>
+            <div class="kpi-icon cyan">◉</div>
+          </div>
+          <strong>08<span>/10</span></strong>
+          <div class="kpi-foot positive">
+            ● 80% operacionais <small>agora</small>
+          </div>
+        </article>
+        <article class="kpi clickable" data-detail="reservatorios">
+          <div class="kpi-head">
+            <span>Reservatórios</span>
+            <div class="kpi-icon blue">▣</div>
+          </div>
+          <strong>04</strong>
+          <div class="kpi-foot">Todos monitorados <small>agora</small></div>
+        </article>
+        <article class="kpi clickable" data-detail="consumo">
+          <div class="kpi-head">
+            <span>Consumo hoje</span>
+            <div class="kpi-icon green">◒</div>
+          </div>
+          <strong>128<span>L</span></strong>
+          <div class="kpi-foot positive">↓ 6,4% <small>vs. média</small></div>
+        </article>
+        <article class="kpi alert-kpi clickable" data-detail="alertas">
+          <div class="kpi-head">
+            <span>Alertas ativos</span>
+            <div class="kpi-icon orange">!</div>
+          </div>
+          <strong>02</strong>
+          <div class="kpi-foot warning">1 crítico · 1 atenção</div>
+        </article>
+      </section>
+
+      <section class="grid-main">
+        <div class="panel reservoir-panel" id="reservatorios">
+          <div class="panel-title">
+            <div>
+              <h2>Níveis dos reservatórios</h2>
+              <p>Reservatórios individuais por máquina</p>
+            </div>
+            <button class="link-btn" data-detail="maquinas">
+              Selecionar máquina →
+            </button>
+          </div>
+          <div class="reservoirs">
+            <div
+              class="tank clickable"
+              data-detail="reservatorios"
+              data-id="detergente"
+            >
+              <div class="tank-top">
+                <div>
+                  <strong>Detergente</strong><small>14,4 L de 20 L</small>
+                </div>
+                <b>72%</b>
+              </div>
+              <div class="tank-bar"><i style="width: 72%"></i></div>
+              <div class="tank-bottom">
+                <span>Previsão: <b>9 dias</b></span
+                ><span class="live">● Normal</span>
+              </div>
+            </div>
+            <div
+              class="tank clickable"
+              data-detail="reservatorios"
+              data-id="amaciante"
+            >
+              <div class="tank-top">
+                <div>
+                  <strong>Amaciante</strong><small>8,6 L de 20 L</small>
+                </div>
+                <b>43%</b>
+              </div>
+              <div class="tank-bar purple"><i style="width: 43%"></i></div>
+              <div class="tank-bottom">
+                <span>Previsão: <b>5 dias</b></span
+                ><span class="attention">● Atenção</span>
+              </div>
+            </div>
+            <div
+              class="tank clickable"
+              data-detail="reservatorios"
+              data-id="alvejante"
+            >
+              <div class="tank-top">
+                <div>
+                  <strong>Alvejante</strong><small>17,6 L de 20 L</small>
+                </div>
+                <b>88%</b>
+              </div>
+              <div class="tank-bar green"><i style="width: 88%"></i></div>
+              <div class="tank-bottom">
+                <span>Previsão: <b>14 dias</b></span
+                ><span class="live">● Normal</span>
+              </div>
+            </div>
+            <div
+              class="tank clickable"
+              data-detail="reservatorios"
+              data-id="neutralizante"
+            >
+              <div class="tank-top">
+                <div>
+                  <strong>Neutralizante</strong><small>11,2 L de 20 L</small>
+                </div>
+                <b>56%</b>
+              </div>
+              <div class="tank-bar orange"><i style="width: 56%"></i></div>
+              <div class="tank-bottom">
+                <span>Previsão: <b>7 dias</b></span
+                ><span class="live">● Normal</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel alerts-panel" id="alertas">
+          <div class="panel-title">
+            <div>
+              <h2>Alertas recentes</h2>
+              <p>O que merece sua atenção</p>
+            </div>
+            <button class="count-btn">2 ativos</button>
+          </div>
+          <div class="alerts">
+            <div
+              class="alert critical clickable"
+              data-detail="reservatorios"
+              data-id="amaciante"
+            >
+              <div class="alert-symbol">!</div>
+              <div>
+                <strong>Amaciante abaixo do ideal</strong>
+                <p>Reservatório em 43%. Previsão de 5 dias.</p>
+                <small>Há 18 min</small>
+              </div>
+              <button>›</button>
+            </div>
+            <div
+              class="alert warning clickable"
+              data-detail="maquinas"
+              data-id="M05"
+            >
+              <div class="alert-symbol">⚠</div>
+              <div>
+                <strong>M05 em manutenção</strong>
+                <p>Máquina indisponível desde 15:42.</p>
+                <small>Há 32 min</small>
+              </div>
+              <button>›</button>
+            </div>
+          </div>
+          <button class="outline-btn" data-detail="alertas">
+            Ver todos os alertas
+          </button>
+        </div>
+      </section>
+
+      <section class="panel machines-panel" id="maquinas">
+        <div class="panel-title">
+          <div>
+            <h2>Máquinas</h2>
+            <p>Status e ciclos em andamento</p>
+          </div>
+          <div class="panel-actions">
+            <button class="filter-btn">Todas <b>⌄</b></button
+            ><button class="link-btn" data-detail="maquinas">
+              Ver máquinas →
+            </button>
+          </div>
+        </div>
+        <div class="machines">
+          <article data-detail="maquinas" data-id="M01" class="machine running">
+            <div class="machine-top">
+              <span class="machine-code">M01</span
+              ><span class="status-dot">● Lavando</span>
+            </div>
+            <div class="machine-image">
+              <svg viewBox="0 0 72 80" aria-hidden="true">
+                <rect
+                  x="10"
+                  y="5"
+                  width="52"
+                  height="70"
+                  rx="8"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <circle
+                  cx="36"
+                  cy="44"
+                  r="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  d="M18 18h21m8 0h6M22 65h28"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+              </svg>
+            </div>
+            <strong>Lavadora 01</strong><small>Programa: Pesado</small>
+            <div class="progress"><i style="width: 68%"></i></div>
+            <div class="machine-foot"><span>68%</span><b>18 min</b></div>
+          </article>
+          <article data-detail="maquinas" data-id="M02" class="machine running">
+            <div class="machine-top">
+              <span class="machine-code">M02</span
+              ><span class="status-dot">● Enxaguando</span>
+            </div>
+            <div class="machine-image">
+              <svg viewBox="0 0 72 80" aria-hidden="true">
+                <rect
+                  x="10"
+                  y="5"
+                  width="52"
+                  height="70"
+                  rx="8"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <circle
+                  cx="36"
+                  cy="44"
+                  r="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  d="M18 18h21m8 0h6M22 65h28"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+              </svg>
+            </div>
+            <strong>Lavadora 02</strong><small>Programa: Normal</small>
+            <div class="progress"><i style="width: 42%"></i></div>
+            <div class="machine-foot"><span>42%</span><b>12 min</b></div>
+          </article>
+          <article data-detail="maquinas" data-id="M03" class="machine running">
+            <div class="machine-top">
+              <span class="machine-code">M03</span
+              ><span class="status-dot">● Centrifugando</span>
+            </div>
+            <div class="machine-image">
+              <svg viewBox="0 0 72 80" aria-hidden="true">
+                <rect
+                  x="10"
+                  y="5"
+                  width="52"
+                  height="70"
+                  rx="8"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <circle
+                  cx="36"
+                  cy="44"
+                  r="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  d="M18 18h21m8 0h6M22 65h28"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+              </svg>
+            </div>
+            <strong>Lavadora 03</strong><small>Programa: Rápido</small>
+            <div class="progress"><i style="width: 84%"></i></div>
+            <div class="machine-foot"><span>84%</span><b>4 min</b></div>
+          </article>
+          <article data-detail="maquinas" data-id="M04" class="machine idle">
+            <div class="machine-top">
+              <span class="machine-code">M04</span
+              ><span class="status-dot">● Disponível</span>
+            </div>
+            <div class="machine-image">
+              <svg viewBox="0 0 72 80" aria-hidden="true">
+                <rect
+                  x="10"
+                  y="5"
+                  width="52"
+                  height="70"
+                  rx="8"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <circle
+                  cx="36"
+                  cy="44"
+                  r="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  d="M18 18h21m8 0h6M22 65h28"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+              </svg>
+            </div>
+            <strong>Lavadora 04</strong><small>Aguardando ciclo</small>
+            <div class="idle-bar"></div>
+            <div class="machine-foot"><span>Pronta</span><b>—</b></div>
+          </article>
+          <article
+            data-detail="maquinas"
+            data-id="M05"
+            class="machine maintenance"
+          >
+            <div class="machine-top">
+              <span class="machine-code">M05</span
+              ><span class="status-dot">● Manutenção</span>
+            </div>
+            <div class="machine-image">
+              <svg viewBox="0 0 72 80" aria-hidden="true">
+                <rect
+                  x="10"
+                  y="5"
+                  width="52"
+                  height="70"
+                  rx="8"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <circle
+                  cx="36"
+                  cy="44"
+                  r="18"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  d="M18 18h21m8 0h6M22 65h28"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+              </svg>
+            </div>
+            <strong>Secadora 01</strong><small>Manutenção preventiva</small>
+            <div class="idle-bar"></div>
+            <div class="machine-foot">
+              <span>Indisponível</span><b>15:42</b>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="lower-grid">
+        <div
+          class="panel chart-panel clickable"
+          id="consumo"
+          data-detail="consumo"
+        >
+          <div class="panel-title">
+            <div>
+              <h2>Consumo de produtos</h2>
+              <p>Litros consumidos nos últimos 7 dias</p>
+            </div>
+            <div class="chart-total">
+              <strong>842 L</strong><span>↓ 6,4%</span>
+            </div>
+          </div>
+          <div class="chart">
+            <div class="y-labels">
+              <span>160</span><span>120</span><span>80</span><span>40</span
+              ><span>0</span>
+            </div>
+            <div class="chart-area">
+              <div class="gridline g1"></div>
+              <div class="gridline g2"></div>
+              <div class="gridline g3"></div>
+              <div class="gridline g4"></div>
+              <svg
+                viewBox="0 0 700 240"
+                preserveAspectRatio="none"
+                aria-label="Gráfico de consumo"
+              >
+                <defs>
+                  <linearGradient id="fill" x1="0" x2="0" y1="0" y2="1">
+                    <stop offset="0" stop-color="#10b9ef" stop-opacity=".25" />
+                    <stop offset="1" stop-color="#10b9ef" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M0,145 C45,130 65,154 105,115 S165,126 205,88 S265,105 300,75 S350,96 395,62 S450,80 490,46 S545,70 585,35 S640,62 700,28 L700,240 L0,240 Z"
+                  fill="url(#fill)"
+                />
+                <path
+                  d="M0,145 C45,130 65,154 105,115 S165,126 205,88 S265,105 300,75 S350,96 395,62 S450,80 490,46 S545,70 585,35 S640,62 700,28"
+                  fill="none"
+                  stroke="#08aee8"
+                  stroke-width="4"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <div class="x-labels">
+                <span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span
+                ><span>Sex</span><span>Sáb</span><span>Hoje</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="panel cycles-panel clickable"
+          id="relatorios"
+          data-detail="relatorios"
+        >
+          <div class="panel-title">
+            <div>
+              <h2>Atividade de hoje</h2>
+              <p>Ciclos e eficiência operacional</p>
+            </div>
+            <button class="link-btn" data-detail="relatorios">
+              Relatórios →
+            </button>
+          </div>
+          <div class="cycle-stats">
+            <div>
+              <span class="round-icon cyan">↻</span><strong>127</strong
+              ><small>Ciclos realizados</small>
+            </div>
+            <div>
+              <span class="round-icon blue">♧</span><strong>58,4 L</strong
+              ><small>Consumo estimado</small>
+            </div>
+            <div>
+              <span class="round-icon green">↓</span><strong>-12%</strong
+              ><small>vs. média</small>
+            </div>
+          </div>
+          <div class="efficiency">
+            <div><span>Eficiência operacional</span><b>92%</b></div>
+            <div class="eff-bar"><i style="width: 92%"></i></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel energy-panel" id="energia">
+        <div class="panel-title">
+          <div>
+            <h2>Energia e custo</h2>
+            <p>
+              Estimativa calculada a partir da tarifa vigente da distribuidora
+            </p>
+          </div>
+          <button class="link-btn" data-route="/energia">
+            Configurar tarifa →
+          </button>
+        </div>
+        <div class="energy-dashboard-grid">
+          <div class="energy-main">
+            <span class="section-kicker">ESTE MÊS</span
+            ><strong id="dashEnergyCost">Configure a tarifa</strong
+            ><small id="dashEnergyMeta"
+              >Distribuidora e grupo tarifário ainda não configurados.</small
+            >
+          </div>
+          <div class="energy-stat">
+            <span>Consumo</span><strong id="dashEnergyKwh">1.248 kWh</strong
+            ><small>valor demonstrativo</small>
+          </div>
+          <div class="energy-stat">
+            <span>Custo médio</span><strong id="dashEnergyUnit">—</strong
+            ><small>TE + TUSD</small>
+          </div>
+          <div class="energy-source">
+            <span>Fonte tarifária</span><strong>ANEEL</strong
+            ><small id="dashEnergyValidity">Atualização automática</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="insight" id="config">
+        <div class="insight-icon">✦</div>
+        <div>
+          <span>WASHSENSE INTELLIGENCE</span>
+          <h3>O consumo de amaciante caiu 8% nos últimos 7 dias.</h3>
+          <p>
+            Com base no histórico, a previsão é que o reservatório atual dure
+            até 03/10. Nenhuma ação necessária no momento.
+          </p>
+        </div>
+        <button>Ver análise →</button>
+      </section>
+      <footer class="dash-footer">
+        WashSense <span>•</span> Sua lavanderia, sob controle.
+        <span>Dados de demonstração · Sem leituras IoT reais.</span>
+      </footer>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>

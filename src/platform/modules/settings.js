@@ -1,3 +1,5 @@
+// Existing operational controller, now scoped to its SPA module.
+export default function mount(document, location, window) {
 const $=s=>document.querySelector(s);const $$=s=>document.querySelectorAll(s);
 const toast=$('#toast');let toastTimer;
 function showToast(m){clearTimeout(toastTimer);toast.textContent=m;toast.classList.add('show');toastTimer=setTimeout(()=>toast.classList.remove('show'),2200)}
@@ -19,7 +21,7 @@ function closeModal(){$('#productModal').classList.remove('show');$('#productMod
 $('#closeModal')?.addEventListener('click',closeModal);$('#cancelModal')?.addEventListener('click',closeModal);
 $('#confirmProduct')?.addEventListener('click',()=>{const name=$('#newName').value.trim(),brand=$('#newBrand').value.trim(),cost=Number($('#newCost').value),min=Number($('#newMin').value),capacity=Number($('#newCapacity').value);if(!name||!brand||!Number.isFinite(cost)||cost<0||min<1||min>99||capacity<=0){showToast('Preencha os dados do produto corretamente.');return}products.push({name,brand,cost,min,capacity});renderProducts();closeModal();['newName','newBrand','newCost'].forEach(id=>$('#'+id).value='');markDirty();showToast('Produto adicionado.');});
 $('#cancelBtn')?.addEventListener('click',()=>{location.reload()});
-function save(){updateTotal();$('#saveState').textContent='Configurações salvas';$('#saveState').classList.add('saved');showToast('Configurações salvas com sucesso.');}
+function save(){updateTotal();$('#saveState').textContent='Rascunho aplicado';$('#saveState').classList.add('saved');showToast('Rascunho mantido nesta sessão. Configuração demonstrativa.');}
 $('#saveBtn')?.addEventListener('click',save);$('#saveTop')?.addEventListener('click',save);
 renderProducts();
 
@@ -30,3 +32,5 @@ renderProducts();
   const tab=document.querySelector(`.settings-tab[data-tab="${hash}"]`);
   if(tab) tab.click();
 })();
+
+}

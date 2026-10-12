@@ -1,1 +1,19 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WashSense — Gerar relatório</title><link rel="icon" href="assets/washsense-logo.svg"><link rel="stylesheet" href="dashboard.css"><link rel="stylesheet" href="report.css"></head><body><div class="report-app"><header class="report-top"><img src="assets/washsense-logo.svg" alt="WashSense"><div><span>RELATÓRIO GERENCIAL</span><strong>Gerar relatório</strong></div><div class="report-actions"><button onclick="history.back()">← Voltar</button><button class="primary" id="printBtn">Gerar PDF / Imprimir</button></div></header><main><section class="config-card"><div><h1>Configurar relatório</h1><p>Escolha o período e os indicadores que deseja consolidar.</p></div><div class="filters"><label>Tipo<select id="type"><option value="gerencial">Gerencial — visão completa</option><option value="consumo">Consumo e produtos</option><option value="energia">Energia e máquinas</option><option value="estoque">Estoque e reservatórios</option><option value="manutencao">Manutenção e disponibilidade</option></select></label><label>Período<select id="period"><option value="7">Últimos 7 dias</option><option value="30" selected>Últimos 30 dias</option><option value="90">Últimos 90 dias</option></select></label><label>Unidade<select><option>Lavanderia Central</option></select></label></div><div class="checks"><label><input type="checkbox" checked data-section="kpis"> Indicadores</label><label><input type="checkbox" checked data-section="consumo"> Consumo</label><label><input type="checkbox" checked data-section="energia"> Energia</label><label><input type="checkbox" checked data-section="estoque"> Estoque</label><label><input type="checkbox" checked data-section="maquinas"> Máquinas</label><label><input type="checkbox" checked data-section="alertas"> Alertas</label></div></section><section id="preview" class="paper"></section></main></div><script src="report.js"></script></body></html>
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WashSense</title>
+  </head>
+  <body>
+    <p>
+      Abrindo a plataforma WashSense…
+      <a href="app.html#/relatorios">Continuar</a>
+    </p>
+    <script
+      type="module"
+      src="/src/platform/redirect.ts"
+      data-page="report"
+    ></script>
+  </body>
+</html>

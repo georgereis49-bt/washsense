@@ -1,1318 +1,707 @@
 <!doctype html>
 <html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<head>
+    <title>WashSense — Entrar</title>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="assets/washsense-logo.svg" />
 
-<title>WashSense — Entrar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-<link rel="icon" href="assets/washsense-logo.svg">
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <style>
+      :root {
+        --navy: #062744;
+        --navy2: #082f50;
+        --cyan: #08bce8;
+        --cyan2: #22c7e8;
+        --text: #102b45;
+        --muted: #71849a;
+        --line: #e5edf4;
+        --bg: #f5f8fb;
+      }
 
-<link
-  href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap"
-  rel="stylesheet"
->
+      * {
+        box-sizing: border-box;
+      }
 
-<style>
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+      }
 
-:root{
-  --navy:#062744;
-  --navy2:#082f50;
-  --cyan:#08bce8;
-  --cyan2:#22c7e8;
-  --text:#102b45;
-  --muted:#71849a;
-  --line:#e5edf4;
-  --bg:#f5f8fb;
-}
+      body {
+        font-family: "DM Sans", Inter, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
 
-*{
-  box-sizing:border-box;
-}
+      .page {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+      }
 
-html,
-body{
-  margin:0;
-  min-height:100%;
-}
-
-body{
-  font-family:"DM Sans",Inter,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
-
-.page{
-  min-height:100vh;
-  display:grid;
-  grid-template-columns:1.05fr .95fr;
-}
-
-/* =========================================================
+      /* =========================================================
    LADO ESQUERDO
 ========================================================= */
 
-.left{
-  position:relative;
-  overflow:hidden;
-  background:
-    radial-gradient(
-      circle at 80% 20%,
-      rgba(8,188,232,.14),
-      transparent 30%
-    ),
-    linear-gradient(
-      145deg,
-      #041f39,
-      #062744 60%,
-      #073455
-    );
-  color:white;
-  padding:42px 64px;
-  display:flex;
-  flex-direction:column;
-}
+      .left {
+        position: relative;
+        overflow: hidden;
+        background:
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(8, 188, 232, 0.14),
+            transparent 30%
+          ),
+          linear-gradient(145deg, #041f39, #062744 60%, #073455);
+        color: white;
+        padding: 42px 64px;
+        display: flex;
+        flex-direction: column;
+      }
 
-.left:after{
-  content:"";
-  position:absolute;
-  width:520px;
-  height:520px;
-  border:1px solid rgba(34,199,232,.10);
-  border-radius:50%;
-  right:-260px;
-  bottom:-240px;
-}
+      .left:after {
+        content: "";
+        position: absolute;
+        width: 520px;
+        height: 520px;
+        border: 1px solid rgba(34, 199, 232, 0.1);
+        border-radius: 50%;
+        right: -260px;
+        bottom: -240px;
+      }
 
-.logo{
-  position:relative;
-  z-index:2;
-  display:inline-flex;
-  width:max-content;
-}
+      .logo {
+        position: relative;
+        z-index: 2;
+        display: inline-flex;
+        width: max-content;
+      }
 
-.logo img{
-  width:165px;
-  height:auto;
-}
+      .logo img {
+        width: 165px;
+        height: auto;
+      }
 
-.left-content{
-  position:relative;
-  z-index:2;
-  max-width:650px;
-  margin:auto 0;
-}
+      .left-content {
+        position: relative;
+        z-index: 2;
+        max-width: 650px;
+        margin: auto 0;
+      }
 
-.eyebrow{
-  color:#24c6eb;
-  font-size:11px;
-  font-weight:800;
-  letter-spacing:2px;
-  margin-bottom:18px;
-}
+      .eyebrow {
+        color: #24c6eb;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 2px;
+        margin-bottom: 18px;
+      }
 
-.eyebrow i{
-  display:inline-block;
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  background:#22c7e8;
-  margin-right:8px;
-  box-shadow:0 0 12px rgba(34,199,232,.7);
-}
+      .eyebrow i {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #22c7e8;
+        margin-right: 8px;
+        box-shadow: 0 0 12px rgba(34, 199, 232, 0.7);
+      }
 
-.left h1{
-  margin:0;
-  font-size:58px;
-  line-height:1.04;
-  letter-spacing:-2.4px;
-  font-weight:800;
-}
+      .left h1 {
+        margin: 0;
+        font-size: 58px;
+        line-height: 1.04;
+        letter-spacing: -2.4px;
+        font-weight: 800;
+      }
 
-.left h1 span{
-  color:#20c7eb;
-}
+      .left h1 span {
+        color: #20c7eb;
+      }
 
-.lead{
-  max-width:560px;
-  margin:25px 0 40px;
-  color:#a9bfd1;
-  font-size:17px;
-  line-height:1.7;
-}
+      .lead {
+        max-width: 560px;
+        margin: 25px 0 40px;
+        color: #a9bfd1;
+        font-size: 17px;
+        line-height: 1.7;
+      }
 
-.features{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:14px;
-}
+      .features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+      }
 
-.feature{
-  padding:19px;
-  min-height:155px;
-  border:1px solid rgba(255,255,255,.10);
-  background:rgba(255,255,255,.035);
-  backdrop-filter:blur(10px);
-}
+      .feature {
+        padding: 19px;
+        min-height: 155px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.035);
+        backdrop-filter: blur(10px);
+      }
 
-.feature .icon{
-  width:40px;
-  height:40px;
-  display:grid;
-  place-items:center;
-  border:1px solid rgba(34,199,232,.25);
-  margin-bottom:18px;
-}
+      .feature .icon {
+        width: 40px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(34, 199, 232, 0.25);
+        margin-bottom: 18px;
+      }
 
-.feature svg{
-  width:21px;
-  height:21px;
-  fill:none;
-  stroke:#24c6eb;
-  stroke-width:1.7;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-}
+      .feature svg {
+        width: 21px;
+        height: 21px;
+        fill: none;
+        stroke: #24c6eb;
+        stroke-width: 1.7;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
 
-.feature strong{
-  display:block;
-  font-size:14px;
-  margin-bottom:7px;
-}
+      .feature strong {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 7px;
+      }
 
-.feature small{
-  display:block;
-  color:#8ea8bc;
-  line-height:1.5;
-  font-size:11px;
-}
+      .feature small {
+        display: block;
+        color: #8ea8bc;
+        line-height: 1.5;
+        font-size: 11px;
+      }
 
-.left-foot{
-  position:relative;
-  z-index:2;
-  color:#69859b;
-  font-size:11px;
-}
+      .left-foot {
+        position: relative;
+        z-index: 2;
+        color: #69859b;
+        font-size: 11px;
+      }
 
-/* =========================================================
+      /* =========================================================
    LADO DIREITO
 ========================================================= */
 
-.right{
-  min-height:100vh;
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:50px;
-  background:#f7fafc;
-}
+      .right {
+        min-height: 100vh;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 50px;
+        background: #f7fafc;
+      }
 
-.demo{
-  position:absolute;
-  right:38px;
-  top:30px;
-  color:#61778f;
-  text-decoration:none;
-  font-size:12px;
-}
+      .demo {
+        position: absolute;
+        right: 38px;
+        top: 30px;
+        color: #61778f;
+        text-decoration: none;
+        font-size: 12px;
+      }
 
-.demo strong{
-  color:#087fbc;
-}
+      .demo strong {
+        color: #087fbc;
+      }
 
-.login-wrap{
-  width:min(100%,450px);
-}
+      .login-wrap {
+        width: min(100%, 450px);
+      }
 
-.top-mobile-logo{
-  display:none;
-}
+      .top-mobile-logo {
+        display: none;
+      }
 
-.login-card{
-  background:#fff;
-  border:1px solid #e4ebf1;
-  box-shadow:
-    0 25px 70px rgba(8,39,68,.10);
-  padding:42px;
-}
+      .login-card {
+        background: #fff;
+        border: 1px solid #e4ebf1;
+        box-shadow: 0 25px 70px rgba(8, 39, 68, 0.1);
+        padding: 42px;
+      }
 
-.mini-brand{
-  margin-bottom:28px;
-}
+      .mini-brand {
+        margin-bottom: 28px;
+      }
 
-.mini-brand img{
-  width:135px;
-}
+      .mini-brand img {
+        width: 135px;
+      }
 
-.title{
-  margin:0;
-  color:var(--text);
-  font-size:32px;
-  letter-spacing:-1px;
-  font-weight:800;
-}
+      .title {
+        margin: 0;
+        color: var(--text);
+        font-size: 32px;
+        letter-spacing: -1px;
+        font-weight: 800;
+      }
 
-.subtitle{
-  margin:9px 0 28px;
-  color:var(--muted);
-  font-size:14px;
-}
+      .subtitle {
+        margin: 9px 0 28px;
+        color: var(--muted);
+        font-size: 14px;
+      }
 
-.status{
-  display:none;
-  margin-bottom:18px;
-  padding:12px 14px;
-  border-radius:10px;
-  font-size:12px;
-  line-height:1.5;
-}
+      .status {
+        display: none;
+        margin-bottom: 18px;
+        padding: 12px 14px;
+        border-radius: 10px;
+        font-size: 12px;
+        line-height: 1.5;
+      }
 
-.status.error{
-  display:block;
-  color:#a83232;
-  background:#fff0f0;
-  border:1px solid #ffd6d6;
-}
+      .status.error {
+        display: block;
+        color: #a83232;
+        background: #fff0f0;
+        border: 1px solid #ffd6d6;
+      }
 
-.status.ok{
-  display:block;
-  color:#18724b;
-  background:#edfbf5;
-  border:1px solid #c7f1dc;
-}
+      .status.ok {
+        display: block;
+        color: #18724b;
+        background: #edfbf5;
+        border: 1px solid #c7f1dc;
+      }
 
-.field{
-  margin-bottom:18px;
-}
+      .field {
+        margin-bottom: 18px;
+      }
 
-.field label{
-  display:block;
-  margin-bottom:8px;
-  color:#38536c;
-  font-size:12px;
-  font-weight:700;
-}
+      .field label {
+        display: block;
+        margin-bottom: 8px;
+        color: #38536c;
+        font-size: 12px;
+        font-weight: 700;
+      }
 
-.field input{
-  width:100%;
-  height:50px;
-  border:1px solid #dce6ee;
-  background:#fbfdff;
-  border-radius:10px;
-  padding:0 14px;
-  color:var(--text);
-  font-family:inherit;
-  font-size:13px;
-  outline:none;
-  transition:.2s;
-}
+      .field input {
+        width: 100%;
+        height: 50px;
+        border: 1px solid #dce6ee;
+        background: #fbfdff;
+        border-radius: 10px;
+        padding: 0 14px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 13px;
+        outline: none;
+        transition: 0.2s;
+      }
 
-.field input:focus{
-  border-color:#20bde8;
-  box-shadow:0 0 0 3px rgba(32,189,232,.10);
-  background:#fff;
-}
+      .field input:focus {
+        border-color: #20bde8;
+        box-shadow: 0 0 0 3px rgba(32, 189, 232, 0.1);
+        background: #fff;
+      }
 
-.password{
-  position:relative;
-}
+      .password {
+        position: relative;
+      }
 
-.password input{
-  padding-right:50px;
-}
+      .password input {
+        padding-right: 50px;
+      }
 
-.toggle{
-  position:absolute;
-  right:8px;
-  top:8px;
-  width:34px;
-  height:34px;
-  border:0;
-  background:transparent;
-  cursor:pointer;
-  display:grid;
-  place-items:center;
-}
+      .toggle {
+        position: absolute;
+        right: 8px;
+        top: 8px;
+        width: 34px;
+        height: 34px;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+      }
 
-.toggle svg{
-  width:20px;
-  height:20px;
-  fill:none;
-  stroke:#7790a5;
-  stroke-width:1.6;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-}
+      .toggle svg {
+        width: 20px;
+        height: 20px;
+        fill: none;
+        stroke: #7790a5;
+        stroke-width: 1.6;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
 
-.options{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
-  margin:6px 0 22px;
-  font-size:11px;
-}
+      .options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin: 6px 0 22px;
+        font-size: 11px;
+      }
 
-.remember{
-  display:flex;
-  align-items:center;
-  gap:7px;
-  color:#687f94;
-  cursor:pointer;
-}
+      .remember {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: #687f94;
+        cursor: pointer;
+      }
 
-.remember input{
-  width:15px;
-  height:15px;
-}
+      .remember input {
+        width: 15px;
+        height: 15px;
+      }
 
-.forgot{
-  color:#087fbc;
-  text-decoration:none;
-  font-weight:700;
-}
+      .forgot {
+        color: #087fbc;
+        text-decoration: none;
+        font-weight: 700;
+      }
 
-.forgot:hover{
-  text-decoration:underline;
-}
+      .forgot:hover {
+        text-decoration: underline;
+      }
 
-.submit{
-  width:100%;
-  height:53px;
-  border:0;
-  border-radius:11px;
-  background:linear-gradient(
-    135deg,
-    #0ea5e9,
-    #22c7e8
-  );
-  color:white;
-  font:700 14px "DM Sans";
-  cursor:pointer;
-  box-shadow:
-    0 10px 25px rgba(14,165,233,.22);
-  transition:.2s;
-}
+      .submit {
+        width: 100%;
+        height: 53px;
+        border: 0;
+        border-radius: 11px;
+        background: linear-gradient(135deg, #0ea5e9, #22c7e8);
+        color: white;
+        font: 700 14px "DM Sans";
+        cursor: pointer;
+        box-shadow: 0 10px 25px rgba(14, 165, 233, 0.22);
+        transition: 0.2s;
+      }
 
-.submit:hover{
-  transform:translateY(-1px);
-  box-shadow:
-    0 14px 30px rgba(14,165,233,.28);
-}
+      .submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 30px rgba(14, 165, 233, 0.28);
+      }
 
-.submit:disabled{
-  opacity:.65;
-  cursor:not-allowed;
-  transform:none;
-}
+      .submit:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+        transform: none;
+      }
 
-.submit span{
-  margin-left:8px;
-}
+      .submit span {
+        margin-left: 8px;
+      }
 
-.divider{
-  display:flex;
-  align-items:center;
-  gap:13px;
-  color:#9aaabd;
-  font-size:10px;
-  letter-spacing:1px;
-  margin:25px 0;
-}
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        color: #9aaabd;
+        font-size: 10px;
+        letter-spacing: 1px;
+        margin: 25px 0;
+      }
 
-.divider:before,
-.divider:after{
-  content:"";
-  height:1px;
-  background:#e6edf4;
-  flex:1;
-}
+      .divider:before,
+      .divider:after {
+        content: "";
+        height: 1px;
+        background: #e6edf4;
+        flex: 1;
+      }
 
-.support{
-  text-align:center;
-  font-size:12px;
-  color:#7c8fa4;
-  line-height:1.7;
-}
+      .support {
+        text-align: center;
+        font-size: 12px;
+        color: #7c8fa4;
+        line-height: 1.7;
+      }
 
-.support a{
-  color:#087fbc;
-  text-decoration:none;
-  font-weight:700;
-}
+      .support a {
+        color: #087fbc;
+        text-decoration: none;
+        font-weight: 700;
+      }
 
-.back{
-  display:block;
-  text-align:center;
-  margin-top:22px;
-  color:#61778f;
-  text-decoration:none;
-  font-size:12px;
-}
+      .back {
+        display: block;
+        text-align: center;
+        margin-top: 22px;
+        color: #61778f;
+        text-decoration: none;
+        font-size: 12px;
+      }
 
-.back:hover{
-  color:var(--navy);
-}
+      .back:hover {
+        color: var(--navy);
+      }
 
-/* =========================================================
+      /* =========================================================
    RESPONSIVO
 ========================================================= */
 
-@media(max-width:980px){
+      @media (max-width: 980px) {
+        .page {
+          grid-template-columns: 1fr;
+        }
 
-  .page{
-    grid-template-columns:1fr;
-  }
+        .left {
+          display: none;
+        }
 
-  .left{
-    display:none;
-  }
+        .right {
+          min-height: 100vh;
+          padding: 28px 20px;
+        }
 
-  .right{
-    min-height:100vh;
-    padding:28px 20px;
-  }
+        .top-mobile-logo {
+          display: block;
+          text-align: center;
+          margin-bottom: 28px;
+        }
 
-  .top-mobile-logo{
-    display:block;
-    text-align:center;
-    margin-bottom:28px;
-  }
+        .top-mobile-logo img {
+          width: 175px;
+        }
 
-  .top-mobile-logo img{
-    width:175px;
-  }
+        .login-card {
+          padding: 30px 24px;
+          border-radius: 18px;
+        }
 
-  .login-card{
-    padding:30px 24px;
-    border-radius:18px;
-  }
+        .demo {
+          display: none;
+        }
+      }
 
-  .demo{
-    display:none;
-  }
+      @media (max-width: 480px) {
+        .right {
+          padding: 20px 14px;
+        }
 
-}
+        .login-card {
+          padding: 25px 19px;
+        }
 
-@media(max-width:480px){
+        .title {
+          font-size: 27px;
+        }
 
-  .right{
-    padding:20px 14px;
-  }
+        .options {
+          font-size: 11px;
+        }
 
-  .login-card{
-    padding:25px 19px;
-  }
+        .features {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
 
-  .title{
-    font-size:27px;
-  }
-
-  .options{
-    font-size:11px;
-  }
-
-  .features{
-    grid-template-columns:1fr;
-  }
-
-}
-
-</style>
-
-</head>
-
-
-<body>
-
-<div class="page">
-
-
-<!-- =======================================================
+  <body>
+    <div class="page">
+      <!-- =======================================================
      LADO ESQUERDO
 ======================================================= -->
 
-<section class="left">
+      <section class="left">
+        <a class="logo" href="index.html" aria-label="Voltar para o site">
+          <img src="assets/washsense-logo-white.svg" alt="WashSense" />
+        </a>
 
-  <a
-    class="logo"
-    href="index.html"
-    aria-label="Voltar para o site"
-  >
-    <img
-      src="assets/washsense-logo-white.svg"
-      alt="WashSense"
-    >
-  </a>
+        <div class="left-content">
+          <div class="eyebrow">
+            <i></i>
+            PLATAFORMA WASHsense
+          </div>
 
+          <h1>
+            Sua operação,
+            <br />
+            <span>em suas mãos.</span>
+          </h1>
 
-  <div class="left-content">
+          <p class="lead">
+            Acesse o WashSense para acompanhar níveis, máquinas, consumo,
+            alertas e indicadores da sua lavanderia em um único lugar.
+          </p>
 
-    <div class="eyebrow">
-      <i></i>
-      PLATAFORMA WASHsense
-    </div>
+          <div class="features">
+            <div class="feature">
+              <div class="icon">
+                <svg viewBox="0 0 24 24">
+                  <path d="M6 4h12v15a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4Z" />
 
+                  <path
+                    d="M6 4h12M9 2h6M7 14c2.5-1.5 4.5 1.5 7 0 1.5-.9 2.5-.7 3-.4"
+                  />
+                </svg>
+              </div>
 
-    <h1>
-      Sua operação,
-      <br>
-      <span>em suas mãos.</span>
-    </h1>
+              <strong>Níveis</strong>
 
+              <small> Produtos e reservatórios acompanhados. </small>
+            </div>
 
-    <p class="lead">
-      Acesse o WashSense para acompanhar
-      níveis, máquinas, consumo, alertas e
-      indicadores da sua lavanderia em um
-      único lugar.
-    </p>
+            <div class="feature">
+              <div class="icon">
+                <svg viewBox="0 0 24 24">
+                  <rect x="4" y="3" width="16" height="18" rx="2" />
 
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+              </div>
 
-    <div class="features">
+              <strong>Máquinas</strong>
 
+              <small> Status, ciclos e operação em tempo real. </small>
+            </div>
 
-      <div class="feature">
+            <div class="feature">
+              <div class="icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M12 3 19 6v5.5c0 4.3-2.7 7.8-7 9.5-4.3-1.7-7-5.2-7-9.5V6l7-3Z"
+                  />
 
-        <div class="icon">
+                  <path d="m9 12 2 2 4-4" />
+                </svg>
+              </div>
 
-          <svg viewBox="0 0 24 24">
+              <strong>Controle</strong>
 
-            <path
-              d="M6 4h12v15a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4Z"
-            />
-
-            <path
-              d="M6 4h12M9 2h6M7 14c2.5-1.5 4.5 1.5 7 0 1.5-.9 2.5-.7 3-.4"
-            />
-
-          </svg>
-
+              <small> Dados protegidos por acesso autenticado. </small>
+            </div>
+          </div>
         </div>
 
-        <strong>Níveis</strong>
-
-        <small>
-          Produtos e reservatórios acompanhados.
-        </small>
-
-      </div>
-
-
-      <div class="feature">
-
-        <div class="icon">
-
-          <svg viewBox="0 0 24 24">
-
-            <rect
-              x="4"
-              y="3"
-              width="16"
-              height="18"
-              rx="2"
-            />
-
-            <circle
-              cx="12"
-              cy="13"
-              r="4"
-            />
-
-          </svg>
-
+        <div class="left-foot">
+          © 2026 WashSense · Inteligência para lavanderias.
         </div>
+      </section>
 
-        <strong>Máquinas</strong>
-
-        <small>
-          Status, ciclos e operação em tempo real.
-        </small>
-
-      </div>
-
-
-      <div class="feature">
-
-        <div class="icon">
-
-          <svg viewBox="0 0 24 24">
-
-            <path
-              d="M12 3 19 6v5.5c0 4.3-2.7 7.8-7 9.5-4.3-1.7-7-5.2-7-9.5V6l7-3Z"
-            />
-
-            <path
-              d="m9 12 2 2 4-4"
-            />
-
-          </svg>
-
-        </div>
-
-        <strong>Controle</strong>
-
-        <small>
-          Dados protegidos por acesso autenticado.
-        </small>
-
-      </div>
-
-
-    </div>
-
-  </div>
-
-
-  <div class="left-foot">
-
-    © 2026 WashSense · Inteligência para lavanderias.
-
-  </div>
-
-</section>
-
-
-
-<!-- =======================================================
+      <!-- =======================================================
      LADO DIREITO
 ======================================================= -->
 
-<section class="right">
-
-
-  <a
-    class="demo"
-    href="index.html#contato"
-  >
-    Ainda não tem acesso?
-    <strong>Fale conosco →</strong>
-  </a>
-
-
-  <div class="login-wrap">
-
-
-    <div class="top-mobile-logo">
-
-      <a href="index.html">
-
-        <img
-          src="assets/washsense-logo.svg"
-          alt="WashSense"
-        >
-
-      </a>
-
-    </div>
-
-
-    <div class="login-card">
-
-
-      <div class="mini-brand">
-
-        <img
-          src="assets/washsense-logo.svg"
-          alt="WashSense"
-        >
-
-      </div>
-
-
-      <h2 class="title">
-        Bem-vindo de volta.
-      </h2>
-
-
-      <p class="subtitle">
-        Entre para acompanhar sua operação.
-      </p>
-
-
-      <div
-        id="status"
-        class="status"
-        role="status"
-      ></div>
-
-
-      <form
-        id="loginForm"
-        novalidate
-      >
-
-
-        <div class="field">
-
-          <label for="email">
-            E-mail
-          </label>
-
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autocomplete="email"
-            placeholder="seu@email.com"
-            required
-          >
-
-        </div>
-
-
-
-        <div class="field">
-
-          <label for="password">
-            Senha
-          </label>
-
-
-          <div class="password">
-
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autocomplete="current-password"
-              placeholder="Digite sua senha"
-              required
-            >
-
-
-            <button
-              type="button"
-              class="toggle"
-              id="togglePassword"
-              aria-label="Mostrar senha"
-            >
-
-              <svg
-                id="eye"
-                viewBox="0 0 24 24"
-              >
-
-                <path
-                  d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"
-                />
-
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="2.5"
-                />
-
-              </svg>
-
-            </button>
-
-          </div>
-
-        </div>
-
-
-
-        <div class="options">
-
-
-          <label class="remember">
-
-            <input
-              type="checkbox"
-              id="remember"
-            >
-
-            Lembrar deste dispositivo
-
-          </label>
-
-
-          <a
-            class="forgot"
-            href="#"
-            id="forgot"
-          >
-            Esqueci minha senha
-          </a>
-
-
-        </div>
-
-
-
-        <button
-          class="submit"
-          id="loginButton"
-          type="submit"
-        >
-
-          Entrar na plataforma
-
-          <span>→</span>
-
-        </button>
-
-
-      </form>
-
-
-
-      <div class="divider">
-        ACESSO SEGURO
-      </div>
-
-
-      <div class="support">
-
-        Problemas para acessar?
-
-        <a href="index.html#contato">
-          Entre em contato com o suporte.
+      <section class="right">
+        <a class="demo" href="index.html#contato">
+          Ainda não tem acesso?
+          <strong>Fale conosco →</strong>
         </a>
 
-      </div>
+        <div class="login-wrap">
+          <div class="top-mobile-logo">
+            <a href="index.html">
+              <img src="assets/washsense-logo.svg" alt="WashSense" />
+            </a>
+          </div>
 
+          <div class="login-card">
+            <div class="mini-brand">
+              <img src="assets/washsense-logo.svg" alt="WashSense" />
+            </div>
 
-      <a
-        class="back"
-        href="index.html"
-      >
-        ← Voltar para o site institucional
-      </a>
+            <h2 class="title">Bem-vindo de volta.</h2>
 
+            <p class="subtitle">Entre para acompanhar sua operação.</p>
 
+            <div id="status" class="status" role="status"></div>
+
+            <form id="loginForm" novalidate>
+              <div class="field">
+                <label for="email"> E-mail </label>
+
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="seu@email.com"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label for="password"> Senha </label>
+
+                <div class="password">
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    placeholder="Digite sua senha"
+                    required
+                  />
+
+                  <button
+                    type="button"
+                    class="toggle"
+                    id="togglePassword"
+                    aria-label="Mostrar senha"
+                  >
+                    <svg id="eye" viewBox="0 0 24 24">
+                      <path
+                        d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"
+                      />
+
+                      <circle cx="12" cy="12" r="2.5" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="options">
+                <label class="remember">
+                  <input type="checkbox" id="remember" />
+
+                  Lembrar deste dispositivo
+                </label>
+
+                <a class="forgot" href="#" id="forgot"> Esqueci minha senha </a>
+              </div>
+
+              <button class="submit" id="loginButton" type="submit">
+                Entrar na plataforma
+
+                <span>→</span>
+              </button>
+            </form>
+
+            <div class="divider">ACESSO SEGURO</div>
+
+            <div class="support">
+              Problemas para acessar?
+
+              <a href="index.html#contato"> Entre em contato com o suporte. </a>
+            </div>
+
+            <a class="back" href="index.html">
+              ← Voltar para o site institucional
+            </a>
+
+            <a class="back" href="app.html#/visao-geral?demo=1"
+              >Explorar demonstração da plataforma →</a
+            >
+          </div>
+        </div>
+      </section>
     </div>
 
-  </div>
-
-</section>
-
-</div>
-
-
-
-<!-- =======================================================
+    <!-- =======================================================
      SUPABASE
 ======================================================= -->
 
-<script
-  src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script>
-
-
-<script>
-
-const SUPABASE_URL =
-  'https://eydrrfuzfcxcqdivvued.supabase.co';
-
-const SUPABASE_ANON_KEY =
-  'sb_publishable_bSyIXlAmtRqYmJhhZHlGQA_uwitMMDj';
-
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  );
-
-
-const form =
-  document.getElementById(
-    'loginForm'
-  );
-
-const status =
-  document.getElementById(
-    'status'
-  );
-
-const emailInput =
-  document.getElementById(
-    'email'
-  );
-
-const passwordInput =
-  document.getElementById(
-    'password'
-  );
-
-const rememberInput =
-  document.getElementById(
-    'remember'
-  );
-
-const togglePassword =
-  document.getElementById(
-    'togglePassword'
-  );
-
-const loginButton =
-  document.getElementById(
-    'loginButton'
-  );
-
-const forgot =
-  document.getElementById(
-    'forgot'
-  );
-
-
-// =========================================================
-// STATUS
-// =========================================================
-
-function showStatus(
-  message,
-  type = 'error'
-){
-
-  status.textContent =
-    message;
-
-  status.className =
-    `status ${type}`;
-
-}
-
-
-// =========================================================
-// MOSTRAR / OCULTAR SENHA
-// =========================================================
-
-togglePassword.addEventListener(
-  'click',
-  () => {
-
-    const showing =
-      passwordInput.type === 'text';
-
-    passwordInput.type =
-      showing
-        ? 'password'
-        : 'text';
-
-    togglePassword.setAttribute(
-      'aria-label',
-      showing
-        ? 'Mostrar senha'
-        : 'Ocultar senha'
-    );
-
-  }
-);
-
-
-// =========================================================
-// LOGIN
-// =========================================================
-
-form.addEventListener(
-  'submit',
-  async event => {
-
-    event.preventDefault();
-
-
-    const email =
-      emailInput.value.trim();
-
-    const password =
-      passwordInput.value;
-
-
-    if (!email || !password) {
-
-      showStatus(
-        'Preencha seu e-mail e sua senha para continuar.'
-      );
-
-      return;
-
-    }
-
-
-    if (
-      !email.includes('@')
-    ) {
-
-      showStatus(
-        'Informe um e-mail válido.'
-      );
-
-      return;
-
-    }
-
-
-    loginButton.disabled =
-      true;
-
-    loginButton.innerHTML =
-      'Entrando...';
-
-
-    try {
-
-
-      console.log(
-        'WashSense: tentando autenticar...'
-      );
-
-
-      const {
-        data,
-        error
-      } =
-        await supabaseClient.auth.signInWithPassword({
-
-          email,
-
-          password
-
-        });
-
-
-      if (error) {
-
-        console.error(
-          'WashSense Auth:',
-          error
-        );
-
-        throw error;
-
-      }
-
-
-      if (!data.session) {
-
-        throw new Error(
-          'Login realizado, mas nenhuma sessão foi criada.'
-        );
-
-      }
-
-
-      console.log(
-        'WashSense: usuário autenticado:',
-        data.user?.id
-      );
-
-
-      showStatus(
-        'Login realizado com sucesso. Abrindo a plataforma...',
-        'ok'
-      );
-
-
-      /*
-       * A sessão já foi armazenada pelo
-       * Supabase Auth.
-       *
-       * O finance.js poderá utilizar
-       * getSession() normalmente.
-       */
-
-      setTimeout(
-        () => {
-
-          window.location.href =
-            'dashboard.html';
-
-        },
-        600
-      );
-
-
-    }
-    catch(error) {
-
-      console.error(
-        'WashSense: erro no login:',
-        error
-      );
-
-
-      let message =
-        'Não foi possível entrar. Verifique seu e-mail e senha.';
-
-
-      if (
-        error?.message
-          ?.toLowerCase()
-          .includes(
-            'invalid login credentials'
-          )
-      ){
-
-        message =
-          'E-mail ou senha incorretos.';
-
-      }
-
-
-      if (
-        error?.message
-          ?.toLowerCase()
-          .includes(
-            'email not confirmed'
-          )
-      ){
-
-        message =
-          'Seu e-mail ainda não foi confirmado.';
-
-      }
-
-
-      showStatus(
-        message
-      );
-
-
-      loginButton.disabled =
-        false;
-
-      loginButton.innerHTML =
-        'Entrar na plataforma <span>→</span>';
-
-    }
-
-  }
-);
-
-
-// =========================================================
-// RECUPERAÇÃO DE SENHA
-// =========================================================
-
-forgot.addEventListener(
-  'click',
-  async event => {
-
-    event.preventDefault();
-
-
-    const email =
-      emailInput.value.trim();
-
-
-    if (!email) {
-
-      showStatus(
-        'Digite seu e-mail primeiro para recuperar a senha.'
-      );
-
-      emailInput.focus();
-
-      return;
-
-    }
-
-
-    try {
-
-
-      const {
-        error
-      } =
-        await supabaseClient.auth
-          .resetPasswordForEmail(
-            email,
-            {
-              redirectTo:
-                `${window.location.origin}/login.html`
-            }
-          );
-
-
-      if (error) {
-
-        throw error;
-
-      }
-
-
-      showStatus(
-        'Se o e-mail estiver cadastrado, enviaremos as instruções para redefinir sua senha.',
-        'ok'
-      );
-
-
-    }
-    catch(error) {
-
-      console.error(
-        'WashSense recuperação:',
-        error
-      );
-
-
-      showStatus(
-        'Não foi possível iniciar a recuperação de senha.'
-      );
-
-    }
-
-  }
-);
-
-
-// =========================================================
-// VERIFICAR SE JÁ ESTÁ LOGADO
-// =========================================================
-
-async function checkExistingSession(){
-
-  try {
-
-    const {
-      data
-    } =
-      await supabaseClient.auth.getSession();
-
-
-    if (
-      data?.session
-    ) {
-
-      console.log(
-        'WashSense: sessão existente encontrada.'
-      );
-
-      /*
-       * Não redirecionamos automaticamente
-       * neste momento para permitir que o
-       * usuário veja a tela de login.
-       */
-
-    }
-
-  }
-  catch(error) {
-
-    console.error(
-      'WashSense: erro ao verificar sessão:',
-      error
-    );
-
-  }
-
-}
-
-
-checkExistingSession();
-
-</script>
-
-
-</body>
-
+    <script type="module" src="/src/platform/login.js"></script>
+  </body>
 </html>

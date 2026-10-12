@@ -1,0 +1,45 @@
+<div class="app-shell">
+  <main class="main">
+    <div hidden>
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <div class="breadcrumbs">
+        <a href="dashboard.html">WashSense</a><b>/</b
+        ><span id="breadcrumbParent">Detalhes</span><b>/</b
+        ><strong id="breadcrumbCurrent">Carregando</strong>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="backBtn" title="Voltar">←</button
+        ><button class="icon-btn" id="refreshBtn" title="Atualizar">↻</button>
+        <div class="top-user">
+          <div class="avatar">GR</div>
+          <span>George</span><b>⌄</b>
+        </div>
+      </div>
+    </div>
+
+    <div class="content details-content">
+      <section class="detail-head">
+        <div>
+          <button class="back-link" id="backLink">
+            ← Voltar para visão geral
+          </button>
+          <div class="eyebrow" id="eyebrow">ANÁLISE OPERACIONAL</div>
+          <h1 id="pageTitle">Detalhes</h1>
+          <p id="pageSubtitle">
+            Dados para acompanhar o desempenho e decidir os próximos passos.
+          </p>
+        </div>
+        <div class="detail-controls">
+          <span>Período</span
+          ><button id="periodBtn">Últimos 7 dias <b>⌄</b></button>
+        </div>
+      </section>
+      <div id="detailRoot"></div>
+      <footer class="dash-footer">
+        WashSense <span>•</span> Sua lavanderia, sob controle.
+        <span>Dados de demonstração · Sem leituras IoT reais.</span>
+      </footer>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>

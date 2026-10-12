@@ -1,3 +1,5 @@
+// Existing operational controller, now scoped to its SPA module.
+export default function mount(document, location, window) {
 // =========================================================
 
 // WashSense — Financeiro
@@ -8,27 +10,17 @@
 
 
 
-const SUPABASE_URL =
-
-  'https://eydrrfuzfcxcqdivvued.supabase.co';
+const SUPABASE_URL = window.WASHSENSE_SUPABASE.url;
 
 
 
-const SUPABASE_ANON_KEY =
-
-  'sb_publishable_bSyIXlAmtRqYmJhhZHlGQA_uwitMMDj';
+const SUPABASE_ANON_KEY = window.WASHSENSE_SUPABASE.anonKey;
 
 
 
 const supabaseClient =
 
-  window.supabase.createClient(
-
-    SUPABASE_URL,
-
-    SUPABASE_ANON_KEY
-
-  );
+  window.washsenseSupabase;
 
 
 
@@ -7249,4 +7241,5 @@ if (!document.getElementById('washsensePixStyles')) {
 
   document.head.appendChild(style);
 
+}
 }

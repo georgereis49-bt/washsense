@@ -1,0 +1,102 @@
+.energy-cost-panel,
+.energy-total-card {
+  margin-top: 18px;
+  border: 1px solid #dbe4ef;
+  background: #fff;
+  padding: 20px;
+}
+.energy-cost-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.energy-cost-head h3,
+.energy-total-card h3 {
+  margin: 4px 0 0;
+}
+.energy-component-list {
+  border-top: 1px solid #e6edf5;
+}
+.energy-component {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  padding: 13px 0;
+  border-bottom: 1px solid #e6edf5;
+}
+.energy-component label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.energy-component small {
+  display: block;
+  color: var(--ws-muted);
+  font-size: 12px;
+}
+.energy-component > .input-suffix {
+  width: 145px;
+}
+.energy-tax-note {
+  margin-top: 14px;
+  padding: 13px 15px;
+  background: #f5f9fd;
+  border-left: 3px solid #0ea5e9;
+}
+.energy-tax-note strong {
+  font-size: 13px;
+}
+.energy-tax-note p {
+  margin: 5px 0 0;
+  color: var(--ws-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.energy-total-card {
+  background: #0b2d5b;
+  color: #fff;
+  border-color: #0b2d5b;
+}
+.energy-total-card .section-kicker {
+  color: var(--ws-muted);
+}
+.energy-total-card p {
+  color: var(--ws-muted);
+}
+.energy-total-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(255, 255, 255, 0.14);
+  margin-top: 18px;
+}
+.energy-total-grid > div {
+  background: #0b2d5b;
+  padding: 15px;
+}
+.energy-total-grid span {
+  display: block;
+  color: var(--ws-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.energy-total-grid strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 20px;
+}
+.energy-total-grid > div:last-child strong {
+  color: var(--ws-muted);
+}
+@media (max-width: 900px) {
+  .energy-total-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .energy-cost-head {
+    flex-direction: column;
+  }
+}

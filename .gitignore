@@ -30,3 +30,7 @@ Thumbs.db
 .vscode/
 
 /WashSense-site-v4.6
+
+# Browser test artifacts
+/test-results/
+/playwright-report/

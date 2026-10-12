@@ -1,9 +1,11 @@
+// Existing operational controller, now scoped to its SPA module.
+export default function mount(document, location, window) {
 const toast=document.getElementById('toast');
 let toastTimer;
 function showToast(message){clearTimeout(toastTimer);toast.textContent=message;toast.classList.add('show');toastTimer=setTimeout(()=>toast.classList.remove('show'),2400)}
 const sidebar=document.getElementById('sidebar');
 document.getElementById('menuBtn')?.addEventListener('click',()=>sidebar.classList.toggle('open'));
-document.getElementById('refreshBtn')?.addEventListener('click',e=>{e.currentTarget.style.transform='rotate(360deg)';setTimeout(()=>e.currentTarget.style.transform='',350);showToast('Dados atualizados — última leitura agora');});
+document.getElementById('refreshBtn')?.addEventListener('click',e=>{e.currentTarget.style.transform='rotate(360deg)';setTimeout(()=>e.currentTarget.style.transform='',350);showToast('Visualização demonstrativa atualizada');});
 document.getElementById('bellBtn')?.addEventListener('click',()=>showToast('Você tem 2 alertas que precisam de atenção.'));
 
 const consumptionSets={
@@ -11,7 +13,7 @@ const consumptionSets={
  'Últimos 7 dias':{values:[102,117,111,134,126,124,128],labels:['Seg','Ter','Qua','Qui','Sex','Sáb','Hoje'],total:'842 L',delta:'↓ 6,4%',subtitle:'Litros consumidos nos últimos 7 dias'},
  'Últimos 30 dias':{values:[118,126,121,132,129,124,128,135,130,127,122,136,131,125,129,133,127,124,138,132,129,126,121,130,128,134,125,127,123,128],labels:Array.from({length:30},(_,i)=>i===29?'Hoje':String(i+1)),total:'3.860 L',delta:'↓ 4,1%',subtitle:'Litros consumidos nos últimos 30 dias'}
 };
-let currentPeriod='Últimos 7 dias';
+let currentPeriod='Hoje';
 function renderConsumptionChart(period=currentPeriod){
  const set=consumptionSets[period]||consumptionSets['Últimos 7 dias'];
  const host=document.querySelector('#consumo .chart-area'); if(!host)return;
@@ -36,24 +38,41 @@ document.querySelectorAll('[data-detail]').forEach(el=>el.addEventListener('clic
 document.querySelectorAll('.tank').forEach(t=>{const name=t.querySelector('.tank-top strong')?.textContent||'Reservatório',pct=t.querySelector('.tank-top b')?.textContent||'',liters=t.querySelector('.tank-top small')?.textContent||'',forecast=t.querySelector('.tank-bottom b')?.textContent||'';t.dataset.tip=`<strong>${name}</strong><br><span>${pct} · ${liters}</span><br><span>Autonomia: ${forecast}</span>`});
 document.querySelectorAll('.machine .progress').forEach(b=>{const card=b.closest('.machine');const name=card?.querySelector('strong')?.textContent||'Máquina';const val=card?.querySelector('.machine-foot span')?.textContent||'';b.dataset.tip=`<strong>${name}</strong><br><span>${val==='Pronta'?'Pronta para operação':'Progresso do ciclo: '+val}</span>`});
 const eff=document.querySelector('.eff-bar');if(eff)eff.dataset.tip='<strong>Eficiência operacional</strong><br><span>92% no período atual</span>';
+const machineFilter = document.querySelector('.machines-panel .filter-btn');
+let machineFilterIndex = 0;
+machineFilter?.addEventListener('click', () => {
+  const filters = ['Todas', 'Em operação', 'Em manutenção'];
+  machineFilterIndex = (machineFilterIndex + 1) % filters.length;
+  machineFilter.textContent = filters[machineFilterIndex] + ' ⌄';
+  document.querySelectorAll('.machines .machine').forEach(card => {
+    card.hidden = machineFilterIndex === 1 ? !card.classList.contains('running') : machineFilterIndex === 2 ? !card.classList.contains('maintenance') : false;
+  });
+  showToast('Filtro: ' + filters[machineFilterIndex]);
+});
+document.querySelector('.count-btn')?.addEventListener('click', () => { location.href = 'details.html?view=alertas'; });
 renderConsumptionChart();
 
 
-(function renderEnergyDashboard(){
+function renderEnergyDashboard(){
   const costEl=document.getElementById('dashEnergyCost');
   if(!costEl) return;
   const kwh=1248;
   try{
-    const cfg=JSON.parse(localStorage.getItem('washsenseEnergyConfig')||'null');
+    const cfg=JSON.parse(localStorage.getItem('washsenseEnergyConfigV2')||localStorage.getItem('washsenseEnergyConfig')||'null');
     if(!cfg){ return; }
     const base=Number(cfg.base||0);
-    const cost=kwh*base;
+    const effective=(base+Number(cfg.flag?.additional_kwh||0))/0.82;
+    const cost=kwh*effective;
     costEl.textContent=cost.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
     const meta=document.getElementById('dashEnergyMeta');
     if(meta) meta.textContent=`${cfg.agent||cfg.distributor} · ${cfg.subgroup||'Grupo '+cfg.group}`;
     const unit=document.getElementById('dashEnergyUnit');
-    if(unit) unit.textContent=base.toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:4,maximumFractionDigits:4})+'/kWh';
+    if(unit) unit.textContent=effective.toLocaleString('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:4,maximumFractionDigits:4})+'/kWh';
     const valid=document.getElementById('dashEnergyValidity');
     if(valid) valid.textContent=cfg.start ? `Vigência desde ${new Date(cfg.start+'T00:00:00').toLocaleDateString('pt-BR')}` : 'Tarifa vigente';
   }catch(e){}
-})();
+}
+renderEnergyDashboard();
+document.addEventListener('washsense:activate', renderEnergyDashboard);
+
+}

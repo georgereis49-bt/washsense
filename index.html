@@ -1,330 +1,1141 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>WashSense — Inteligência para lavanderias</title>
-  <meta name="description" content="WashSense: inteligência para lavanderias. Monitore produtos, máquinas, consumo, energia e alertas em um só lugar.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Montserrat:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-<svg class="svg-sprite" aria-hidden="true">
-<defs>
-<symbol id="i-dashboard" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
-<symbol id="i-tank" viewBox="0 0 24 24"><path d="M6 4h12v15a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4Z"/><path d="M6 4h12M9 2h6"/><path d="M7 14c2.5-1.5 4.5 1.5 7 0 1.5-.9 2.5-.7 3-.4V19H7Z"/></symbol>
-<symbol id="i-machine" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M7 6h2"/></symbol>
-<symbol id="i-energy" viewBox="0 0 24 24"><path d="M13 2 5 13h6l-1 9 8-12h-6l1-8Z"/></symbol>
-<symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V5M16 20v-8M22 20V2"/><path d="M2 20h21"/></symbol>
-<symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4"/></symbol>
-<symbol id="i-brain" viewBox="0 0 24 24"><path d="M9 4a3 3 0 0 0-5 2 3 3 0 0 0 1 5 3 3 0 0 0 2 5 3 3 0 0 0 4 3V5a3 3 0 0 0-2-1Z"/><path d="M15 4a3 3 0 0 1 5 2 3 3 0 0 1-1 5 3 3 0 0 1-2 5 3 3 0 0 1-4 3V5a3 3 0 0 1 2-1Z"/><path d="M8 8h2M6 13h4M16 8h-2M18 13h-4"/></symbol>
-<symbol id="i-droplet" viewBox="0 0 24 24"><path d="M12 2S5 10 5 15a7 7 0 0 0 14 0c0-5-7-13-7-13Z"/></symbol>
-<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 19h10a4 4 0 0 0 .8-7.9A6 6 0 0 0 6.2 9.7 4.7 4.7 0 0 0 7 19Z"/></symbol>
-<symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2 8.5a15 15 0 0 1 20 0M5 12a10.5 10.5 0 0 1 14 0M8.5 15.5a5.5 5.5 0 0 1 7 0"/><circle cx="12" cy="19" r="1"/></symbol>
-<symbol id="i-settings" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="m19 13 2-1-2-1-.4-2 1.2-1.6-1.7-1.7-1.6 1.2-2-.4-1-2-1 2-2 .4-1.6-1.2-1.7 1.7 1.2 1.6-.4 2-2 1 2 1 .4 2-1.2 1.6 1.7 1.7 1.6-1.2 2 .4 1 2 1-2 2-.4 1.6 1.2 1.7-1.7-1.2-1.6.4-2Z"/></symbol>
-<symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v5h5M9 13h6M9 17h6"/></symbol>
-<symbol id="i-cycle" viewBox="0 0 24 24"><path d="M20 7a8 8 0 0 0-13-2L5 7"/><path d="M4 3v4h4M4 17a8 8 0 0 0 13 2l2-2"/><path d="M20 21v-4h-4"/></symbol>
-<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 22 20H2L12 3Z"/><path d="M12 9v5M12 17h.01"/></symbol>
-<symbol id="i-sensor" viewBox="0 0 24 24"><path d="M12 3c-3.1 3.6-5.2 6.4-5.2 9.7a5.2 5.2 0 0 0 10.4 0C17.2 9.4 15.1 6.6 12 3Z"/><path d="M19 7.2c1.1 1.2 1.7 2.7 1.7 4.3M5 7.2A6.4 6.4 0 0 0 3.3 11.5"/><path d="M20.7 4.5c1 1.1 1.7 2.4 2 3.8M3.3 4.5a9.3 9.3 0 0 0-2 3.8"/></symbol>
-<symbol id="i-network" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="m8.2 11 7.5-4M8.2 13l7.5 4"/></symbol>
-<symbol id="i-cloud-data" viewBox="0 0 24 24"><path d="M7.2 18.8h9.4a4.1 4.1 0 0 0 .7-8.1A6 6 0 0 0 6 9.2a4.7 4.7 0 0 0 1.2 9.6Z"/><path d="M9 15.5h6M10 12.5h4"/></symbol>
-<symbol id="i-insight" viewBox="0 0 24 24"><path d="M9 19h6M10 22h4"/><path d="M8.2 15.8A7 7 0 1 1 15.9 16c-.8.6-1.2 1.5-1.3 2.4h-5.2c-.1-1-.5-1.9-1.2-2.6Z"/><path d="M12 7v5M9.8 9.2 12 11.4l2.2-2.2"/></symbol>
-<symbol id="i-report" viewBox="0 0 24 24"><path d="M6 3.5h8l4 4V21H6z"/><path d="M14 3.5V8h4M9 16v-3M12 16v-5M15 16v-7"/></symbol>
-<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 19 6v5.5c0 4.3-2.7 7.8-7 9.5-4.3-1.7-7-5.2-7-9.5V6l7-3Z"/><path d="m9 12 2 2 4-4"/></symbol>
-</defs>
-</svg>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>WashSense — Inteligência para lavanderias</title>
+    <meta
+      name="description"
+      content="WashSense: inteligência para lavanderias. Monitore produtos, máquinas, consumo, energia e alertas em um só lugar."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&family=Montserrat:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <svg class="svg-sprite" aria-hidden="true">
+      <defs>
+        <symbol id="i-dashboard" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1.5" />
+          <rect x="14" y="3" width="7" height="7" rx="1.5" />
+          <rect x="3" y="14" width="7" height="7" rx="1.5" />
+          <rect x="14" y="14" width="7" height="7" rx="1.5" />
+        </symbol>
+        <symbol id="i-tank" viewBox="0 0 24 24">
+          <path d="M6 4h12v15a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4Z" />
+          <path d="M6 4h12M9 2h6" />
+          <path d="M7 14c2.5-1.5 4.5 1.5 7 0 1.5-.9 2.5-.7 3-.4V19H7Z" />
+        </symbol>
+        <symbol id="i-machine" viewBox="0 0 24 24">
+          <rect x="4" y="3" width="16" height="18" rx="2" />
+          <circle cx="12" cy="13" r="4" />
+          <path d="M7 6h2" />
+        </symbol>
+        <symbol id="i-energy" viewBox="0 0 24 24">
+          <path d="M13 2 5 13h6l-1 9 8-12h-6l1-8Z" />
+        </symbol>
+        <symbol id="i-chart" viewBox="0 0 24 24">
+          <path d="M4 20V10M10 20V5M16 20v-8M22 20V2" />
+          <path d="M2 20h21" />
+        </symbol>
+        <symbol id="i-bell" viewBox="0 0 24 24">
+          <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z" />
+          <path d="M10 21h4" />
+        </symbol>
+        <symbol id="i-brain" viewBox="0 0 24 24">
+          <path
+            d="M9 4a3 3 0 0 0-5 2 3 3 0 0 0 1 5 3 3 0 0 0 2 5 3 3 0 0 0 4 3V5a3 3 0 0 0-2-1Z"
+          />
+          <path
+            d="M15 4a3 3 0 0 1 5 2 3 3 0 0 1-1 5 3 3 0 0 1-2 5 3 3 0 0 1-4 3V5a3 3 0 0 1 2-1Z"
+          />
+          <path d="M8 8h2M6 13h4M16 8h-2M18 13h-4" />
+        </symbol>
+        <symbol id="i-droplet" viewBox="0 0 24 24">
+          <path d="M12 2S5 10 5 15a7 7 0 0 0 14 0c0-5-7-13-7-13Z" />
+        </symbol>
+        <symbol id="i-cloud" viewBox="0 0 24 24">
+          <path
+            d="M7 19h10a4 4 0 0 0 .8-7.9A6 6 0 0 0 6.2 9.7 4.7 4.7 0 0 0 7 19Z"
+          />
+        </symbol>
+        <symbol id="i-wifi" viewBox="0 0 24 24">
+          <path
+            d="M2 8.5a15 15 0 0 1 20 0M5 12a10.5 10.5 0 0 1 14 0M8.5 15.5a5.5 5.5 0 0 1 7 0"
+          />
+          <circle cx="12" cy="19" r="1" />
+        </symbol>
+        <symbol id="i-settings" viewBox="0 0 24 24">
+          <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" />
+          <path
+            d="m19 13 2-1-2-1-.4-2 1.2-1.6-1.7-1.7-1.6 1.2-2-.4-1-2-1 2-2 .4-1.6-1.2-1.7 1.7 1.2 1.6-.4 2-2 1 2 1 .4 2-1.2 1.6 1.7 1.7 1.6-1.2 2 .4 1 2 1-2 2-.4 1.6 1.2 1.7-1.7-1.2-1.6.4-2Z"
+          />
+        </symbol>
+        <symbol id="i-file" viewBox="0 0 24 24">
+          <path d="M6 3h9l4 4v14H6z" />
+          <path d="M15 3v5h5M9 13h6M9 17h6" />
+        </symbol>
+        <symbol id="i-cycle" viewBox="0 0 24 24">
+          <path d="M20 7a8 8 0 0 0-13-2L5 7" />
+          <path d="M4 3v4h4M4 17a8 8 0 0 0 13 2l2-2" />
+          <path d="M20 21v-4h-4" />
+        </symbol>
+        <symbol id="i-alert" viewBox="0 0 24 24">
+          <path d="M12 3 22 20H2L12 3Z" />
+          <path d="M12 9v5M12 17h.01" />
+        </symbol>
+        <symbol id="i-sensor" viewBox="0 0 24 24">
+          <path
+            d="M12 3c-3.1 3.6-5.2 6.4-5.2 9.7a5.2 5.2 0 0 0 10.4 0C17.2 9.4 15.1 6.6 12 3Z"
+          />
+          <path
+            d="M19 7.2c1.1 1.2 1.7 2.7 1.7 4.3M5 7.2A6.4 6.4 0 0 0 3.3 11.5"
+          />
+          <path d="M20.7 4.5c1 1.1 1.7 2.4 2 3.8M3.3 4.5a9.3 9.3 0 0 0-2 3.8" />
+        </symbol>
+        <symbol id="i-network" viewBox="0 0 24 24">
+          <circle cx="6" cy="12" r="2.5" />
+          <circle cx="18" cy="6" r="2.5" />
+          <circle cx="18" cy="18" r="2.5" />
+          <path d="m8.2 11 7.5-4M8.2 13l7.5 4" />
+        </symbol>
+        <symbol id="i-cloud-data" viewBox="0 0 24 24">
+          <path
+            d="M7.2 18.8h9.4a4.1 4.1 0 0 0 .7-8.1A6 6 0 0 0 6 9.2a4.7 4.7 0 0 0 1.2 9.6Z"
+          />
+          <path d="M9 15.5h6M10 12.5h4" />
+        </symbol>
+        <symbol id="i-insight" viewBox="0 0 24 24">
+          <path d="M9 19h6M10 22h4" />
+          <path
+            d="M8.2 15.8A7 7 0 1 1 15.9 16c-.8.6-1.2 1.5-1.3 2.4h-5.2c-.1-1-.5-1.9-1.2-2.6Z"
+          />
+          <path d="M12 7v5M9.8 9.2 12 11.4l2.2-2.2" />
+        </symbol>
+        <symbol id="i-report" viewBox="0 0 24 24">
+          <path d="M6 3.5h8l4 4V21H6z" />
+          <path d="M14 3.5V8h4M9 16v-3M12 16v-5M15 16v-7" />
+        </symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24">
+          <path
+            d="M12 3 19 6v5.5c0 4.3-2.7 7.8-7 9.5-4.3-1.7-7-5.2-7-9.5V6l7-3Z"
+          />
+          <path d="m9 12 2 2 4-4" />
+        </symbol>
+      </defs>
+    </svg>
 
-  <header class="topbar">
-    <a class="brand" href="#" aria-label="WashSense"><img src="assets/washsense-logo-white.svg" alt="WashSense"></a>
-    <nav>
-      <a href="#solucao">Solução</a>
-      <a href="#recursos">Recursos</a>
-      <a href="#como-funciona">Como funciona</a>
-      <a href="#contato">Contato</a>
-      <a href="login.html">Entrar</a>
-    </nav>
-    <a class="btn btn-primary btn-small" href="#contato">Solicitar demonstração</a>
-    <button class="menu" aria-label="Abrir menu"><span></span><span></span><span></span></button>
-  </header>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="WashSense"
+        ><img src="assets/washsense-logo-white.svg" alt="WashSense"
+      /></a>
+      <nav>
+        <a href="#solucao">Solução</a>
+        <a href="#recursos">Recursos</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#contato">Contato</a>
+        <a href="login.html">Entrar</a>
+      </nav>
+      <a class="btn btn-primary btn-small" href="#contato"
+        >Solicitar demonstração</a
+      >
+      <button class="menu" aria-label="Abrir menu">
+        <span></span><span></span><span></span>
+      </button>
+    </header>
 
-  <main>
-    <section class="hero">
-      <div class="hero-copy">
-        <div class="eyebrow"><span></span> INTELIGÊNCIA PARA LAVANDERIAS</div>
-        <h1>Sua lavanderia,<br><strong>sob controle.</strong></h1>
-        <p>Transforme a operação da sua lavanderia em dados claros, alertas inteligentes e decisões mais rápidas — tudo em um único painel.</p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#solucao">Conheça a solução <span>→</span></a>
-          <a class="btn btn-outline" href="#contato">Solicitar demonstração</a>
-          <a class="btn btn-test" href="https://checkout.infinitepay.io/gr-tech/FVGKvfJl2W" target="_blank" rel="noopener noreferrer">Testar checkout · R$ 1,00</a>
-        </div>
-        <div class="hero-points">
-          <span><b>✓</b> Instalação sem alterar o equipamento</span>
-          <span><b>✓</b> Dados em tempo real</span>
-          <span><b>✓</b> Acesso pelo celular e computador</span>
-        </div>
-        <div class="hero-trust"><span class="trust-line"></span><span>Arquitetura IoT preparada para crescer com sua operação</span></div>
-      </div>
-
-      <div class="hero-visual">
-        <div class="visual-glow"></div>
-        <div class="hero-float float-status"><span class="float-dot"></span><div><b>Operação conectada</b><small>12 dispositivos ativos</small></div></div>
-        <div class="hero-float float-saving"><span class="float-icon"><svg><use href="#i-chart"/></svg></span><div><b>12,4%</b><small>menos consumo</small></div></div>
-        <div class="app-window">
-          <div class="app-head">
-            <div class="app-brand"><span class="mini-drop"></span> Wash<span>Sense</span></div>
-            <div class="select">Lavanderia Central⌄</div>
-            <div class="avatar">A</div>
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow"><span></span> INTELIGÊNCIA PARA LAVANDERIAS</div>
+          <h1>Sua lavanderia,<br /><strong>sob controle.</strong></h1>
+          <p>
+            Transforme a operação da sua lavanderia em dados claros, alertas
+            inteligentes e decisões mais rápidas — tudo em um único painel.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#solucao"
+              >Conheça a solução <span>→</span></a
+            >
+            <a class="btn btn-outline" href="#contato"
+              >Solicitar demonstração</a
+            >
+            <a
+              class="btn btn-test"
+              href="https://checkout.infinitepay.io/gr-tech/FVGKvfJl2W"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Testar checkout · R$ 1,00</a
+            >
           </div>
-          <div class="app-body">
-            <aside class="side">
-              <div class="side-active"><svg><use href="#i-dashboard"/></svg><span>Dashboard</span></div>
-              <div><svg><use href="#i-tank"/></svg><span>Reservatórios</span></div>
-              <div><svg><use href="#i-machine"/></svg><span>Máquinas</span></div>
-              <div><svg><use href="#i-chart"/></svg><span>Consumo</span></div>
-              <div><svg><use href="#i-bell"/></svg><span>Alertas</span><b>2</b></div>
-              <div><svg><use href="#i-file"/></svg><span>Relatórios</span></div>
-              <div><svg><use href="#i-settings"/></svg><span>Configurações</span></div>
-            </aside>
-            <section class="dash">
-              <div class="dash-title">
-                <div><small>Visão geral da sua lavanderia em tempo real</small><h3>Dashboard</h3></div>
-                <span class="status-live">● Ao vivo</span>
+          <div class="hero-points">
+            <span><b>✓</b> Instalação sem alterar o equipamento</span>
+            <span><b>✓</b> Dados em tempo real</span>
+            <span><b>✓</b> Acesso pelo celular e computador</span>
+          </div>
+          <div class="hero-trust">
+            <span class="trust-line"></span
+            ><span
+              >Arquitetura IoT preparada para crescer com sua operação</span
+            >
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="visual-glow"></div>
+          <div class="hero-float float-status">
+            <span class="float-dot"></span>
+            <div>
+              <b>Operação conectada</b><small>12 dispositivos ativos</small>
+            </div>
+          </div>
+          <div class="hero-float float-saving">
+            <span class="float-icon"
+              ><svg><use href="#i-chart" /></svg
+            ></span>
+            <div><b>12,4%</b><small>menos consumo</small></div>
+          </div>
+          <div class="app-window">
+            <div class="app-head">
+              <span class="select">Demonstração visual</span>
+              <div class="app-brand">
+                <span class="mini-drop"></span> Wash<span>Sense</span>
               </div>
-              <div class="cards">
-                <div class="metric"><span class="metric-icon blue"><svg><use href="#i-machine"/></svg></span><div><small>Máquinas online</small><strong>8/10</strong></div><em>80%</em></div>
-                <div class="metric"><span class="metric-icon cyan"><svg><use href="#i-droplet"/></svg></span><div><small>Consumo hoje</small><strong>58,4 L</strong></div><em>−12%</em></div>
-                <div class="metric"><span class="metric-icon orange"><svg><use href="#i-alert"/></svg></span><div><small>Alertas</small><strong>2</strong></div><em>atenção</em></div>
-              </div>
-              <div class="dash-grid">
-                <div class="panel reservoirs">
-                  <div class="panel-title">Nível de produtos <span>Atualizado agora</span></div>
-                  <div class="tank-row"><div class="tank"><span style="height:72%"></span></div><div><b>Detergente</b><small>14,4 L de 20 L</small></div><strong>72%</strong></div>
-                  <div class="tank-row"><div class="tank purple"><span style="height:43%"></span></div><div><b>Amaciante</b><small>8,6 L de 20 L</small></div><strong>43%</strong></div>
-                  <div class="tank-row"><div class="tank green"><span style="height:88%"></span></div><div><b>Alvejante</b><small>17,6 L de 20 L</small></div><strong>88%</strong></div>
+              <div class="select">Lavanderia Central⌄</div>
+              <div class="avatar">A</div>
+            </div>
+            <div class="app-body">
+              <aside class="side">
+                <div class="side-active">
+                  <svg><use href="#i-dashboard" /></svg><span>Dashboard</span>
                 </div>
-                <div class="panel chart">
-                  <div class="panel-title">Atividade das máquinas <span>Hoje</span></div>
-                  <div class="bars">
-                    <i style="height:48%"></i><i style="height:76%"></i><i style="height:56%"></i><i style="height:88%"></i><i style="height:68%"></i><i style="height:92%"></i><i style="height:64%"></i><i style="height:82%"></i><i style="height:58%"></i><i style="height:84%"></i>
+                <div>
+                  <svg><use href="#i-tank" /></svg><span>Reservatórios</span>
+                </div>
+                <div>
+                  <svg><use href="#i-machine" /></svg><span>Máquinas</span>
+                </div>
+                <div>
+                  <svg><use href="#i-chart" /></svg><span>Consumo</span>
+                </div>
+                <div>
+                  <svg><use href="#i-bell" /></svg><span>Alertas</span><b>2</b>
+                </div>
+                <div>
+                  <svg><use href="#i-file" /></svg><span>Relatórios</span>
+                </div>
+                <div>
+                  <svg><use href="#i-settings" /></svg
+                  ><span>Configurações</span>
+                </div>
+              </aside>
+              <section class="dash">
+                <div class="dash-title">
+                  <div>
+                    <small>Visão geral da sua lavanderia em tempo real</small>
+                    <h3>Dashboard</h3>
                   </div>
-                  <div class="chart-labels"><span>08h</span><span>12h</span><span>16h</span><span>20h</span></div>
+                  <span class="status-live">● Ao vivo</span>
                 </div>
-              </div>
-              <div class="machines">
-                <div class="panel-title">Máquinas <span>Ver todas →</span></div>
-                <div class="machine-row">
-                  <div class="machine online"><i><svg><use href="#i-machine"/></svg></i><b>M01</b><small>Lavando · 2h 15min</small></div>
-                  <div class="machine blue-machine"><i><svg><use href="#i-machine"/></svg></i><b>M02</b><small>Enxaguando · 48 min</small></div>
-                  <div class="machine online"><i><svg><use href="#i-machine"/></svg></i><b>M03</b><small>Centrifugando · 12 min</small></div>
-                  <div class="machine idle"><i><svg><use href="#i-machine"/></svg></i><b>M04</b><small>Disponível</small></div>
-                  <div class="machine alert"><i><svg><use href="#i-alert"/></svg></i><b>M05</b><small>Manutenção</small></div>
+                <div class="cards">
+                  <div class="metric">
+                    <span class="metric-icon blue"
+                      ><svg><use href="#i-machine" /></svg
+                    ></span>
+                    <div>
+                      <small>Máquinas online</small><strong>8/10</strong>
+                    </div>
+                    <em>80%</em>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-icon cyan"
+                      ><svg><use href="#i-droplet" /></svg
+                    ></span>
+                    <div>
+                      <small>Consumo hoje</small><strong>58,4 L</strong>
+                    </div>
+                    <em>−12%</em>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-icon orange"
+                      ><svg><use href="#i-alert" /></svg
+                    ></span>
+                    <div><small>Alertas</small><strong>2</strong></div>
+                    <em>atenção</em>
+                  </div>
                 </div>
+                <div class="dash-grid">
+                  <div class="panel reservoirs">
+                    <div class="panel-title">
+                      Nível de produtos <span>Atualizado agora</span>
+                    </div>
+                    <div class="tank-row">
+                      <div class="tank"><span style="height: 72%"></span></div>
+                      <div><b>Detergente</b><small>14,4 L de 20 L</small></div>
+                      <strong>72%</strong>
+                    </div>
+                    <div class="tank-row">
+                      <div class="tank purple">
+                        <span style="height: 43%"></span>
+                      </div>
+                      <div><b>Amaciante</b><small>8,6 L de 20 L</small></div>
+                      <strong>43%</strong>
+                    </div>
+                    <div class="tank-row">
+                      <div class="tank green">
+                        <span style="height: 88%"></span>
+                      </div>
+                      <div><b>Alvejante</b><small>17,6 L de 20 L</small></div>
+                      <strong>88%</strong>
+                    </div>
+                  </div>
+                  <div class="panel chart">
+                    <div class="panel-title">
+                      Atividade das máquinas <span>Hoje</span>
+                    </div>
+                    <div class="bars">
+                      <i style="height: 48%"></i><i style="height: 76%"></i
+                      ><i style="height: 56%"></i><i style="height: 88%"></i
+                      ><i style="height: 68%"></i><i style="height: 92%"></i
+                      ><i style="height: 64%"></i><i style="height: 82%"></i
+                      ><i style="height: 58%"></i><i style="height: 84%"></i>
+                    </div>
+                    <div class="chart-labels">
+                      <span>08h</span><span>12h</span><span>16h</span
+                      ><span>20h</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="machines">
+                  <div class="panel-title">
+                    Máquinas <span>Ver todas →</span>
+                  </div>
+                  <div class="machine-row">
+                    <div class="machine online">
+                      <i
+                        ><svg><use href="#i-machine" /></svg></i
+                      ><b>M01</b><small>Lavando · 2h 15min</small>
+                    </div>
+                    <div class="machine blue-machine">
+                      <i
+                        ><svg><use href="#i-machine" /></svg></i
+                      ><b>M02</b><small>Enxaguando · 48 min</small>
+                    </div>
+                    <div class="machine online">
+                      <i
+                        ><svg><use href="#i-machine" /></svg></i
+                      ><b>M03</b><small>Centrifugando · 12 min</small>
+                    </div>
+                    <div class="machine idle">
+                      <i
+                        ><svg><use href="#i-machine" /></svg></i
+                      ><b>M04</b><small>Disponível</small>
+                    </div>
+                    <div class="machine alert">
+                      <i
+                        ><svg><use href="#i-alert" /></svg></i
+                      ><b>M05</b><small>Manutenção</small>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+
+          <div class="phone">
+            <div class="phone-notch"></div>
+            <div class="phone-top">
+              <span>9:41</span><b>Wash<span>Sense</span></b
+              ><span class="phone-menu"><i></i><i></i><i></i></span>
+            </div>
+            <div class="phone-content">
+              <div class="phone-select">Lavanderia Central⌄</div>
+              <div class="phone-tank">
+                <span class="tank-symbol"
+                  ><svg><use href="#i-tank" /></svg
+                ></span>
+                <div>
+                  <b>Detergente</b><small>14,4 L de 20 L</small
+                  ><i><em style="width: 72%"></em></i>
+                </div>
+                <strong>72%</strong>
               </div>
-            </section>
+              <div class="phone-tank">
+                <span class="tank-symbol purple-t"
+                  ><svg><use href="#i-tank" /></svg
+                ></span>
+                <div>
+                  <b>Amaciante</b><small>8,6 L de 20 L</small
+                  ><i><em style="width: 43%"></em></i>
+                </div>
+                <strong>43%</strong>
+              </div>
+              <div class="phone-tank">
+                <span class="tank-symbol green-t"
+                  ><svg><use href="#i-tank" /></svg
+                ></span>
+                <div>
+                  <b>Alvejante</b><small>17,6 L de 20 L</small
+                  ><i><em style="width: 88%"></em></i>
+                </div>
+                <strong>88%</strong>
+              </div>
+              <h4>Máquinas <a>Ver todas</a></h4>
+              <div class="phone-machines">
+                <span
+                  ><svg><use href="#i-machine" /></svg><small>M01</small></span
+                ><span
+                  ><svg><use href="#i-cycle" /></svg><small>M02</small></span
+                ><span
+                  ><svg><use href="#i-machine" /></svg><small>M03</small></span
+                >
+              </div>
+            </div>
           </div>
         </div>
+      </section>
 
-        <div class="phone">
-          <div class="phone-notch"></div>
-          <div class="phone-top"><span>9:41</span><b>Wash<span>Sense</span></b><span class="phone-menu"><i></i><i></i><i></i></span></div>
-          <div class="phone-content">
-            <div class="phone-select">Lavanderia Central⌄</div>
-            <div class="phone-tank"><span class="tank-symbol"><svg><use href="#i-tank"/></svg></span><div><b>Detergente</b><small>14,4 L de 20 L</small><i><em style="width:72%"></em></i></div><strong>72%</strong></div>
-            <div class="phone-tank"><span class="tank-symbol purple-t"><svg><use href="#i-tank"/></svg></span><div><b>Amaciante</b><small>8,6 L de 20 L</small><i><em style="width:43%"></em></i></div><strong>43%</strong></div>
-            <div class="phone-tank"><span class="tank-symbol green-t"><svg><use href="#i-tank"/></svg></span><div><b>Alvejante</b><small>17,6 L de 20 L</small><i><em style="width:88%"></em></i></div><strong>88%</strong></div>
-            <h4>Máquinas <a>Ver todas</a></h4>
-            <div class="phone-machines"><span><svg><use href="#i-machine"/></svg><small>M01</small></span><span><svg><use href="#i-cycle"/></svg><small>M02</small></span><span><svg><use href="#i-machine"/></svg><small>M03</small></span></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="brand-strip" data-reveal="up">
-      <div><b>01</b><span class="strip-icon"><svg><use href="#i-tank"/></svg></span><strong>NÍVEL DE<br>PRODUTOS</strong></div>
-      <div><b>02</b><span class="strip-icon"><svg><use href="#i-machine"/></svg></span><strong>MÁQUINAS<br>E CICLOS</strong></div>
-      <div><b>03</b><span class="strip-icon"><svg><use href="#i-energy"/></svg></span><strong>CONSUMO<br>DE ENERGIA</strong></div>
-      <div><b>04</b><span class="strip-icon"><svg><use href="#i-chart"/></svg></span><strong>DADOS<br>E RELATÓRIOS</strong></div>
-      <div><b>05</b><span class="strip-icon"><svg><use href="#i-bell"/></svg></span><strong>ALERTAS<br>EM TEMPO REAL</strong></div>
-      <div><b>06</b><span class="strip-icon"><svg><use href="#i-brain"/></svg></span><strong>ANÁLISE<br>INTELIGENTE</strong></div>
-    </section>
-
-    <section class="intro intro-premium" id="solucao" data-reveal="up">
-      <div class="intro-copy">
-        <div class="eyebrow"><span></span> UMA NOVA VISÃO DA OPERAÇÃO</div>
-        <h2>Transforme dados da sua lavanderia em <strong>controle.</strong></h2>
-        <p>O WashSense conecta sensores e equipamentos à nuvem para transformar sinais da operação em informação clara, alertas e decisões mais rápidas.</p>
-        <div class="intro-points">
-          <div><span class="point-icon"><svg><use href="#i-shield"/></svg></span><span><b>Operação monitorada</b><small>Informação centralizada em um só lugar.</small></span></div>
-          <div><span class="point-icon"><svg><use href="#i-cycle"/></svg></span><span><b>Histórico de operação</b><small>Dados organizados para acompanhar evolução e consumo.</small></span></div>
-          <div><span class="point-icon"><svg><use href="#i-insight"/></svg></span><span><b>Mais previsibilidade</b><small>Antecipe problemas antes que virem parada.</small></span></div>
-        </div>
-      </div>
-
-      <div class="operation-card" aria-label="Resumo da operação demonstrativo">
-        <div class="operation-head"><div><span class="mini-label">VISÃO DA OPERAÇÃO</span><b>Lavanderia Central</b></div><span class="live-pill"><i></i> AO VIVO</span></div>
-        <div class="operation-main">
-          <div class="gauge-wrap"><div class="gauge"><div><strong>82%</strong><small>operação</small></div></div><span>Eficiência estimada</span></div>
-          <div class="op-summary"><div><small>Máquinas ativas</small><strong>08 <em>/ 10</em></strong><span class="positive">+12% hoje</span></div><div><small>Consumo</small><strong>58,4 <em>L</em></strong><span>últimas 24h</span></div></div>
-        </div>
-        <div class="mini-chart"><div class="chart-top"><span>Atividade</span><small>Hoje</small></div><div class="mini-bars"><i style="height:38%"></i><i style="height:52%"></i><i style="height:44%"></i><i style="height:72%"></i><i style="height:58%"></i><i style="height:86%"></i><i style="height:68%"></i><i style="height:92%"></i><i style="height:77%"></i><i style="height:96%"></i><i style="height:83%"></i><i style="height:100%"></i></div><div class="chart-axis"><span>08h</span><span>12h</span><span>16h</span><span>20h</span></div></div>
-        <div class="operation-footer"><span><i class="ok-dot"></i> 12 dispositivos conectados</span><span>Última atualização: agora</span></div>
-      </div>
-    </section>
-
-    <section class="features" id="recursos" data-reveal="up">
-      <div class="section-head">
-        <div><div class="eyebrow">TUDO EM UM SÓ LUGAR</div><h2>Controle o que importa.</h2></div>
-        <p>Uma plataforma criada para tornar a rotina da lavanderia mais previsível, eficiente e fácil de acompanhar.</p>
-      </div>
-      <div class="feature-grid interactive-features" data-stagger>
-        <article class="feature-card" data-feature="reservoirs" tabindex="0" role="button" aria-label="Ver demonstração de níveis de produtos"><div class="feature-number">01</div><div class="feature-icon"><svg><use href="#i-tank"/></svg></div><h3>Níveis de produtos</h3><p>Acompanhe detergente, amaciante e outros insumos sem precisar ir até o reservatório.</p><div class="feature-preview"><div class="preview-head"><span>Níveis dos reservatórios</span><b>Agora</b></div><div class="mini-tanks"><div><span class="mini-tank-fill cyan" style="height:72%"></span><b>72%</b><small>Detergente</small></div><div><span class="mini-tank-fill purple" style="height:43%"></span><b>43%</b><small>Amaciante</small></div><div><span class="mini-tank-fill green" style="height:88%"></span><b>88%</b><small>Alvejante</small></div></div><small class="preview-link">Clique para ampliar <span>↗</span></small></div></article>
-        <article class="feature-card" data-feature="machines" tabindex="0" role="button" aria-label="Ver demonstração de máquinas e ciclos"><div class="feature-number">02</div><div class="feature-icon"><svg><use href="#i-machine"/></svg></div><h3>Máquinas e ciclos</h3><p>Veja o estado das máquinas e acompanhe ciclos, duração e histórico de operação.</p><div class="feature-preview"><div class="preview-head"><span>Status das máquinas</span><b class="live-mini">● Ao vivo</b></div><div class="mini-machines"><span class="run"><i></i>M01 <small>Lavando</small></span><span class="run blue"><i></i>M02 <small>Enxaguando</small></span><span class="idle"><i></i>M03 <small>Disponível</small></span><span class="warn"><i></i>M04 <small>Atenção</small></span></div><div class="cycle-line"><span style="width:74%"></span></div><small class="preview-link">Ciclo atual · 42 min <span>↗</span></small></div></article>
-        <article class="feature-card" data-feature="energy" tabindex="0" role="button" aria-label="Ver demonstração de consumo e energia"><div class="feature-number">03</div><div class="feature-icon"><svg><use href="#i-energy"/></svg></div><h3>Consumo e energia</h3><p>Entenda o consumo por máquina, período e operação para encontrar desperdícios.</p><div class="feature-preview"><div class="preview-head"><span>Consumo de energia</span><b>Hoje</b></div><div class="energy-summary"><strong>128,4 <small>kWh</small></strong><em>−12,4%</em></div><div class="mini-chart energy-chart"><i style="height:35%"></i><i style="height:52%"></i><i style="height:42%"></i><i style="height:68%"></i><i style="height:55%"></i><i style="height:82%"></i><i style="height:72%"></i><i style="height:91%"></i></div><small class="preview-link">Ver consumo por período <span>↗</span></small></div></article>
-        <article class="feature-card" data-feature="alerts" tabindex="0" role="button" aria-label="Ver demonstração de alertas inteligentes"><div class="feature-number">04</div><div class="feature-icon"><svg><use href="#i-bell"/></svg></div><h3>Alertas inteligentes</h3><p>Receba avisos quando um produto estiver baixo ou uma condição exigir atenção.</p><div class="feature-preview"><div class="preview-head"><span>Alertas recentes</span><b>2 ativos</b></div><div class="mini-alerts"><div class="critical"><i>!</i><span><b>Detergente</b><small>Nível abaixo de 20%</small></span><em>Crítico</em></div><div class="attention"><i>!</i><span><b>M04</b><small>Sem atividade há 38 min</small></span><em>Atenção</em></div></div><small class="preview-link">Abrir central de alertas <span>↗</span></small></div></article>
-        <article class="feature-card" data-feature="reports" tabindex="0" role="button" aria-label="Ver demonstração de relatórios"><div class="feature-number">05</div><div class="feature-icon"><svg><use href="#i-chart"/></svg></div><h3>Relatórios</h3><p>Tenha histórico, indicadores e informações para apoiar suas decisões.</p><div class="feature-preview"><div class="preview-head"><span>Relatório operacional</span><b>Setembro</b></div><div class="report-kpis"><span><b>1.284</b><small>ciclos</small></span><span><b>842 L</b><small>consumo</small></span><span><b>94%</b><small>disponibilidade</small></span></div><div class="mini-chart report-chart"><i style="height:45%"></i><i style="height:60%"></i><i style="height:52%"></i><i style="height:75%"></i><i style="height:64%"></i><i style="height:88%"></i><i style="height:78%"></i></div><small class="preview-link">Visualizar relatório <span>↗</span></small></div></article>
-        <article class="feature-card" data-feature="insights" tabindex="0" role="button" aria-label="Ver demonstração de análise inteligente"><div class="feature-number">06</div><div class="feature-icon"><svg><use href="#i-brain"/></svg></div><h3>Análise inteligente</h3><p>Transforme o histórico operacional em insights para melhorar a eficiência.</p><div class="feature-preview"><div class="preview-head"><span>Insight da operação</span><b class="insight-badge">IA</b></div><div class="insight-box"><span class="insight-spark">✦</span><div><b>Consumo acima do padrão</b><small>M02 está 18% acima da média dos últimos 7 dias.</small></div></div><div class="mini-trend"><span>Eficiência</span><strong>+14,8%</strong><div><i style="width:82%"></i></div></div><small class="preview-link">Ver análise detalhada <span>↗</span></small></div></article>
-      </div>
-    </section>
-
-
-    <div class="feature-modal" aria-hidden="true">
-      <div class="feature-modal-backdrop" data-close-modal></div>
-      <div class="feature-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="feature-modal-title">
-        <button class="modal-close" type="button" aria-label="Fechar demonstração" data-close-modal>×</button>
-        <div class="modal-kicker"><span></span> COMO APARECE NO WASHSENSE</div>
-        <div class="modal-title-row"><div><h3 id="feature-modal-title">Níveis de produtos</h3><p id="feature-modal-description">Acompanhe os reservatórios e receba alertas antes que um insumo acabe.</p></div><span class="modal-product">Dashboard</span></div>
-        <div class="modal-preview" id="feature-modal-preview"></div>
-        <div class="modal-footer"><span>Interface demonstrativa do WashSense</span><a href="#contato" data-close-modal>Solicitar demonstração →</a></div>
-      </div>
-    </div>
-
-    <section class="how how-light how-pro" id="como-funciona" data-reveal="up">
-      <div class="how-orbit orbit-a"></div><div class="how-orbit orbit-b"></div>
-      <div class="how-head">
+      <section class="brand-strip" data-reveal="up">
         <div>
-          <div class="eyebrow">COMO FUNCIONA</div>
-          <h2>Do sensor ao seu painel.<br><span>Em poucos passos.</span></h2>
+          <b>01</b
+          ><span class="strip-icon"
+            ><svg><use href="#i-tank" /></svg></span
+          ><strong>NÍVEL DE<br />PRODUTOS</strong>
         </div>
-        <div class="how-head-side"><span class="live-pill"><i></i> FLUXO EM TEMPO REAL</span><p>O WashSense transforma sinais da operação em informações que você consegue acompanhar, entender e usar.</p></div>
+        <div>
+          <b>02</b
+          ><span class="strip-icon"
+            ><svg><use href="#i-machine" /></svg></span
+          ><strong>MÁQUINAS<br />E CICLOS</strong>
+        </div>
+        <div>
+          <b>03</b
+          ><span class="strip-icon"
+            ><svg><use href="#i-energy" /></svg></span
+          ><strong>CONSUMO<br />DE ENERGIA</strong>
+        </div>
+        <div>
+          <b>04</b
+          ><span class="strip-icon"
+            ><svg><use href="#i-chart" /></svg></span
+          ><strong>DADOS<br />E RELATÓRIOS</strong>
+        </div>
+        <div>
+          <b>05</b
+          ><span class="strip-icon"
+            ><svg><use href="#i-bell" /></svg></span
+          ><strong>ALERTAS<br />EM TEMPO REAL</strong>
+        </div>
+        <div>
+          <b>06</b
+          ><span class="strip-icon"
+            ><svg><use href="#i-brain" /></svg></span
+          ><strong>ANÁLISE<br />INTELIGENTE</strong>
+        </div>
+      </section>
+
+      <section class="intro intro-premium" id="solucao" data-reveal="up">
+        <div class="intro-copy">
+          <div class="eyebrow"><span></span> UMA NOVA VISÃO DA OPERAÇÃO</div>
+          <h2>
+            Transforme dados da sua lavanderia em <strong>controle.</strong>
+          </h2>
+          <p>
+            O WashSense conecta sensores e equipamentos à nuvem para transformar
+            sinais da operação em informação clara, alertas e decisões mais
+            rápidas.
+          </p>
+          <div class="intro-points">
+            <div>
+              <span class="point-icon"
+                ><svg><use href="#i-shield" /></svg></span
+              ><span
+                ><b>Operação monitorada</b
+                ><small>Informação centralizada em um só lugar.</small></span
+              >
+            </div>
+            <div>
+              <span class="point-icon"
+                ><svg><use href="#i-cycle" /></svg></span
+              ><span
+                ><b>Histórico de operação</b
+                ><small
+                  >Dados organizados para acompanhar evolução e consumo.</small
+                ></span
+              >
+            </div>
+            <div>
+              <span class="point-icon"
+                ><svg><use href="#i-insight" /></svg></span
+              ><span
+                ><b>Mais previsibilidade</b
+                ><small>Antecipe problemas antes que virem parada.</small></span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="operation-card"
+          aria-label="Resumo da operação demonstrativo"
+        >
+          <div class="operation-head">
+            <div>
+              <span class="mini-label">VISÃO DA OPERAÇÃO</span
+              ><b>Lavanderia Central</b>
+            </div>
+            <span class="live-pill"><i></i> AO VIVO</span>
+          </div>
+          <div class="operation-main">
+            <div class="gauge-wrap">
+              <div class="gauge">
+                <div><strong>82%</strong><small>operação</small></div>
+              </div>
+              <span>Eficiência estimada</span>
+            </div>
+            <div class="op-summary">
+              <div>
+                <small>Máquinas ativas</small><strong>08 <em>/ 10</em></strong
+                ><span class="positive">+12% hoje</span>
+              </div>
+              <div>
+                <small>Consumo</small><strong>58,4 <em>L</em></strong
+                ><span>últimas 24h</span>
+              </div>
+            </div>
+          </div>
+          <div class="mini-chart">
+            <div class="chart-top">
+              <span>Atividade</span><small>Hoje</small>
+            </div>
+            <div class="mini-bars">
+              <i style="height: 38%"></i><i style="height: 52%"></i
+              ><i style="height: 44%"></i><i style="height: 72%"></i
+              ><i style="height: 58%"></i><i style="height: 86%"></i
+              ><i style="height: 68%"></i><i style="height: 92%"></i
+              ><i style="height: 77%"></i><i style="height: 96%"></i
+              ><i style="height: 83%"></i><i style="height: 100%"></i>
+            </div>
+            <div class="chart-axis">
+              <span>08h</span><span>12h</span><span>16h</span><span>20h</span>
+            </div>
+          </div>
+          <div class="operation-footer">
+            <span><i class="ok-dot"></i> 12 dispositivos conectados</span
+            ><span>Última atualização: agora</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="features" id="recursos" data-reveal="up">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">TUDO EM UM SÓ LUGAR</div>
+            <h2>Controle o que importa.</h2>
+          </div>
+          <p>
+            Uma plataforma criada para tornar a rotina da lavanderia mais
+            previsível, eficiente e fácil de acompanhar.
+          </p>
+        </div>
+        <div class="feature-grid interactive-features" data-stagger>
+          <article
+            class="feature-card"
+            data-feature="reservoirs"
+            tabindex="0"
+            role="button"
+            aria-label="Ver demonstração de níveis de produtos"
+          >
+            <div class="feature-number">01</div>
+            <div class="feature-icon">
+              <svg><use href="#i-tank" /></svg>
+            </div>
+            <h3>Níveis de produtos</h3>
+            <p>
+              Acompanhe detergente, amaciante e outros insumos sem precisar ir
+              até o reservatório.
+            </p>
+            <div class="feature-preview">
+              <div class="preview-head">
+                <span>Níveis dos reservatórios</span><b>Agora</b>
+              </div>
+              <div class="mini-tanks">
+                <div>
+                  <span class="mini-tank-fill cyan" style="height: 72%"></span
+                  ><b>72%</b><small>Detergente</small>
+                </div>
+                <div>
+                  <span class="mini-tank-fill purple" style="height: 43%"></span
+                  ><b>43%</b><small>Amaciante</small>
+                </div>
+                <div>
+                  <span class="mini-tank-fill green" style="height: 88%"></span
+                  ><b>88%</b><small>Alvejante</small>
+                </div>
+              </div>
+              <small class="preview-link"
+                >Clique para ampliar <span>↗</span></small
+              >
+            </div>
+          </article>
+          <article
+            class="feature-card"
+            data-feature="machines"
+            tabindex="0"
+            role="button"
+            aria-label="Ver demonstração de máquinas e ciclos"
+          >
+            <div class="feature-number">02</div>
+            <div class="feature-icon">
+              <svg><use href="#i-machine" /></svg>
+            </div>
+            <h3>Máquinas e ciclos</h3>
+            <p>
+              Veja o estado das máquinas e acompanhe ciclos, duração e histórico
+              de operação.
+            </p>
+            <div class="feature-preview">
+              <div class="preview-head">
+                <span>Status das máquinas</span
+                ><b class="live-mini">● Ao vivo</b>
+              </div>
+              <div class="mini-machines">
+                <span class="run"><i></i>M01 <small>Lavando</small></span
+                ><span class="run blue"
+                  ><i></i>M02 <small>Enxaguando</small></span
+                ><span class="idle"><i></i>M03 <small>Disponível</small></span
+                ><span class="warn"><i></i>M04 <small>Atenção</small></span>
+              </div>
+              <div class="cycle-line"><span style="width: 74%"></span></div>
+              <small class="preview-link"
+                >Ciclo atual · 42 min <span>↗</span></small
+              >
+            </div>
+          </article>
+          <article
+            class="feature-card"
+            data-feature="energy"
+            tabindex="0"
+            role="button"
+            aria-label="Ver demonstração de consumo e energia"
+          >
+            <div class="feature-number">03</div>
+            <div class="feature-icon">
+              <svg><use href="#i-energy" /></svg>
+            </div>
+            <h3>Consumo e energia</h3>
+            <p>
+              Entenda o consumo por máquina, período e operação para encontrar
+              desperdícios.
+            </p>
+            <div class="feature-preview">
+              <div class="preview-head">
+                <span>Consumo de energia</span><b>Hoje</b>
+              </div>
+              <div class="energy-summary">
+                <strong>128,4 <small>kWh</small></strong
+                ><em>−12,4%</em>
+              </div>
+              <div class="mini-chart energy-chart">
+                <i style="height: 35%"></i><i style="height: 52%"></i
+                ><i style="height: 42%"></i><i style="height: 68%"></i
+                ><i style="height: 55%"></i><i style="height: 82%"></i
+                ><i style="height: 72%"></i><i style="height: 91%"></i>
+              </div>
+              <small class="preview-link"
+                >Ver consumo por período <span>↗</span></small
+              >
+            </div>
+          </article>
+          <article
+            class="feature-card"
+            data-feature="alerts"
+            tabindex="0"
+            role="button"
+            aria-label="Ver demonstração de alertas inteligentes"
+          >
+            <div class="feature-number">04</div>
+            <div class="feature-icon">
+              <svg><use href="#i-bell" /></svg>
+            </div>
+            <h3>Alertas inteligentes</h3>
+            <p>
+              Receba avisos quando um produto estiver baixo ou uma condição
+              exigir atenção.
+            </p>
+            <div class="feature-preview">
+              <div class="preview-head">
+                <span>Alertas recentes</span><b>2 ativos</b>
+              </div>
+              <div class="mini-alerts">
+                <div class="critical">
+                  <i>!</i
+                  ><span
+                    ><b>Detergente</b><small>Nível abaixo de 20%</small></span
+                  ><em>Crítico</em>
+                </div>
+                <div class="attention">
+                  <i>!</i
+                  ><span><b>M04</b><small>Sem atividade há 38 min</small></span
+                  ><em>Atenção</em>
+                </div>
+              </div>
+              <small class="preview-link"
+                >Abrir central de alertas <span>↗</span></small
+              >
+            </div>
+          </article>
+          <article
+            class="feature-card"
+            data-feature="reports"
+            tabindex="0"
+            role="button"
+            aria-label="Ver demonstração de relatórios"
+          >
+            <div class="feature-number">05</div>
+            <div class="feature-icon">
+              <svg><use href="#i-chart" /></svg>
+            </div>
+            <h3>Relatórios</h3>
+            <p>
+              Tenha histórico, indicadores e informações para apoiar suas
+              decisões.
+            </p>
+            <div class="feature-preview">
+              <div class="preview-head">
+                <span>Relatório operacional</span><b>Setembro</b>
+              </div>
+              <div class="report-kpis">
+                <span><b>1.284</b><small>ciclos</small></span
+                ><span><b>842 L</b><small>consumo</small></span
+                ><span><b>94%</b><small>disponibilidade</small></span>
+              </div>
+              <div class="mini-chart report-chart">
+                <i style="height: 45%"></i><i style="height: 60%"></i
+                ><i style="height: 52%"></i><i style="height: 75%"></i
+                ><i style="height: 64%"></i><i style="height: 88%"></i
+                ><i style="height: 78%"></i>
+              </div>
+              <small class="preview-link"
+                >Visualizar relatório <span>↗</span></small
+              >
+            </div>
+          </article>
+          <article
+            class="feature-card"
+            data-feature="insights"
+            tabindex="0"
+            role="button"
+            aria-label="Ver demonstração de análise inteligente"
+          >
+            <div class="feature-number">06</div>
+            <div class="feature-icon">
+              <svg><use href="#i-brain" /></svg>
+            </div>
+            <h3>Análise inteligente</h3>
+            <p>
+              Transforme o histórico operacional em insights para melhorar a
+              eficiência.
+            </p>
+            <div class="feature-preview">
+              <div class="preview-head">
+                <span>Insight da operação</span><b class="insight-badge">IA</b>
+              </div>
+              <div class="insight-box">
+                <span class="insight-spark">✦</span>
+                <div>
+                  <b>Consumo acima do padrão</b
+                  ><small
+                    >M02 está 18% acima da média dos últimos 7 dias.</small
+                  >
+                </div>
+              </div>
+              <div class="mini-trend">
+                <span>Eficiência</span><strong>+14,8%</strong>
+                <div><i style="width: 82%"></i></div>
+              </div>
+              <small class="preview-link"
+                >Ver análise detalhada <span>↗</span></small
+              >
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <div class="feature-modal" aria-hidden="true">
+        <div class="feature-modal-backdrop" data-close-modal></div>
+        <div
+          class="feature-modal-dialog"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="feature-modal-title"
+        >
+          <button
+            class="modal-close"
+            type="button"
+            aria-label="Fechar demonstração"
+            data-close-modal
+          >
+            ×
+          </button>
+          <div class="modal-kicker">
+            <span></span> COMO APARECE NO WASHSENSE
+          </div>
+          <div class="modal-title-row">
+            <div>
+              <h3 id="feature-modal-title">Níveis de produtos</h3>
+              <p id="feature-modal-description">
+                Acompanhe os reservatórios e receba alertas antes que um insumo
+                acabe.
+              </p>
+            </div>
+            <span class="modal-product">Dashboard · Demonstração</span>
+          </div>
+          <div class="modal-preview" id="feature-modal-preview"></div>
+          <div class="modal-footer">
+            <span>Interface demonstrativa do WashSense</span
+            ><a href="#contato" data-close-modal>Solicitar demonstração →</a>
+          </div>
+        </div>
       </div>
 
-      <div class="how-flow-pro" aria-label="Fluxo do WashSense">
-        <div class="flow-rail"><div class="flow-progress"></div><i class="data-packet p1"></i><i class="data-packet p2"></i><i class="data-packet p3"></i></div>
-
-        <article class="stage-card" data-stage="1">
-          <div class="stage-top"><span class="stage-num">01</span><span class="stage-tag">CAPTURA</span></div>
-          <div class="stage-visual sensor-visual">
-            <div class="sensor-tank"><div class="tank-liquid"></div><div class="tank-sensor"><i></i></div><span>72%</span></div>
-            <div class="sensor-wave w1"></div><div class="sensor-wave w2"></div><div class="sensor-signal"><i></i><i></i><i></i></div>
+      <section
+        class="how how-light how-pro"
+        id="como-funciona"
+        data-reveal="up"
+      >
+        <div class="how-orbit orbit-a"></div>
+        <div class="how-orbit orbit-b"></div>
+        <div class="how-head">
+          <div>
+            <div class="eyebrow">COMO FUNCIONA</div>
+            <h2>
+              Do sensor ao seu painel.<br /><span>Em poucos passos.</span>
+            </h2>
           </div>
-          <h3>Sensores</h3><p>Leituras de nível, estado, energia e operação são capturadas sem interferir no funcionamento da máquina.</p>
-          <div class="stage-foot"><span><b></b> Dados coletados</span><small>nível · estado · consumo</small></div>
-        </article>
-
-        <article class="stage-card" data-stage="2">
-          <div class="stage-top"><span class="stage-num">02</span><span class="stage-tag">CONECTA</span></div>
-          <div class="stage-visual network-visual">
-            <div class="node node-sensor"><svg><use href="#i-sensor"/></svg></div><div class="node-line"><i></i></div><div class="node node-gateway"><svg><use href="#i-network"/></svg></div><div class="node-line"><i></i></div><div class="node node-cloud"><svg><use href="#i-cloud-data"/></svg></div>
-            <span class="signal-label">MQTT · seguro</span>
+          <div class="how-head-side">
+            <span class="live-pill"><i></i> FLUXO EM TEMPO REAL</span>
+            <p>
+              O WashSense transforma sinais da operação em informações que você
+              consegue acompanhar, entender e usar.
+            </p>
           </div>
-          <h3>Conectividade</h3><p>Os dados seguem pela conectividade da instalação até a nuvem com autenticação e comunicação segura.</p>
-          <div class="stage-foot"><span><b></b> Conexão ativa</span><small>latência 48 ms</small></div>
-        </article>
+        </div>
 
-        <article class="stage-card" data-stage="3">
-          <div class="stage-top"><span class="stage-num">03</span><span class="stage-tag">PROCESSA</span></div>
-          <div class="stage-visual cloud-visual">
-            <div class="cloud-core"><svg><use href="#i-cloud-data"/></svg><span>Cloud</span></div>
-            <div class="data-chip c1">128 L</div><div class="data-chip c2">08 máquinas</div><div class="data-chip c3">24 alertas</div>
-            <div class="cloud-ring r1"></div><div class="cloud-ring r2"></div>
+        <div class="how-flow-pro" aria-label="Fluxo do WashSense">
+          <div class="flow-rail">
+            <div class="flow-progress"></div>
+            <i class="data-packet p1"></i><i class="data-packet p2"></i
+            ><i class="data-packet p3"></i>
           </div>
-          <h3>Cloud & dados</h3><p>As informações são organizadas, armazenadas e transformadas em histórico, indicadores e alertas.</p>
-          <div class="stage-foot"><span><b></b> Dados processados</span><small>sincronizado agora</small></div>
-        </article>
 
-        <article class="stage-card stage-final" data-stage="4">
-          <div class="stage-top"><span class="stage-num">04</span><span class="stage-tag">DECIDE</span></div>
-          <div class="stage-visual dashboard-visual">
-            <div class="mini-dash-head"><span>WashSense</span><em>AO VIVO</em></div>
-            <div class="mini-metrics"><div><small>Máquinas</small><b>08</b></div><div><small>Consumo</small><b>128 L</b></div><div><small>Alertas</small><b>02</b></div></div>
-            <div class="mini-chart"><i style="height:35%"></i><i style="height:54%"></i><i style="height:45%"></i><i style="height:68%"></i><i style="height:58%"></i><i style="height:82%"></i><i style="height:73%"></i><i style="height:91%"></i></div>
-            <div class="mini-alert"><span></span> Detergente · 18% restante</div>
+          <article class="stage-card" data-stage="1">
+            <div class="stage-top">
+              <span class="stage-num">01</span
+              ><span class="stage-tag">CAPTURA</span>
+            </div>
+            <div class="stage-visual sensor-visual">
+              <div class="sensor-tank">
+                <div class="tank-liquid"></div>
+                <div class="tank-sensor"><i></i></div>
+                <span>72%</span>
+              </div>
+              <div class="sensor-wave w1"></div>
+              <div class="sensor-wave w2"></div>
+              <div class="sensor-signal"><i></i><i></i><i></i></div>
+            </div>
+            <h3>Sensores</h3>
+            <p>
+              Leituras de nível, estado, energia e operação são capturadas sem
+              interferir no funcionamento da máquina.
+            </p>
+            <div class="stage-foot">
+              <span><b></b> Dados coletados</span
+              ><small>nível · estado · consumo</small>
+            </div>
+          </article>
+
+          <article class="stage-card" data-stage="2">
+            <div class="stage-top">
+              <span class="stage-num">02</span
+              ><span class="stage-tag">CONECTA</span>
+            </div>
+            <div class="stage-visual network-visual">
+              <div class="node node-sensor">
+                <svg><use href="#i-sensor" /></svg>
+              </div>
+              <div class="node-line"><i></i></div>
+              <div class="node node-gateway">
+                <svg><use href="#i-network" /></svg>
+              </div>
+              <div class="node-line"><i></i></div>
+              <div class="node node-cloud">
+                <svg><use href="#i-cloud-data" /></svg>
+              </div>
+              <span class="signal-label">MQTT · seguro</span>
+            </div>
+            <h3>Conectividade</h3>
+            <p>
+              Os dados seguem pela conectividade da instalação até a nuvem com
+              autenticação e comunicação segura.
+            </p>
+            <div class="stage-foot">
+              <span><b></b> Conexão ativa</span><small>latência 48 ms</small>
+            </div>
+          </article>
+
+          <article class="stage-card" data-stage="3">
+            <div class="stage-top">
+              <span class="stage-num">03</span
+              ><span class="stage-tag">PROCESSA</span>
+            </div>
+            <div class="stage-visual cloud-visual">
+              <div class="cloud-core">
+                <svg><use href="#i-cloud-data" /></svg><span>Cloud</span>
+              </div>
+              <div class="data-chip c1">128 L</div>
+              <div class="data-chip c2">08 máquinas</div>
+              <div class="data-chip c3">24 alertas</div>
+              <div class="cloud-ring r1"></div>
+              <div class="cloud-ring r2"></div>
+            </div>
+            <h3>Cloud & dados</h3>
+            <p>
+              As informações são organizadas, armazenadas e transformadas em
+              histórico, indicadores e alertas.
+            </p>
+            <div class="stage-foot">
+              <span><b></b> Dados processados</span
+              ><small>sincronizado agora</small>
+            </div>
+          </article>
+
+          <article class="stage-card stage-final" data-stage="4">
+            <div class="stage-top">
+              <span class="stage-num">04</span
+              ><span class="stage-tag">DECIDE</span>
+            </div>
+            <div class="stage-visual dashboard-visual">
+              <div class="mini-dash-head">
+                <span>WashSense</span><em>AO VIVO</em>
+              </div>
+              <div class="mini-metrics">
+                <div><small>Máquinas</small><b>08</b></div>
+                <div><small>Consumo</small><b>128 L</b></div>
+                <div><small>Alertas</small><b>02</b></div>
+              </div>
+              <div class="mini-chart">
+                <i style="height: 35%"></i><i style="height: 54%"></i
+                ><i style="height: 45%"></i><i style="height: 68%"></i
+                ><i style="height: 58%"></i><i style="height: 82%"></i
+                ><i style="height: 73%"></i><i style="height: 91%"></i>
+              </div>
+              <div class="mini-alert">
+                <span></span> Detergente · 18% restante
+              </div>
+            </div>
+            <h3>WashSense</h3>
+            <p>
+              Você enxerga a operação em um painel claro, com alertas, consumo,
+              ciclos e indicadores em tempo real.
+            </p>
+            <div class="stage-foot">
+              <span><b></b> Operação visível</span
+              ><small>pronto para agir</small>
+            </div>
+          </article>
+        </div>
+
+        <div class="how-bottom">
+          <div>
+            <strong>Uma arquitetura simples.</strong> Um fluxo contínuo de
+            dados.
           </div>
-          <h3>WashSense</h3><p>Você enxerga a operação em um painel claro, com alertas, consumo, ciclos e indicadores em tempo real.</p>
-          <div class="stage-foot"><span><b></b> Operação visível</span><small>pronto para agir</small></div>
-        </article>
+          <div class="how-bottom-items">
+            <span><i></i> Sem alterar o comando das máquinas</span
+            ><span><i></i> Histórico centralizado</span
+            ><span><i></i> Acesso de qualquer lugar</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta" id="contato" data-reveal="up">
+        <div class="cta-copy">
+          <div class="eyebrow">PRONTO PARA COMEÇAR?</div>
+          <h2>Tenha sua lavanderia<br /><strong>sob controle.</strong></h2>
+          <p>
+            Conheça o WashSense e veja como a tecnologia pode simplificar sua
+            operação.
+          </p>
+        </div>
+        <form
+          class="contact-form"
+          onsubmit="
+            event.preventDefault();
+            this.innerHTML =
+              '<div class=&quot;success&quot;><strong>Recebemos seu interesse.</strong><br>Em breve entraremos em contato.</div>';
+          "
+        >
+          <label
+            >Nome<input required type="text" placeholder="Seu nome"
+          /></label>
+          <label
+            >WhatsApp<input required type="tel" placeholder="(00) 00000-0000"
+          /></label>
+          <label
+            >E-mail<input required type="email" placeholder="voce@empresa.com"
+          /></label>
+          <button class="btn btn-primary" type="submit">
+            Solicitar demonstração →
+          </button>
+        </form>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-brand">
+        <a class="brand" href="#"
+          ><img src="assets/washsense-logo.svg" alt="WashSense"
+        /></a>
+        <p>Sua lavanderia, sob controle.</p>
       </div>
+      <div><small>© 2026 WashSense. Todos os direitos reservados.</small></div>
+    </footer>
+    <script>
+      document
+        .querySelector(".menu")
+        .addEventListener("click", () =>
+          document.querySelector("nav").classList.toggle("open"),
+        );
+    </script>
+    <script>
+      (function () {
+        const reveal = document.querySelectorAll(
+          "[data-reveal], [data-stagger]",
+        );
+        if ("IntersectionObserver" in window) {
+          const io = new IntersectionObserver(
+            (entries) =>
+              entries.forEach((e) => {
+                if (e.isIntersecting) {
+                  e.target.classList.add("is-visible");
+                  io.unobserve(e.target);
+                }
+              }),
+            { threshold: 0.12, rootMargin: "0px 0px -50px" },
+          );
+          reveal.forEach((el) => io.observe(el));
+        } else reveal.forEach((el) => el.classList.add("is-visible"));
 
-      <div class="how-bottom"><div><strong>Uma arquitetura simples.</strong> Um fluxo contínuo de dados.</div><div class="how-bottom-items"><span><i></i> Sem alterar o comando das máquinas</span><span><i></i> Histórico centralizado</span><span><i></i> Acesso de qualquer lugar</span></div></div>
-    </section>
+        const header = document.querySelector(".topbar");
+        const onScroll = () =>
+          header?.classList.toggle("scrolled", window.scrollY > 10);
+        window.addEventListener("scroll", onScroll, { passive: true });
+        onScroll();
+      })();
+    </script>
 
-    <section class="cta" id="contato" data-reveal="up">
-      <div class="cta-copy"><div class="eyebrow">PRONTO PARA COMEÇAR?</div><h2>Tenha sua lavanderia<br><strong>sob controle.</strong></h2><p>Conheça o WashSense e veja como a tecnologia pode simplificar sua operação.</p></div>
-      <form class="contact-form" onsubmit="event.preventDefault(); this.innerHTML='<div class=&quot;success&quot;><strong>Recebemos seu interesse.</strong><br>Em breve entraremos em contato.</div>';">
-        <label>Nome<input required type="text" placeholder="Seu nome"></label>
-        <label>WhatsApp<input required type="tel" placeholder="(00) 00000-0000"></label>
-        <label>E-mail<input required type="email" placeholder="voce@empresa.com"></label>
-        <button class="btn btn-primary" type="submit">Solicitar demonstração →</button>
-      </form>
-    </section>
-  </main>
+    <script>
+      (function () {
+        const data = {
+          reservoirs: {
+            title: "Níveis de produtos",
+            description:
+              "Veja o nível de cada reservatório em tempo real, histórico de consumo e previsão de reposição.",
+            preview: `<div class="full-dashboard-preview reservoirs-full"><div class="full-head"><span>Reservatórios</span><b>Unidade Principal · Atualizado agora</b></div><div class="full-tank-grid"><div class="full-tank-card"><div class="full-tank-visual cyan"><i style="height:72%"></i><span>72%</span></div><div><b>Detergente</b><small>14,4 L de 20 L</small><em>Previsão: 9 dias</em></div></div><div class="full-tank-card"><div class="full-tank-visual purple"><i style="height:43%"></i><span>43%</span></div><div><b>Amaciante</b><small>8,6 L de 20 L</small><em>Previsão: 5 dias</em></div></div><div class="full-tank-card"><div class="full-tank-visual green"><i style="height:88%"></i><span>88%</span></div><div><b>Alvejante</b><small>17,6 L de 20 L</small><em>Previsão: 14 dias</em></div></div></div></div>`,
+          },
+          machines: {
+            title: "Máquinas e ciclos",
+            description:
+              "O dashboard mostra o estado de cada máquina, ciclo atual, duração e histórico operacional.",
+            preview: `<div class="full-dashboard-preview"><div class="full-head"><span>Máquinas · 8/10 online</span><b>Ao vivo</b></div><div class="machine-dashboard-grid"><div class="machine-status-card active"><span class="status-ring"></span><b>M01</b><small>Lavando · 2h 15min</small><div class="cycle-progress"><i style="width:78%"></i></div></div><div class="machine-status-card active blue"><span class="status-ring"></span><b>M02</b><small>Enxaguando · 48 min</small><div class="cycle-progress"><i style="width:54%"></i></div></div><div class="machine-status-card idle"><span class="status-ring"></span><b>M03</b><small>Disponível</small><div class="cycle-progress"><i style="width:8%"></i></div></div><div class="machine-status-card warning"><span class="status-ring"></span><b>M04</b><small>Atenção · 38 min</small><div class="cycle-progress"><i style="width:31%"></i></div></div></div></div>`,
+          },
+          energy: {
+            title: "Consumo e energia",
+            description:
+              "Compare consumo por máquina e período para identificar picos, desperdícios e oportunidades de economia.",
+            preview: `<div class="full-dashboard-preview"><div class="full-head"><span>Consumo de energia</span><b>Últimos 7 dias</b></div><div class="energy-full-top"><div><small>Consumo total</small><strong>842,6 <em>kWh</em></strong></div><span class="positive">−12,4% <small>vs. período anterior</small></span></div><div class="big-chart"><div class="chart-grid-lines"><i></i><i></i><i></i><i></i></div><svg viewBox="0 0 720 180" preserveAspectRatio="none"><defs><linearGradient id="energyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#13bde8"/><stop offset="1" stop-color="#13bde8" stop-opacity="0"/></linearGradient></defs><path d="M0 148 C70 130 80 135 145 110 S235 122 290 83 S385 104 430 62 S520 92 565 45 S650 76 720 25" fill="none" stroke="#13bde8" stroke-width="4" stroke-linecap="round"/><path d="M0 148 C70 130 80 135 145 110 S235 122 290 83 S385 104 430 62 S520 92 565 45 S650 76 720 25 L720 180 L0 180Z" fill="url(#energyFill)" opacity=".16"/></svg></div></div>`,
+          },
+          alerts: {
+            title: "Alertas inteligentes",
+            description:
+              "Receba alertas com prioridade e contexto para agir rapidamente quando algo exigir atenção.",
+            preview: `<div class="full-dashboard-preview"><div class="full-head"><span>Central de alertas</span><b>2 ativos</b></div><div class="alert-dashboard-list"><div class="alert-card critical"><span class="alert-mark">!</span><div><b>Nível crítico · Detergente</b><small>Reservatório em 18%. Previsão de reposição: 2 dias.</small></div><em>Agora</em></div><div class="alert-card attention"><span class="alert-mark">!</span><div><b>Atenção · Máquina M04</b><small>Sem atividade há 38 min. Verifique o estado do equipamento.</small></div><em>12 min</em></div><div class="alert-card resolved"><span class="alert-mark">✓</span><div><b>Resolvido · Amaciante</b><small>Reposição registrada e nível normalizado.</small></div><em>Hoje</em></div></div></div>`,
+          },
+          reports: {
+            title: "Relatórios",
+            description:
+              "Acompanhe indicadores de operação, consumo e disponibilidade em períodos personalizados.",
+            preview: `<div class="full-dashboard-preview"><div class="full-head"><span>Relatório operacional</span><b>Setembro 2026</b></div><div class="report-full-kpis"><div><small>Ciclos realizados</small><strong>1.284</strong><em>+8,2%</em></div><div><small>Consumo estimado</small><strong>842 L</strong><em>−6,4%</em></div><div><small>Disponibilidade</small><strong>94%</strong><em>+3,1%</em></div></div><div class="big-bars"><i style="height:48%"></i><i style="height:63%"></i><i style="height:54%"></i><i style="height:77%"></i><i style="height:69%"></i><i style="height:88%"></i><i style="height:81%"></i><i style="height:94%"></i><i style="height:73%"></i><i style="height:86%"></i><i style="height:91%"></i><i style="height:97%"></i></div></div>`,
+          },
+          insights: {
+            title: "Análise inteligente",
+            description:
+              "O WashSense transforma o histórico operacional em sinais que ajudam a encontrar desvios e oportunidades.",
+            preview: `<div class="full-dashboard-preview"><div class="full-head"><span>Análise da operação</span><b class="ai-tag">IA</b></div><div class="ai-layout"><div class="ai-main"><div class="ai-insight"><span>✦</span><div><b>Consumo acima do padrão</b><p>A máquina M02 está 18% acima da média dos últimos 7 dias.</p><small>Recomendação · verificar duração do ciclo e carga média.</small></div></div><div class="ai-trend"><div><span>Eficiência operacional</span><strong>+14,8%</strong></div><div class="trend-line"><i style="width:84%"></i></div></div></div><div class="ai-score"><span>Índice</span><strong>87</strong><small>/100</small><em>Boa eficiência</em></div></div></div>`,
+          },
+        };
+        const modal = document.querySelector(".feature-modal");
+        if (!modal) return;
+        const title = document.querySelector("#feature-modal-title"),
+          desc = document.querySelector("#feature-modal-description"),
+          preview = document.querySelector("#feature-modal-preview");
+        function openFeature(key) {
+          const d = data[key];
+          if (!d) return;
+          title.textContent = d.title;
+          desc.textContent = d.description;
+          preview.innerHTML = d.preview;
+          modal.classList.add("open");
+          modal.setAttribute("aria-hidden", "false");
+          document.body.classList.add("modal-open");
+        }
+        function closeFeature() {
+          modal.classList.remove("open");
+          modal.setAttribute("aria-hidden", "true");
+          document.body.classList.remove("modal-open");
+        }
+        document.querySelectorAll(".feature-card").forEach((card) => {
+          card.addEventListener("click", () =>
+            openFeature(card.dataset.feature),
+          );
+          card.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              openFeature(card.dataset.feature);
+            }
+          });
+        });
+        document
+          .querySelectorAll("[data-close-modal]")
+          .forEach((el) => el.addEventListener("click", closeFeature));
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && modal.classList.contains("open"))
+            closeFeature();
+        });
+      })();
+    </script>
 
-  <footer>
-    <div class="footer-brand"><a class="brand" href="#"><img src="assets/washsense-logo.svg" alt="WashSense"></a><p>Sua lavanderia, sob controle.</p></div>
-    <div><small>© 2026 WashSense. Todos os direitos reservados.</small></div>
-  </footer>
-  <script>
-    document.querySelector('.menu').addEventListener('click',()=>document.querySelector('nav').classList.toggle('open'));
-  </script>
-<script>
-(function(){
-  const reveal = document.querySelectorAll('[data-reveal], [data-stagger]');
-  if('IntersectionObserver' in window){
-    const io = new IntersectionObserver((entries)=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-visible');io.unobserve(e.target)}}),{threshold:.12,rootMargin:'0px 0px -50px'});
-    reveal.forEach(el=>io.observe(el));
-  } else reveal.forEach(el=>el.classList.add('is-visible'));
-
-  const header=document.querySelector('.topbar');
-  const onScroll=()=>header?.classList.toggle('scrolled',window.scrollY>10);
-  window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
-})();
-</script>
-
-<script>
-(function(){
-  const data={
-    reservoirs:{title:'Níveis de produtos',description:'Veja o nível de cada reservatório em tempo real, histórico de consumo e previsão de reposição.',preview:`<div class="full-dashboard-preview reservoirs-full"><div class="full-head"><span>Reservatórios</span><b>Unidade Principal · Atualizado agora</b></div><div class="full-tank-grid"><div class="full-tank-card"><div class="full-tank-visual cyan"><i style="height:72%"></i><span>72%</span></div><div><b>Detergente</b><small>14,4 L de 20 L</small><em>Previsão: 9 dias</em></div></div><div class="full-tank-card"><div class="full-tank-visual purple"><i style="height:43%"></i><span>43%</span></div><div><b>Amaciante</b><small>8,6 L de 20 L</small><em>Previsão: 5 dias</em></div></div><div class="full-tank-card"><div class="full-tank-visual green"><i style="height:88%"></i><span>88%</span></div><div><b>Alvejante</b><small>17,6 L de 20 L</small><em>Previsão: 14 dias</em></div></div></div></div>`},
-    machines:{title:'Máquinas e ciclos',description:'O dashboard mostra o estado de cada máquina, ciclo atual, duração e histórico operacional.',preview:`<div class="full-dashboard-preview"><div class="full-head"><span>Máquinas · 8/10 online</span><b>Ao vivo</b></div><div class="machine-dashboard-grid"><div class="machine-status-card active"><span class="status-ring"></span><b>M01</b><small>Lavando · 2h 15min</small><div class="cycle-progress"><i style="width:78%"></i></div></div><div class="machine-status-card active blue"><span class="status-ring"></span><b>M02</b><small>Enxaguando · 48 min</small><div class="cycle-progress"><i style="width:54%"></i></div></div><div class="machine-status-card idle"><span class="status-ring"></span><b>M03</b><small>Disponível</small><div class="cycle-progress"><i style="width:8%"></i></div></div><div class="machine-status-card warning"><span class="status-ring"></span><b>M04</b><small>Atenção · 38 min</small><div class="cycle-progress"><i style="width:31%"></i></div></div></div></div>`},
-    energy:{title:'Consumo e energia',description:'Compare consumo por máquina e período para identificar picos, desperdícios e oportunidades de economia.',preview:`<div class="full-dashboard-preview"><div class="full-head"><span>Consumo de energia</span><b>Últimos 7 dias</b></div><div class="energy-full-top"><div><small>Consumo total</small><strong>842,6 <em>kWh</em></strong></div><span class="positive">−12,4% <small>vs. período anterior</small></span></div><div class="big-chart"><div class="chart-grid-lines"><i></i><i></i><i></i><i></i></div><svg viewBox="0 0 720 180" preserveAspectRatio="none"><defs><linearGradient id="energyFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#13bde8"/><stop offset="1" stop-color="#13bde8" stop-opacity="0"/></linearGradient></defs><path d="M0 148 C70 130 80 135 145 110 S235 122 290 83 S385 104 430 62 S520 92 565 45 S650 76 720 25" fill="none" stroke="#13bde8" stroke-width="4" stroke-linecap="round"/><path d="M0 148 C70 130 80 135 145 110 S235 122 290 83 S385 104 430 62 S520 92 565 45 S650 76 720 25 L720 180 L0 180Z" fill="url(#energyFill)" opacity=".16"/></svg></div></div>`},
-    alerts:{title:'Alertas inteligentes',description:'Receba alertas com prioridade e contexto para agir rapidamente quando algo exigir atenção.',preview:`<div class="full-dashboard-preview"><div class="full-head"><span>Central de alertas</span><b>2 ativos</b></div><div class="alert-dashboard-list"><div class="alert-card critical"><span class="alert-mark">!</span><div><b>Nível crítico · Detergente</b><small>Reservatório em 18%. Previsão de reposição: 2 dias.</small></div><em>Agora</em></div><div class="alert-card attention"><span class="alert-mark">!</span><div><b>Atenção · Máquina M04</b><small>Sem atividade há 38 min. Verifique o estado do equipamento.</small></div><em>12 min</em></div><div class="alert-card resolved"><span class="alert-mark">✓</span><div><b>Resolvido · Amaciante</b><small>Reposição registrada e nível normalizado.</small></div><em>Hoje</em></div></div></div>`},
-    reports:{title:'Relatórios',description:'Acompanhe indicadores de operação, consumo e disponibilidade em períodos personalizados.',preview:`<div class="full-dashboard-preview"><div class="full-head"><span>Relatório operacional</span><b>Setembro 2026</b></div><div class="report-full-kpis"><div><small>Ciclos realizados</small><strong>1.284</strong><em>+8,2%</em></div><div><small>Consumo estimado</small><strong>842 L</strong><em>−6,4%</em></div><div><small>Disponibilidade</small><strong>94%</strong><em>+3,1%</em></div></div><div class="big-bars"><i style="height:48%"></i><i style="height:63%"></i><i style="height:54%"></i><i style="height:77%"></i><i style="height:69%"></i><i style="height:88%"></i><i style="height:81%"></i><i style="height:94%"></i><i style="height:73%"></i><i style="height:86%"></i><i style="height:91%"></i><i style="height:97%"></i></div></div>`},
-    insights:{title:'Análise inteligente',description:'O WashSense transforma o histórico operacional em sinais que ajudam a encontrar desvios e oportunidades.',preview:`<div class="full-dashboard-preview"><div class="full-head"><span>Análise da operação</span><b class="ai-tag">IA</b></div><div class="ai-layout"><div class="ai-main"><div class="ai-insight"><span>✦</span><div><b>Consumo acima do padrão</b><p>A máquina M02 está 18% acima da média dos últimos 7 dias.</p><small>Recomendação · verificar duração do ciclo e carga média.</small></div></div><div class="ai-trend"><div><span>Eficiência operacional</span><strong>+14,8%</strong></div><div class="trend-line"><i style="width:84%"></i></div></div></div><div class="ai-score"><span>Índice</span><strong>87</strong><small>/100</small><em>Boa eficiência</em></div></div></div>`}
-  };
-  const modal=document.querySelector('.feature-modal'); if(!modal)return;
-  const title=document.querySelector('#feature-modal-title'), desc=document.querySelector('#feature-modal-description'), preview=document.querySelector('#feature-modal-preview');
-  function openFeature(key){const d=data[key]; if(!d)return; title.textContent=d.title; desc.textContent=d.description; preview.innerHTML=d.preview; modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); document.body.classList.add('modal-open');}
-  function closeFeature(){modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); document.body.classList.remove('modal-open');}
-  document.querySelectorAll('.feature-card').forEach(card=>{card.addEventListener('click',()=>openFeature(card.dataset.feature));card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openFeature(card.dataset.feature)}})});
-  document.querySelectorAll('[data-close-modal]').forEach(el=>el.addEventListener('click',closeFeature));
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeFeature()});
-})();
-</script>
-
-<script>
-(() => {
-  const stages = document.querySelectorAll('.stage-card');
-  stages.forEach(card => {
-    card.addEventListener('mouseenter', () => stages.forEach(x => x.classList.toggle('is-dimmed', x !== card)));
-    card.addEventListener('mouseleave', () => stages.forEach(x => x.classList.remove('is-dimmed')));
-    card.addEventListener('click', () => {
-      stages.forEach(x => x.classList.remove('is-active'));
-      card.classList.add('is-active');
-    });
-  });
-})();
-</script>
-</body>
+    <script>
+      (() => {
+        const stages = document.querySelectorAll(".stage-card");
+        stages.forEach((card) => {
+          card.addEventListener("mouseenter", () =>
+            stages.forEach((x) => x.classList.toggle("is-dimmed", x !== card)),
+          );
+          card.addEventListener("mouseleave", () =>
+            stages.forEach((x) => x.classList.remove("is-dimmed")),
+          );
+          card.addEventListener("click", () => {
+            stages.forEach((x) => x.classList.remove("is-active"));
+            card.classList.add("is-active");
+          });
+        });
+      })();
+    </script>
+  </body>
 </html>
