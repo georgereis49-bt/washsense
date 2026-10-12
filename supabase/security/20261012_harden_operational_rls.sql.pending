@@ -1,0 +1,164 @@
+-- CONDITIONAL REVIEW PROPOSAL, not a migration. No grants of application DML.
+-- Requires approved schema/business contract and exact policy metadata baseline.
+-- Sensor parents must EACH have id uuid / unit_id uuid. If the real schema
+-- derives reservoir units through machines, rewrite/retest before approval.
+BEGIN;
+SET LOCAL lock_timeout='5s';
+SET LOCAL statement_timeout='30s';
+DO $preconditions$
+DECLARE baseline jsonb; actual jsonb; item record;
+BEGIN
+  IF current_user <> 'postgres' OR current_setting('server_version_num')::int/10000 <> 17
+    OR current_setting('washsense.rls_contract_approved',true) IS DISTINCT FROM 'on' THEN
+    RAISE EXCEPTION 'Unapproved schema/business contract or executor';
+  END IF;
+  baseline := current_setting('washsense.rls_policy_baseline',true)::jsonb;
+  SELECT jsonb_agg(jsonb_build_object('table',c.relname,'name',p.polname,
+    'command',p.polcmd,'permissive',p.polpermissive,'roles',p.polroles,
+    'using',pg_get_expr(p.polqual,p.polrelid),
+    'check',pg_get_expr(p.polwithcheck,p.polrelid)) ORDER BY c.relname,p.polname)
+    INTO actual FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid
+    WHERE c.relnamespace='public'::regnamespace
+      AND c.relname IN ('machines','maintenance','sensors');
+  IF baseline IS NULL OR baseline IS DISTINCT FROM actual THEN
+    RAISE EXCEPTION 'Missing/drifted full policy baseline';
+  END IF;
+  FOR item IN SELECT * FROM (VALUES
+    ('machines','id'),('machines','unit_id'),('maintenance','unit_id'),
+    ('units','id'),('units','organization_id'),('devices','id'),('devices','unit_id'),
+    ('reservoirs','id'),('reservoirs','unit_id'),('sensors','id'),
+    ('sensors','device_id'),('sensors','reservoir_id'),('sensors','machine_id')
+  ) x(tbl,col) LOOP
+    IF NOT EXISTS (SELECT 1 FROM pg_class c JOIN pg_attribute a ON a.attrelid=c.oid
+      WHERE c.relnamespace='public'::regnamespace AND c.relname=item.tbl
+        AND c.relkind='r' AND c.relrowsecurity AND pg_get_userbyid(c.relowner)='postgres'
+        AND a.attname=item.col AND a.atttypid='uuid'::regtype AND NOT a.attisdropped) THEN
+      RAISE EXCEPTION 'Unverified UUID/schema contract: %.%',item.tbl,item.col;
+    END IF;
+  END LOOP;
+  IF (SELECT count(*) FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid
+      WHERE c.relnamespace='public'::regnamespace AND p.polpermissive
+        AND p.polroles=ARRAY['authenticated'::regrole::oid]
+        AND ((c.relname='machines' AND p.polname='machines_update_managers' AND p.polcmd='w')
+          OR (c.relname='maintenance' AND p.polname='maintenance_update_technicians' AND p.polcmd='w')
+          OR (c.relname='sensors' AND p.polname='sensors_insert_technicians' AND p.polcmd='a')
+          OR (c.relname='sensors' AND p.polname='sensors_update_technicians' AND p.polcmd='w')))
+      <> 4 THEN RAISE EXCEPTION 'Missing/drifted target policies'; END IF;
+  IF EXISTS (SELECT 1 FROM pg_policy p JOIN pg_class c ON c.oid=p.polrelid
+    WHERE c.relnamespace='public'::regnamespace AND p.polpermissive
+      AND c.relname IN ('machines','maintenance','sensors')
+      AND (p.polcmd IN ('*','w') OR (c.relname='sensors' AND p.polcmd='a'))
+      AND p.polname NOT IN ('machines_update_managers','maintenance_update_technicians',
+        'sensors_insert_technicians','sensors_update_technicians')) THEN
+    RAISE EXCEPTION 'Additional permissive write policy requires review';
+  END IF;
+  IF EXISTS (SELECT 1 FROM pg_proc WHERE pronamespace='public'::regnamespace
+    AND proname IN ('washsense_rls_unit_write','washsense_rls_sensor_org',
+      'washsense_rls_sensor_write','washsense_rls_guard_org')) THEN
+    RAISE EXCEPTION 'Proposed helper name already exists';
+  END IF;
+END;
+$preconditions$;
+
+-- New, tightly scoped helpers avoid requiring extra SELECT/DML grants.
+-- Existing authorization helpers must be reviewed; none is redefined here.
+CREATE FUNCTION public.washsense_rls_unit_write(unit uuid, roles text[])
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=pg_catalog AS $$
+  SELECT public.has_unit_access(unit) AND public.has_org_role(
+    (SELECT u.organization_id FROM public.units u WHERE u.id=unit), roles);
+$$;
+
+-- Private identity-neutral resolver for row-integrity checks. No public EXECUTE.
+CREATE FUNCTION public.washsense_rls_sensor_org(dev uuid, tank uuid, machine uuid)
+RETURNS uuid LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=pg_catalog AS $$
+DECLARE org uuid; found_org uuid; resource record;
+BEGIN
+  FOR resource IN SELECT * FROM (VALUES (dev,'devices'),(tank,'reservoirs'),
+    (machine,'machines')) x(id,tbl) WHERE id IS NOT NULL LOOP
+    CASE resource.tbl
+      WHEN 'devices' THEN SELECT u.organization_id INTO found_org
+        FROM public.devices p JOIN public.units u ON u.id=p.unit_id WHERE p.id=resource.id;
+      WHEN 'reservoirs' THEN SELECT u.organization_id INTO found_org
+        FROM public.reservoirs p JOIN public.units u ON u.id=p.unit_id WHERE p.id=resource.id;
+      WHEN 'machines' THEN SELECT u.organization_id INTO found_org
+        FROM public.machines p JOIN public.units u ON u.id=p.unit_id WHERE p.id=resource.id;
+    END CASE;
+    IF found_org IS NULL OR (org IS NOT NULL AND org<>found_org) THEN RETURN NULL; END IF;
+    org := found_org;
+  END LOOP;
+  RETURN org;
+END;
+$$;
+CREATE FUNCTION public.washsense_rls_sensor_write(dev uuid, tank uuid, machine uuid)
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=pg_catalog AS $$
+  SELECT COALESCE(
+    public.washsense_rls_sensor_org(dev,tank,machine) IS NOT NULL
+    AND public.has_org_role(public.washsense_rls_sensor_org(dev,tank,machine),
+      ARRAY['admin','manager','technician']::text[])
+    AND (dev IS NULL OR public.has_device_access(dev))
+    AND (tank IS NULL OR public.has_reservoir_access(tank))
+    AND (machine IS NULL OR public.has_machine_access(machine)),false);
+$$;
+
+-- Only the two boolean authorization helpers are callable by authenticated.
+REVOKE ALL ON FUNCTION public.washsense_rls_unit_write(uuid,text[]),
+  public.washsense_rls_sensor_org(uuid,uuid,uuid),
+  public.washsense_rls_sensor_write(uuid,uuid,uuid) FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.washsense_rls_unit_write(uuid,text[]),
+  public.washsense_rls_sensor_write(uuid,uuid,uuid) TO authenticated;
+
+DO $policies$
+DECLARE p record; guard text; old_using text; old_check text;
+BEGIN
+  FOR p IN SELECT pol.*,c.relname FROM pg_policy pol JOIN pg_class c ON c.oid=pol.polrelid
+    WHERE c.relnamespace='public'::regnamespace
+      AND ((c.relname='machines' AND pol.polname='machines_update_managers')
+        OR (c.relname='maintenance' AND pol.polname='maintenance_update_technicians')
+        OR (c.relname='sensors' AND pol.polname IN
+          ('sensors_insert_technicians','sensors_update_technicians'))) LOOP
+    guard := CASE p.relname
+      WHEN 'machines' THEN 'public.washsense_rls_unit_write(unit_id, ARRAY[''admin'',''manager'']::text[])'
+      WHEN 'maintenance' THEN 'public.washsense_rls_unit_write(unit_id, ARRAY[''admin'',''manager'',''technician'']::text[])'
+      ELSE 'public.washsense_rls_sensor_write(device_id,reservoir_id,machine_id)' END;
+    old_using := COALESCE(pg_get_expr(p.polqual,p.polrelid),'true');
+    old_check := COALESCE(pg_get_expr(p.polwithcheck,p.polrelid),old_using);
+    IF p.polcmd='w' THEN
+      EXECUTE format('ALTER POLICY %I ON public.%I USING ((%s) AND (%s)) WITH CHECK ((%s) AND (%s))',
+        p.polname,p.relname,old_using,guard,old_check,guard);
+    ELSE
+      EXECUTE format('ALTER POLICY %I ON public.%I WITH CHECK ((%s) AND (%s))',
+        p.polname,p.relname,old_check,guard);
+    END IF;
+  END LOOP;
+END;
+$policies$;
+
+-- Candidate business rule: organizations are immutable on these updates.
+-- RLS alone cannot compare OLD and NEW when a user belongs to BOTH tenants.
+CREATE FUNCTION public.washsense_rls_guard_org()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog AS $$
+DECLARE old_org uuid; new_org uuid;
+BEGIN
+  IF TG_TABLE_NAME='sensors' THEN
+    new_org := public.washsense_rls_sensor_org(NEW.device_id,NEW.reservoir_id,NEW.machine_id);
+    IF TG_OP='UPDATE' THEN
+      old_org := public.washsense_rls_sensor_org(OLD.device_id,OLD.reservoir_id,OLD.machine_id);
+    END IF;
+  ELSE
+    SELECT organization_id INTO new_org FROM public.units WHERE id=NEW.unit_id;
+    SELECT organization_id INTO old_org FROM public.units WHERE id=OLD.unit_id;
+  END IF;
+  IF new_org IS NULL OR (TG_OP='UPDATE' AND (old_org IS NULL OR old_org<>new_org)) THEN
+    RAISE EXCEPTION 'Invalid association or cross-organization transfer' USING ERRCODE='23514';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.washsense_rls_guard_org() FROM PUBLIC,anon,authenticated;
+CREATE TRIGGER washsense_rls_org_guard BEFORE UPDATE ON public.machines
+  FOR EACH ROW EXECUTE FUNCTION public.washsense_rls_guard_org();
+CREATE TRIGGER washsense_rls_org_guard BEFORE UPDATE ON public.maintenance
+  FOR EACH ROW EXECUTE FUNCTION public.washsense_rls_guard_org();
+CREATE TRIGGER washsense_rls_org_guard BEFORE INSERT OR UPDATE ON public.sensors
+  FOR EACH ROW EXECUTE FUNCTION public.washsense_rls_guard_org();
+COMMIT;
