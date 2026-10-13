@@ -1,37 +1,41 @@
-/* Atlântico Preciso: values preserved from styles.css and official SVG. */
+/* WashSense / Atlântico Preciso — product tokens, v3. */
 :root {
   --ws-navy: #0b2d5b;
   --ws-navy-deep: #061b35;
   --ws-cyan: #0ea5e9;
   --ws-aqua: #22d3ee;
-  --ws-bg: #f5f9fc;
+  --ws-bg: #f3f6f9;
   --ws-surface: #fff;
-  --ws-ink: #092344;
-  --ws-muted: #53667d;
-  --ws-line: #dfe8f0;
-  --ws-success: #16844f;
-  --ws-warning: #9a4a08;
-  --ws-danger: #b42318;
-  --ws-radius: 16px;
+  --ws-surface-raised: #f7f9fc;
+  --ws-ink: #112b48;
+  --ws-muted: #5c6f83;
+  --ws-line: #e3eaf0;
+  --ws-success: #187550;
+  --ws-warning: #9a520c;
+  --ws-danger: #b93e31;
+  --ws-link: #0b527b;
+  --ws-radius: 20px;
   --ws-radius-sm: 10px;
-  --ws-shadow: 0 4px 24px rgba(11, 45, 91, 0.045);
-  --ws-link: var(--ws-navy);
+  --ws-shadow: 0 8px 32px #061b3506;
   --ws-duration: 180ms;
-  --ws-font: Inter, "Segoe UI", Arial, sans-serif;
+  --ws-font: Inter, "Segoe UI", sans-serif;
   --ws-space: 8px;
+  --ws-inset: 32px;
+  --ws-display: Manrope, "Segoe UI", sans-serif;
   color-scheme: light;
 }
 [data-theme="dark"] {
-  --ws-link: var(--ws-aqua);
-  --ws-bg: #061b35;
-  --ws-surface: #0b2344;
-  --ws-ink: #eef5fc;
-  --ws-muted: #b4c9dd;
-  --ws-line: #28435e;
-  --ws-success: #69dca4;
-  --ws-warning: #ffd29a;
-  --ws-danger: #ffb4ab;
-  --ws-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  --ws-bg: #071b30;
+  --ws-surface: #0d263f;
+  --ws-surface-raised: #112e49;
+  --ws-ink: #ecf4fb;
+  --ws-muted: #a3b7c9;
+  --ws-line: #234058;
+  --ws-link: #67d4f5;
+  --ws-success: #6ad6af;
+  --ws-warning: #efb76d;
+  --ws-danger: #ffafa4;
+  --ws-shadow: 0 8px 32px #00000012;
   color-scheme: dark;
 }
 @media (prefers-reduced-motion: reduce) {

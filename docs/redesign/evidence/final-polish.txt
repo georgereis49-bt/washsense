@@ -1,0 +1,27 @@
+
+> washsense-site@1.0.0 test
+> playwright test --workers=1 --grep premium screenshots|login accessibility|login submits|login recovery|premium finance and login contrast|module accessibility
+
+
+Running 11 tests using 1 worker
+
+(node:42335) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/auth-finance.spec.ts:141:1 › login submits to Supabase and opens the SPA with the established session (8.4s)
+  ✓   2 tests/auth-finance.spec.ts:183:3 › module accessibility and mobile overflow (light) (1.7m)
+  ✓   3 tests/auth-finance.spec.ts:183:3 › module accessibility and mobile overflow (dark) (51.4s)
+  ✓   4 tests/auth-finance.spec.ts:281:1 › login accessibility (5.7s)
+  ✓   5 tests/premium.spec.ts:133:5 › premium screenshots light desktop (26.9s)
+  ✓   6 tests/premium.spec.ts:133:5 › premium screenshots light mobile (16.0s)
+  ✓   7 tests/premium.spec.ts:133:5 › premium screenshots dark desktop (16.6s)
+  ✓   8 tests/premium.spec.ts:133:5 › premium screenshots dark mobile (12.9s)
+  ✓   9 tests/premium.spec.ts:194:3 › premium finance and login contrast light (8.6s)
+  ✓  10 tests/premium.spec.ts:194:3 › premium finance and login contrast dark (12.4s)
+  ✓  11 tests/premium.spec.ts:229:1 › login recovery, theme persistence and password visibility preserve contracts (5.2s)
+
+  11 passed (4.6m)
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

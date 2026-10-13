@@ -122,15 +122,17 @@ export function enhance(root: HTMLElement, navigate: (path: string) => void) {
     attributeFilter: ["class"],
   });
   function accessible() {
-    root.querySelectorAll<HTMLElement>(".table-wrap, .paper").forEach((el) => {
-      el.tabIndex = 0;
-      el.setAttribute(
-        "aria-label",
-        el.classList.contains("paper")
-          ? "Visualização do relatório"
-          : "Tabela de dados",
-      );
-    });
+    root
+      .querySelectorAll<HTMLElement>(".table-wrap, .table-card, .paper")
+      .forEach((el) => {
+        el.tabIndex = 0;
+        el.setAttribute(
+          "aria-label",
+          el.classList.contains("paper")
+            ? "Visualização do relatório"
+            : "Tabela de dados",
+        );
+      });
     const modal = root.querySelector<HTMLElement>(
       ".modal.show, .modal.open, .billing-modal.show, .billing-modal.open",
     );

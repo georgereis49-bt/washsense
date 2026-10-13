@@ -1,18 +1,25 @@
+import Dashboard from "./premium/Dashboard";
 import { useEffect, useRef, useState } from "react";
 import { context, enhance } from "./runtime";
 import { Button, EmptyState, Skeleton } from "./design/components";
-const templates = import.meta.glob("./modules/*.html", {
-  query: "?raw",
-  import: "default",
-});
-const controllers = import.meta.glob("./modules/*.js", { import: "default" });
+const templates = import.meta.glob(
+  ["./modules/*.html", "!./modules/dashboard.html"],
+  {
+    query: "?raw",
+    import: "default",
+  },
+);
+const controllers = import.meta.glob(
+  ["./modules/*.js", "!./modules/dashboard.js"],
+  { import: "default" },
+);
 type Props = {
   module: string;
   url: string;
   navigate: (path: string) => void;
   demo: boolean;
 };
-export default function Module({ module, url, navigate, demo }: Props) {
+function LegacyModule({ module, url, navigate, demo }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading",
@@ -30,6 +37,7 @@ export default function Module({ module, url, navigate, demo }: Props) {
         const root = ref.current;
         root.innerHTML = html as string;
         const moduleUrl = new URL(url);
+        root.dataset.view = moduleUrl.searchParams.get("view") || module;
         const args = context(root, moduleUrl, navigate);
         (mount as (...args: unknown[]) => void)(...args);
         if (module === "settings") {
@@ -106,5 +114,13 @@ export default function Module({ module, url, navigate, demo }: Props) {
       )}
       <div className="ws-module" ref={ref} hidden={status !== "ready"} />
     </>
+  );
+}
+
+export default function Module(props: Props) {
+  return props.module === "dashboard" ? (
+    <Dashboard navigate={props.navigate} />
+  ) : (
+    <LegacyModule {...props} />
   );
 }

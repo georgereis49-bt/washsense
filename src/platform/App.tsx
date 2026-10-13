@@ -21,6 +21,8 @@ import {
   ChevronRight,
   LogOut,
   FlaskConical,
+  Search,
+  X,
   type LucideIcon,
 } from "lucide-react";
 const navIcons: Record<string, LucideIcon> = {
@@ -55,6 +57,8 @@ export default function App() {
   const [mobile, setMobile] = useState(false);
   const [menu, setMenu] = useState(false);
   const [theme, setTheme] = useState(initialTheme);
+  const [command, setCommand] = useState(false);
+  const [query, setQuery] = useState("");
   const [toast, setToast] = useState("");
   const [visited, setVisited] = useState<
     Record<string, { module: string; url: string }>
@@ -66,6 +70,8 @@ export default function App() {
     window.location.hash = u.pathname + u.search + u.hash;
     setMobile(false);
     setMenu(false);
+    setCommand(false);
+    setQuery("");
   }, []);
   useEffect(() => {
     const onHash = () => {
@@ -154,10 +160,21 @@ export default function App() {
       if (e.key === "Escape") {
         setMenu(false);
         setMobile(false);
+        setCommand(false);
       }
     };
+    const shortcuts = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCommand((value) => !value);
+      }
+    };
+    window.addEventListener("keydown", shortcuts);
     window.addEventListener("keydown", escape);
-    return () => window.removeEventListener("keydown", escape);
+    return () => {
+      window.removeEventListener("keydown", escape);
+      window.removeEventListener("keydown", shortcuts);
+    };
   }, []);
   async function logout() {
     if (demo) {
@@ -206,7 +223,7 @@ export default function App() {
             </strong>
           </div>
         </div>
-        <div className="ws-nav-label">OPERAÇÃO</div>
+        <div className="ws-nav-label">CENTRO DE CONTROLE</div>
         <nav>
           {routes.map((r, i) => {
             const Icon = navIcons[r.icon];
@@ -263,6 +280,18 @@ export default function App() {
             <strong>{route?.label || "Página não encontrada"}</strong>
           </div>
           <div className="ws-top-actions">
+            <Button
+              className="ws-command-trigger"
+              aria-label="Buscar módulo"
+              onClick={() => {
+                setQuery("");
+                setCommand(true);
+              }}
+            >
+              <Search size={15} />
+              <span>Ir para...</span>
+              <kbd>⌘ K</kbd>
+            </Button>
             <Button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               title={
@@ -377,6 +406,75 @@ export default function App() {
           <span>Atlântico Preciso</span>
         </footer>
       </div>
+      {command && (
+        <div className="ws-command-overlay" onClick={() => setCommand(false)}>
+          <section
+            className="ws-command-box"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Buscar módulo"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (e.key === "Tab") {
+                const items = Array.from(
+                  e.currentTarget.querySelectorAll<HTMLElement>("input,button"),
+                );
+                const first = items[0],
+                  last = items[items.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                  e.preventDefault();
+                  last?.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                  e.preventDefault();
+                  first?.focus();
+                }
+              }
+            }}
+          >
+            <div className="ws-command-head">
+              <Search size={18} />
+              <input
+                autoFocus
+                aria-label="Nome do módulo"
+                value={query}
+                placeholder="O que você quer acompanhar?"
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              <button
+                aria-label="Fechar busca"
+                onClick={() => setCommand(false)}
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="ws-command-results">
+              {routes
+                .filter((r) =>
+                  r.label
+                    .toLocaleLowerCase("pt-BR")
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .includes(
+                      query
+                        .toLocaleLowerCase("pt-BR")
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, ""),
+                    ),
+                )
+                .map((r) => (
+                  <button key={r.path} onClick={() => navigate(r.path)}>
+                    {r.label}
+                    <ChevronRight size={15} />
+                  </button>
+                ))}
+              {!routes.some((r) =>
+                r.label.toLowerCase().includes(query.toLowerCase()),
+              ) &&
+                query && <p>Busque pelo nome de um módulo da navegação.</p>}
+            </div>
+          </section>
+        </div>
+      )}
       <div
         className={`ws-global-toast ${toast ? "ws-show" : ""}`}
         role="status"

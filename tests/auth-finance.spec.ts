@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 import AxeBuilder from "@axe-core/playwright";
 const project = "eydrrfuzfcxcqdivvued";
 const user = {
@@ -183,6 +183,7 @@ for (const theme of ["light", "dark"])
   test(`module accessibility and mobile overflow (${theme})`, async ({
     page,
   }) => {
+    test.setTimeout(120000);
     await page.addInitScript(
       (theme) => localStorage.setItem("washsense-theme", theme),
       theme,

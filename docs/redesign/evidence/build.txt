@@ -1,0 +1,61 @@
+
+> washsense-site@1.0.0 build
+> vite build
+
+vite v6.4.3 building for production...
+transforming...
+✓ 1999 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/finance.html                                      0.58 kB │ gzip:  0.33 kB
+dist/report.html                                       0.58 kB │ gzip:  0.33 kB
+dist/dashboard.html                                    0.59 kB │ gzip:  0.33 kB
+dist/details.html                                      0.59 kB │ gzip:  0.33 kB
+dist/settings.html                                     0.59 kB │ gzip:  0.33 kB
+dist/supabase-config.js                                0.88 kB
+dist/app.html                                          0.93 kB │ gzip:  0.43 kB
+dist/interactive.js                                    0.95 kB
+dist/assets/washsense-logo-white.svg                   0.96 kB │ gzip:  0.48 kB
+dist/assets/washsense-logo.svg                         1.01 kB │ gzip:  0.49 kB
+dist/assets/washsense-logo-BTLuWjs0.svg                1.01 kB │ gzip:  0.49 kB
+dist/pagamento-sucesso.html                            4.41 kB │ gzip:  1.93 kB
+dist/login.html                                        8.59 kB │ gzip:  3.05 kB
+dist/assets/manrope-latin-500-normal-BYYD-dBL.woff2   14.04 kB
+dist/assets/manrope-latin-600-normal-4f0koTD-.woff2   14.17 kB
+dist/assets/manrope-latin-500-normal-DMZssgOp.woff    18.24 kB
+dist/assets/manrope-latin-600-normal-BqgrALkZ.woff    18.38 kB
+dist/assets/inter-latin-400-normal-C38fXH4l.woff2     23.66 kB
+dist/assets/inter-latin-500-normal-Cerq10X2.woff2     24.27 kB
+dist/assets/inter-latin-700-normal-Yt3aPRUw.woff2     24.36 kB
+dist/assets/inter-latin-600-normal-LgqL8muc.woff2     24.45 kB
+dist/assets/inter-latin-400-normal-CyCys3Eg.woff      30.70 kB
+dist/assets/inter-latin-600-normal-CiBQ2DWP.woff      31.26 kB
+dist/assets/inter-latin-500-normal-BL9OpVg8.woff      31.28 kB
+dist/assets/inter-latin-700-normal-BLAVimhd.woff      31.32 kB
+dist/index.html                                       51.57 kB │ gzip: 11.94 kB
+dist/assets/latin-500-7C2OjgKy.css                     0.66 kB │ gzip:  0.23 kB
+dist/assets/tokens-ik6RqIbK.css                        1.60 kB │ gzip:  0.66 kB
+dist/assets/login-CX899hMe.css                         7.33 kB │ gzip:  2.10 kB
+dist/assets/app-VmD5Aatt.css                          69.33 kB │ gzip: 12.69 kB
+dist/styles.css                                       74.73 kB │ gzip: 16.98 kB
+dist/assets/redirect-CKCULTB7.js                       0.13 kB │ gzip:  0.13 kB
+dist/assets/modulepreload-polyfill-B5Qt9EMX.js         0.71 kB │ gzip:  0.40 kB
+dist/assets/details-DRgBmLdJ.js                        0.82 kB │ gzip:  0.44 kB
+dist/assets/routes-5PEM5Rjv.js                         1.46 kB │ gzip:  0.62 kB
+dist/assets/report-DzjZ8ZC9.js                         2.50 kB │ gzip:  0.76 kB
+dist/assets/login-Dp_UqEeg.js                          2.93 kB │ gzip:  1.35 kB
+dist/assets/settings-Cec97gxy.js                       4.09 kB │ gzip:  1.64 kB
+dist/assets/report-COHr9eJH.js                         4.24 kB │ gzip:  2.11 kB
+dist/assets/energy-DhKhz_Do.js                         4.91 kB │ gzip:  2.34 kB
+dist/assets/finance-BdDl3kX6.js                        5.66 kB │ gzip:  1.69 kB
+dist/assets/settings-DllRJ6G_.js                      14.43 kB │ gzip:  3.26 kB
+dist/assets/details-C-rIXAWX.js                       23.77 kB │ gzip:  8.20 kB
+dist/assets/finance-BtWBAEcj.js                       51.27 kB │ gzip: 10.64 kB
+dist/assets/latin-500-977WRoAl.js                    231.77 kB │ gzip: 60.59 kB
+dist/assets/app-Qxf2_OV7.js                          274.70 kB │ gzip: 84.36 kB
+✓ built in 1m 3s
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
