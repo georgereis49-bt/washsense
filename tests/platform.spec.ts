@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 const demo = "/app.html#/visao-geral?demo=1";
 test("navigation is client-side and retains filters, theme and equipment deep links", async ({
   page,

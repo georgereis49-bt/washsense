@@ -1,3 +1,5 @@
+import "@fontsource/manrope/latin-500.css";
+import "@fontsource/manrope/latin-600.css";
 import "@fontsource/inter/latin-400.css";
 import "@fontsource/inter/latin-500.css";
 import "@fontsource/inter/latin-600.css";
@@ -6,6 +8,11 @@ import { client } from "./supabase";
 import "./design/tokens.css";
 import "./design/login.css";
 
+document.documentElement.dataset.theme = localStorage.getItem('washsense-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+document.getElementById('loginTheme')?.addEventListener('click', () => {
+ const next=document.documentElement.dataset.theme==='dark'?'light':'dark';
+ document.documentElement.dataset.theme=next;localStorage.setItem('washsense-theme',next);
+});
 const supabaseClient = client;
 
 const form = document.getElementById("loginForm");

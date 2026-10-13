@@ -1,17 +1,21 @@
 <div class="report-app">
   <header class="report-top">
     <img src="assets/washsense-logo.svg" alt="WashSense" />
-    <div><span>RELATÓRIO GERENCIAL</span><strong>Gerar relatório</strong></div>
+    <div>
+      <span>DOCUMENTOS & INSIGHTS</span><strong>Da operação à decisão.</strong>
+    </div>
     <div class="report-actions">
-      <button data-back="true">← Voltar</button
+      <button data-back="true">Voltar</button
       ><button class="primary" id="printBtn">Gerar PDF / Imprimir</button>
     </div>
   </header>
   <main>
     <section class="config-card">
       <div>
-        <h1>Configurar relatório</h1>
-        <p>Escolha o período e os indicadores que deseja consolidar.</p>
+        <h1>Seu relatório</h1>
+        <p>
+          Selecione os indicadores e transforme os dados em uma visão clara.
+        </p>
       </div>
       <div class="filters">
         <label
@@ -30,29 +34,47 @@
           </select></label
         ><label
           >Unidade<select>
-            <option>Lavanderia Central</option>
+            <option>Lavanderia Central · Demo</option>
           </select></label
         >
       </div>
       <div class="checks">
         <label
-          ><input type="checkbox" checked data-section="kpis" />
-          Indicadores</label
+          ><input
+            type="checkbox"
+            checked
+            data-section="kpis"
+          />Indicadores</label
         ><label
-          ><input type="checkbox" checked data-section="consumo" />
-          Consumo</label
+          ><input
+            type="checkbox"
+            checked
+            data-section="consumo"
+          />Consumo</label
         ><label
-          ><input type="checkbox" checked data-section="energia" />
-          Energia</label
+          ><input
+            type="checkbox"
+            checked
+            data-section="energia"
+          />Energia</label
         ><label
-          ><input type="checkbox" checked data-section="estoque" />
-          Estoque</label
+          ><input
+            type="checkbox"
+            checked
+            data-section="estoque"
+          />Estoque</label
         ><label
-          ><input type="checkbox" checked data-section="maquinas" />
-          Máquinas</label
+          ><input
+            type="checkbox"
+            checked
+            data-section="maquinas"
+          />Máquinas</label
         ><label
-          ><input type="checkbox" checked data-section="alertas" />
-          Alertas</label
+          ><input
+            type="checkbox"
+            checked
+            data-section="alertas"
+          />Alertas</label
         >
       </div>
     </section>

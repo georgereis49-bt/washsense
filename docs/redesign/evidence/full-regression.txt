@@ -1,0 +1,45 @@
+
+> washsense-site@1.0.0 test
+> playwright test --workers=1 --update-snapshots
+
+
+Running 27 tests using 1 worker
+
+(node:40435) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/auth-finance.spec.ts:21:1 › authenticated finance preserves organization-scoped reads and method dialog without payments (8.5s)
+  ✓   2 tests/auth-finance.spec.ts:141:1 › login submits to Supabase and opens the SPA with the established session (14.4s)
+  ✓   3 tests/auth-finance.spec.ts:166:1 › dashboard accessibility audit (10.6s)
+  ✓   4 tests/auth-finance.spec.ts:183:3 › module accessibility and mobile overflow (light) (33.9s)
+  ✓   5 tests/auth-finance.spec.ts:183:3 › module accessibility and mobile overflow (dark) (56.3s)
+  ✓   6 tests/auth-finance.spec.ts:225:1 › tariff lookup contract and dashboard cost remain consistent (7.1s)
+  ✓   7 tests/auth-finance.spec.ts:281:1 › login accessibility (4.1s)
+  ✓   8 tests/platform.spec.ts:3:1 › navigation is client-side and retains filters, theme and equipment deep links (23.9s)
+  ✓   9 tests/platform.spec.ts:63:1 › settings drafts survive navigation and reports honor the requested type (4.3s)
+  ✓  10 tests/platform.spec.ts:84:1 › anonymous users are redirected and demo cannot access payments (3.6s)
+  ✓  11 tests/platform.spec.ts:96:1 › legacy URLs retain entity and report query parameters (6.5s)
+  ✓  12 tests/platform.spec.ts:108:3 › responsive layout 390px and keyboard navigation (4.0s)
+  ✓  13 tests/platform.spec.ts:108:3 › responsive layout 768px and keyboard navigation (5.5s)
+  ✓  14 tests/platform.spec.ts:108:3 › responsive layout 1440px and keyboard navigation (6.7s)
+/workspace/washsense/tests/platform.spec.ts-snapshots/dashboard-light-linux.png is re-generated, writing actual.
+/workspace/washsense/tests/platform.spec.ts-snapshots/dashboard-dark-linux.png is re-generated, writing actual.
+  ✓  15 tests/platform.spec.ts:147:1 › visual baseline in light and dark mode (31.4s)
+  ✓  16 tests/platform.spec.ts:163:1 › report CSV export identifies demonstration data (4.9s)
+  ✓  17 tests/premium.spec.ts:133:5 › premium screenshots light desktop (15.6s)
+  ✓  18 tests/premium.spec.ts:133:5 › premium screenshots light mobile (35.1s)
+  ✓  19 tests/premium.spec.ts:133:5 › premium screenshots dark desktop (26.8s)
+  ✓  20 tests/premium.spec.ts:133:5 › premium screenshots dark mobile (35.7s)
+  ✓  21 tests/premium.spec.ts:174:1 › premium command navigation, chart focus and machine filtering (8.2s)
+  ✓  22 tests/premium.spec.ts:194:3 › premium finance and login contrast light (22.2s)
+  ✓  23 tests/premium.spec.ts:194:3 › premium finance and login contrast dark (37.2s)
+  ✓  24 tests/premium.spec.ts:217:1 › report visualization parses Brazilian thousands without changing exports (7.5s)
+  ✓  25 tests/premium.spec.ts:221:1 › login recovery, theme persistence and password visibility preserve contracts (11.1s)
+  ✓  26 tests/premium.spec.ts:227:31 › premium viewport 768px (5.1s)
+  ✓  27 tests/premium.spec.ts:227:31 › premium viewport 1920px (4.1s)
+
+  27 passed (7.4m)
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
